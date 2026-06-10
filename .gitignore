@@ -24,3 +24,6 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+
+# Task list (local tracking, not for repo)
+TASKS.md

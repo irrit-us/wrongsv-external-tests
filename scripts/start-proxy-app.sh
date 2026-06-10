@@ -199,7 +199,8 @@ cd "$BUNDLE_DIR"
 # Launch the app.  Flutter in profile mode enables the VM service on a random
 # port by default.  We capture stdout/stderr to find the VM service URI.
 APP_LOG="/tmp/${APP}_startup.log"
-"./$APP_BIN" > "$APP_LOG" 2>&1 &
+APP_NAME="$(basename "$APP_BIN")"
+"./$APP_NAME" > "$APP_LOG" 2>&1 &
 APP_PID=$!
 echo "$APP started (PID=$APP_PID), log: $APP_LOG"
 
