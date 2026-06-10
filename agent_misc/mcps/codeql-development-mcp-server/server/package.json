@@ -1,0 +1,105 @@
+{
+  "name": "codeql-development-mcp-server",
+  "version": "2.25.5",
+  "description": "An MCP server supporting LLM requests for CodeQL development tools and resources.",
+  "main": "dist/codeql-development-mcp-server.js",
+  "type": "module",
+  "bin": {
+    "codeql-development-mcp-server": "dist/codeql-development-mcp-server.js",
+    "codeql-development-mcp-server-setup-packs": "scripts/setup-packs.sh"
+  },
+  "files": [
+    "dist/",
+    "ql/actions/tools/src/",
+    "ql/cpp/tools/src/",
+    "ql/csharp/tools/src/",
+    "ql/go/tools/src/",
+    "ql/java/tools/src/",
+    "ql/javascript/tools/src/",
+    "ql/python/tools/src/",
+    "ql/ruby/tools/src/",
+    "ql/rust/tools/src/",
+    "ql/swift/tools/src/",
+    "scripts/setup-packs.sh",
+    "package.json",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "keywords": [
+    "codeql",
+    "development",
+    "llm",
+    "mcp",
+    "model-context-protocol",
+    "ql",
+    "sast",
+    "security",
+    "static-analysis",
+    "typescript"
+  ],
+  "author": "@github/ps-codeql",
+  "license": "LicenseRef-CodeQL-Terms",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/advanced-security/codeql-development-mcp-server.git",
+    "directory": "server"
+  },
+  "homepage": "https://github.com/advanced-security/codeql-development-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/advanced-security/codeql-development-mcp-server/issues"
+  },
+  "engines": {
+    "node": ">=25.6.0",
+    "npm": ">=11.6.2"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "adm-zip": "^0.5.17",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "js-yaml": "^4.1.1",
+    "sql.js": "^1.14.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/adm-zip": "^0.5.8",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^25.9.1",
+    "@vitest/coverage-v8": "^4.1.7",
+    "esbuild": "^0.28.0",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0",
+    "vitest": "^4.1.7"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run lint && npm run bundle",
+    "build:all": "npm run build && npm run test:ql:fail-fast",
+    "bundle": "npm run rebuild:esbuild && node esbuild.config.js",
+    "rebuild:esbuild": "npm rebuild esbuild --ignore-scripts=false",
+    "clean": "rm -rf dist .tmp",
+    "dev:stdio": "npm run build && TRANSPORT_MODE=stdio node dist/codeql-development-mcp-server.js",
+    "dev:http": "npm run build && TRANSPORT_MODE=http node dist/codeql-development-mcp-server.js",
+    "format": "prettier --write 'src/**/*.ts'",
+    "lint": "eslint src test --ext .ts",
+    "lint:fix": "eslint src test --ext .ts --fix",
+    "start": "npm run build && node dist/codeql-development-mcp-server.js",
+    "test": "npm run build && npm run test:ts:coverage",
+    "test:coverage": "npm run test:ts:coverage",
+    "test:ql": "./scripts/run-query-unit-tests.sh",
+    "test:ql:fail-fast": "./scripts/run-query-unit-tests.sh --fail-fast",
+    "test:ts": "vitest --run",
+    "test:ts:coverage": "vitest --run --coverage",
+    "test:watch": "vitest --watch"
+  }
+}

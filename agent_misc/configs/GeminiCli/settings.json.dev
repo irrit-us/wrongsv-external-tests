@@ -1,0 +1,25 @@
+{
+  "model": {
+    "name": "gemini-3.1-pro",
+    "maxSessionTurns": -1
+  },
+  "tools": {
+    "autoAccept": true
+  },
+  "security": {
+    "folderTrust": {
+      "enabled": false
+    }
+  },
+  "general": {
+    "checkpointing": {
+      "enabled": true
+    }
+  },
+  "telemetry": {
+    "enabled": false
+  },
+  "privacy": {
+    "usageStatisticsEnabled": false
+  }
+}

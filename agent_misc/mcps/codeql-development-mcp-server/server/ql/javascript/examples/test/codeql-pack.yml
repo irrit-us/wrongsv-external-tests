@@ -1,0 +1,5 @@
+name: advanced-security/ql-mcp-javascript-examples-test
+version: '0.0.1'
+dependencies:
+  advanced-security/ql-mcp-javascript-examples-src: ${workspace}
+extractor: javascript

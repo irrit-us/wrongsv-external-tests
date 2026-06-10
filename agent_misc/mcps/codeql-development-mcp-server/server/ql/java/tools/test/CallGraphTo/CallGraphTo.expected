@@ -1,0 +1,2 @@
+| Example1.java:13:9:13:20 | targetFunc(...) | Call to `targetFunc` from `caller1` |
+| Example1.java:17:9:17:20 | targetFunc(...) | Call to `targetFunc` from `caller2` |
