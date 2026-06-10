@@ -72,9 +72,9 @@ case "$APP" in
     APP_LIB_DIR="$BINARIES_DIR/flclash/lib"
     APP_DATA_DIR_BASE="$BINARIES_DIR/flclash/data"
     if [[ -z "$DATA_DIR" ]]; then
-      # Simulate the app's data directory.  On a real system this would be
-      # ~/.local/share/fl_clash/  or  ~/.local/share/com.follow.clash/
-      DATA_DIR="$HOME/.local/share/fl_clash"
+      # path_provider on Linux uses the executable basename as the app name,
+      # so "FlClash" -> $HOME/.local/share/FlClash/
+      DATA_DIR="$HOME/.local/share/FlClash"
     fi
     CONFIG_DEST="$DATA_DIR/config.yaml"
     DEFAULT_PROXY_PORT=7890   # Clash default mixed-port
@@ -112,9 +112,28 @@ fi
 
 # ---- Install config ----
 echo "=== Installing config ==="
-mkdir -p "$DATA_DIR/profiles"
-cp "$CONFIG_FILE" "$CONFIG_DEST"
-echo "Config installed to: $CONFIG_DEST"
+mkdir -p "$DATA_DIR"
+case "$APP" in
+  flclash)
+    # FlClash reads config.yaml directly from its data directory
+    cp "$CONFIG_FILE" "$CONFIG_DEST"
+    echo "Config installed to: $CONFIG_DEST"
+    ;;
+  hiddify)
+    # Hiddify requires a profile entry in its SQLite database.
+    # Use the import script to pre-populate the DB.
+    IMPORT_SCRIPT="$SCRIPT_DIR/import-hiddify-config.py"
+    if [[ -f "$IMPORT_SCRIPT" ]]; then
+      python3 "$IMPORT_SCRIPT" --config "$CONFIG_FILE" --data-dir "$DATA_DIR" --profile-name "Test Profile"
+      echo "Config imported into Hiddify database"
+    else
+      echo "WARNING: import-hiddify-config.py not found at $IMPORT_SCRIPT"
+      echo "Hiddify may not auto-load the config. Manual profile import needed."
+      # Fallback: just copy the config so it's at least available
+      cp "$CONFIG_FILE" "$CONFIG_DEST"
+    fi
+    ;;
+esac
 
 # ---- Determine proxy port ----
 if [[ -z "$PROXY_PORT" ]]; then

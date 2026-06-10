@@ -1,0 +1,23 @@
+# Sample Clash configuration for FlClash proxy testing
+# This is a minimal config that creates a direct proxy (no external servers needed)
+
+mixed-port: 7890
+allow-lan: false
+bind-address: 127.0.0.1
+mode: rule
+log-level: info
+ipv6: false
+
+# Direct proxy for testing without external servers
+proxies:
+  - name: "direct-out"
+    type: direct
+
+proxy-groups:
+  - name: "PROXY"
+    type: select
+    proxies:
+      - "direct-out"
+
+rules:
+  - MATCH,PROXY
