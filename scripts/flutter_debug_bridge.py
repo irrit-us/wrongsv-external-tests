@@ -332,6 +332,9 @@ async def run_bridge(args: argparse.Namespace) -> int:
         if vm_uri is None:
             return 1
 
+    elif args.vm_uri:
+        vm_uri = args.vm_uri
+
     elif args.port:
         vm_uri = f"http://127.0.0.1:{args.port}"
 
@@ -402,7 +405,11 @@ async def run_bridge(args: argparse.Namespace) -> int:
         # Call custom service extensions
         for ext in args.call_extension or []:
             print(f"Calling extension: {ext}", file=sys.stderr)
-            ext_result = await bridge.call_service_extension(ext)
+            ext_params = None
+            if args.extension_args:
+                # Wire format: {"value": "<json-string>"}
+                ext_params = {"value": args.extension_args}
+            ext_result = await bridge.call_service_extension(ext, ext_params)
             output["customExtensionResults"].append(
                 {"extension": ext, "result": ext_result}
             )
@@ -452,11 +459,16 @@ def main():
     # Connection
     g_conn = parser.add_argument_group("Connection")
     g_conn.add_argument("--port", type=int, help="VM service port to connect to")
+    g_conn.add_argument("--vm-uri", help="Full VM service URI (with auth token path)")
     g_conn.add_argument("--device", help="Device ID for launching Flutter app")
     g_conn.add_argument("--app-dir", help="Path to Flutter app directory (for flutter run)")
     g_conn.add_argument(
         "--discover-from-file",
         help="Read VM service URI from a file (written by the app in debug mode)",
+    )
+    g_conn.add_argument(
+        "--extension-args",
+        help="JSON params to pass to --call-extension (wrapped as {\"value\": <args>})",
     )
     g_conn.add_argument("--app", help="App name for result metadata (hiddify|flclash)")
     g_conn.add_argument(
@@ -512,7 +524,7 @@ def main():
 
     args = parser.parse_args()
 
-    if not args.port and not args.device and not args.discover_from_file:
+    if not args.port and not args.device and not args.discover_from_file and not args.vm_uri:
         parser.error(
             "One of --port, --device, or --discover-from-file is required"
         )

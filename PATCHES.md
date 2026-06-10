@@ -14,6 +14,11 @@ to enable automated proxy testing with the VM service bridge.
   - `ext.flclash.dumpSemantics` — full semantics tree as JSON
   - `ext.flclash.dumpWidgetTree` — widget tree deep-string
   - `ext.flclash.runSelfTest` — internal consistency checks
+  - `ext.flclash.performSemanticsAction` — tap/longPress on semantics nodes by ID or label
+  - `ext.flclash.connectProxy` — start proxy via ProviderContainer → SetupAction.updateStatus(true)
+  - `ext.flclash.disconnectProxy` — stop proxy via updateStatus(false)
+  - `ext.flclash.getProxyStatus` — returns isStart + coreStatus
+- **Added**: Imports for `package:fl_clash/state.dart` and `package:fl_clash/providers/providers.dart`
 
 ### 2. `lib/main.dart` — Register Debug Service
 
@@ -45,12 +50,18 @@ to enable automated proxy testing with the VM service bridge.
   - `ext.hiddify.dumpWidgetTree`
   - `ext.hiddify.runSelfTest`
   - `ext.hiddify.importConfig` — reads a config file (DB import handled by import-hiddify-config.py)
+  - `ext.hiddify.connectProxy` — direct ConnectionRepository.connect() call
+  - `ext.hiddify.disconnectProxy` — direct ConnectionRepository.disconnect() call
+  - `ext.hiddify.getProxyStatus` — connection status + active profile info
+  - `ext.hiddify.performSemanticsAction` — tap/longPress on semantics nodes
 - **Added**: `setContainer()` static method for ProviderContainer access
+- **Added**: Imports for connection data providers, connection notifier, active profile notifier, preferences
 
-### 2. `lib/bootstrap.dart` — Register Debug Service
+### 2. `lib/bootstrap.dart` — Register Debug Service + Container
 
 - **Already present**: `import 'package:hiddify/core/debug/debug_service.dart';`
 - **Already present**: `HiddifyDebugService.register();` at line 71
+- **Added**: `HiddifyDebugService.setContainer(container);` after register to enable app state access from extensions
 
 ### 3. `lib/features/settings/overview/sections/developer_page.dart` — API Fix
 

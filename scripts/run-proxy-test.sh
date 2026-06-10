@@ -128,16 +128,51 @@ echo "  VM Service:  ${VM_SERVICE_URI:-not detected}"
 echo "  Config:      $CONFIG_DEST"
 echo ""
 
-# ---- Phase 2: Run VM service self-test (optional, if bridge available) ----
-echo "── Phase 2: App self-test (VM bridge) ──"
+# ---- Phase 2: Trigger proxy connection via VM bridge ----
+echo "── Phase 2: Trigger proxy connection ──"
 BRIDGE_SCRIPT="$SCRIPT_DIR/flutter_debug_bridge.py"
 if [[ -n "${VM_SERVICE_URI:-}" ]] && [[ -f "$BRIDGE_SCRIPT" ]]; then
+  echo "  Connecting via ext.${APP}.connectProxy..."
+  CONNECT_OUTPUT=$(python3 "$BRIDGE_SCRIPT" \
+    --vm-uri "$VM_SERVICE_URI" \
+    --call-extension "ext.${APP}.connectProxy" \
+    --timeout 15 2>&1) || true
+  CONNECT_STATUS=$(echo "$CONNECT_OUTPUT" | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    r = d.get('customExtensionResults', [{}])[0].get('result', {}).get('result', {})
+    print(r.get('status', 'unknown'))
+except: print('parse_error')
+" 2>/dev/null) || CONNECT_STATUS="unknown"
+  echo "  Connect result: $CONNECT_STATUS"
+
+  # Wait for proxy to become ready
+  echo "  Waiting for proxy (port $PROXY_PORT)..."
+  for i in $(seq 1 30); do
+    if curl -s --max-time 2 --noproxy '*' "http://127.0.0.1:$PROXY_PORT" >/dev/null 2>&1; then
+      echo "  Proxy ready on 127.0.0.1:$PROXY_PORT (after ${i}s)"
+      break
+    fi
+    sleep 1
+  done
+
+  # Run self-test
+  echo "  Running self-test..."
   python3 "$BRIDGE_SCRIPT" \
-    --port "${VM_SERVICE_URI##*:}" \
+    --vm-uri "$VM_SERVICE_URI" \
     --call-extension "ext.${APP}.runSelfTest" \
-    --timeout 10 2>&1 || echo "  (bridge self-test skipped — app may not be fully loaded)"
+    --timeout 10 2>&1 | python3 -c "
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    r = d.get('customExtensionResults', [{}])[0].get('result', {}).get('result', {})
+    summary = r.get('summary', {})
+    print(f\"  Self-test: {summary.get('passed', 0)}/{summary.get('total', 0)} passed\")
+except: print('  (self-test skipped)')
+" 2>/dev/null || echo "  (self-test skipped)"
 else
-  echo "  (VM bridge not available — skipping self-test)"
+  echo "  (VM bridge not available — skipping connection trigger)"
 fi
 echo ""
 
@@ -161,10 +196,21 @@ node "$EVAL_DIR/cli.js" "${EVAL_ARGS[@]}" 2>&1 | tee "$OUTPUT_DIR/run.log" || EV
 
 echo ""
 
-# ---- Phase 4: Stop app ----
+# ---- Phase 4: Disconnect and stop app ----
 if [[ "$KEEP_RUNNING" == "0" ]]; then
-  echo "── Phase 4: Stopping app ──"
+  echo "── Phase 4: Disconnecting and stopping app ──"
+
+  # Gracefully disconnect proxy first
+  if [[ -n "${VM_SERVICE_URI:-}" ]] && [[ -f "$BRIDGE_SCRIPT" ]]; then
+    echo "  Disconnecting via ext.${APP}.disconnectProxy..."
+    python3 "$BRIDGE_SCRIPT" \
+      --vm-uri "$VM_SERVICE_URI" \
+      --call-extension "ext.${APP}.disconnectProxy" \
+      --timeout 10 2>/dev/null || true
+  fi
+
   kill "$START_PID" 2>/dev/null || true
+  kill "$APP_PID" 2>/dev/null || true
   pkill -f "FlClash" 2>/dev/null || true
   pkill -f "FlClashCore" 2>/dev/null || true
   pkill -f "hiddify" 2>/dev/null || true
