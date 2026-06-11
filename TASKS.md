@@ -54,6 +54,15 @@
   - connectProxy, disconnectProxy, performSemanticsAction
   - Full proxy connect/disconnect cycle verified
   - AOT limitation: dumpWidgetTree returns empty in profile mode (toStringDeep disabled)
+- [x] **proxy-app-manager**: Node.js lifecycle module — unified API for proxy app management
+  - VmBridge: WebSocket JSON-RPC bridge to Dart VM Service (pure Node.js, zero Python)
+  - AppProcess: spawn binary + Xvfb, detect VM URI, cleanup on shutdown
+  - BaseClient: abstract base — per-app paths, config installation, extension registry
+  - FlClashClient / HiddifyClient: concrete implementations with full extension sets
+  - ProxyAppManager: launch → connect → test → disconnect → shutdown lifecycle
+  - Registry pattern for extensible client support
+  - Smoke tests: FlClash 10/10, Hiddify 9/9
+  - VmBridge.callExtension handles both direct and double-wrapped VM service response formats
 
 ## Known Limitations / Future Work
 
@@ -81,8 +90,19 @@ source /tmp/flclash_status.env
 echo "Proxy: socks5://127.0.0.1:${PROXY_PORT}"
 echo "VM: ${VM_SERVICE_URI}"
 
-# Direct VM bridge calls for FlClash
-python3 scripts/flutter_debug_bridge.py --vm-uri "$VM_URI" --call-extension ext.flclash.connectProxy
-python3 scripts/flutter_debug_bridge.py --vm-uri "$VM_URI" --call-extension ext.flclash.getProxyStatus
-python3 scripts/flutter_debug_bridge.py --vm-uri "$VM_URI" --call-extension ext.flclash.disconnectProxy
+# Node.js lifecycle manager (full lifecycle in one call)
+node proxy-app-manager/test-smoke.js flclash
+node proxy-app-manager/test-smoke.js hiddify
+
+# Programmatic usage
+node -e "
+const { ProxyAppManager } = require('./proxy-app-manager');
+const mgr = new ProxyAppManager({ app: 'flclash', config: './configs/sample-clash-config.yaml' });
+await mgr.launch();
+await mgr.connectProxy();
+console.log('Proxy:', mgr.getProxyUrl());
+const status = await mgr.getStatus();
+console.log('Status:', JSON.stringify(status));
+await mgr.shutdown();
+"
 ```
