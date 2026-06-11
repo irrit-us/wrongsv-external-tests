@@ -1,263 +1,179 @@
 # wrongsv-external-tests
 
-Flutter debug bridge and test infrastructure for programmatic testing of Hiddify and FlClash apps. Designed to be driven by `../wrongsv` as an external test harness.
+Automated proxy app testing infrastructure. Launches FlClash/Hiddify with config, controls them
+via Dart VM service extensions, and evaluates proxy behavior.
+
+## Quick Start
+
+```bash
+npm install --prefix proxy-app-manager
+
+# Full test cycle for either app
+node orchestrate.js --app flclash --config configs/sample-clash-config.yaml --mode test
+node orchestrate.js --app hiddify --config configs/sample-singbox-config.json --mode test
+
+# Start and leave running (with debug verification)
+node orchestrate.js --app flclash --config configs/sample-clash-config.yaml
+
+# Machine-readable output
+node orchestrate.js --app flclash --config config.yaml --mode test --json
+```
 
 ## Directory Layout
 
 ```
 wrongsv-external-tests/
-├── bridge.sh                  # Convenience CLI wrapper for debug bridge
-├── scripts/
-│   ├── flutter_debug_bridge.py  # Python VM Service WebSocket bridge
-│   ├── test_runner.sh           # CI/test runner (modes: local, ci, bridge, discover)
-│   ├── convert_to_junit.py      # Flutter --machine JSONL → JUnit XML
-│   ├── run-evaluation.sh        # Proxy evaluation convenience script
-│   └── semantics_tree_dump.dart # In-app Dart semantics serialization utility
-├── proxy-testing-framework/    # Node.js proxy evaluation framework
-│   ├── puppeteer-debug/         # Puppeteer browser automation through proxy
+├── orchestrate.js               # CLI entry point — full lifecycle management
+├── proxy-app-manager/           # Node.js lifecycle module
+│   ├── index.js                 # Public API: ProxyAppManager, BaseClient, VmBridge, ...
+│   ├── src/
+│   │   ├── ProxyAppManager.js   # Lifecycle orchestrator
+│   │   ├── VmBridge.js          # WebSocket JSON-RPC bridge to Dart VM Service
+│   │   ├── AppProcess.js        # Binary spawn + Xvfb + VM URI detection
+│   │   ├── BaseClient.js        # Abstract interface for proxy app clients
+│   │   └── clients/
+│   │       ├── FlClashClient.js
+│   │       ├── HiddifyClient.js
+│   │       └── registry.js
+│   ├── test-smoke.js            # Module unit tests
+│   └── README.md
+├── proxy-testing-framework/     # Node.js proxy evaluation framework
+│   ├── puppeteer-debug/         # Browser automation through proxy
 │   ├── traffic-simulator/       # fetch-based user behavior simulation
-│   └── evaluator/               # Combined test suites + scoring + reports
-├── hiddify-next/              # Hiddify app (cloned, with debug extensions added)
-├── FlClash/                   # FlClash app (cloned, with debug extensions added)
-└── README.md
-```
-
-## Quick Start
-
-### Prerequisites
-```bash
-pip install websockets
-```
-
-### 1. Launch the app in debug mode
-```bash
-cd hiddify-next   # or FlClash
-flutter run --debug
-# Note the VM service URI printed:
-# "An Observatory debugger and profiler is available at: http://127.0.0.1:XXXXX/...=/"
-```
-
-### 2. Enable debug mode in the app
-
-**Hiddify:** Settings → General → toggle "Debug Mode" → visit Settings → Developer → tap "Register Debug Extensions"
-
-**FlClash:** In About page, tap the app icon 5 times rapidly to enable Developer Mode. Then Tools → Developer → toggle Developer Mode → tap "Register Debug Extensions"
-
-### 3. Use the bridge
-```bash
-# Connect and dump semantics tree
-bash bridge.sh hiddify --port <PORT_FROM_STEP_1> --dump-semantics
-
-# Run self-tests on FlClash
-bash bridge.sh flclash --port <PORT> --call-extension ext.flclash.runSelfTest
-
-# Dump widget tree and save to directory
-bash bridge.sh hiddify --port <PORT> --dump-widget-tree -o results/
-
-# Evaluate arbitrary Dart code
-bash bridge.sh hiddify --port <PORT> --evaluate "2 + 2"
-
-# Everything at once
-bash bridge.sh flclash --port <PORT> \
-  --dump-semantics \
-  --dump-widget-tree \
-  --get-memory \
-  --call-extension ext.flclash.runSelfTest \
-  -o results/
-```
-
-## Debug Service Extensions
-
-Each app registers these extensions when debug mode is enabled:
-
-| Extension | Description |
-|-----------|-------------|
-| `ext.<app>.getAppState` | Platform info, locale, timestamp |
-| `ext.<app>.dumpSemantics` | Full semantics tree as JSON |
-| `ext.<app>.dumpWidgetTree` | Widget tree deep-string |
-| `ext.<app>.runSelfTest` | Internal consistency checks with pass/fail |
-
-Replace `<app>` with `hiddify` or `flclash`.
-
-## Using from ../wrongsv
-
-```python
-import json
-import subprocess
-
-def dump_semantics(app: str, port: int) -> dict:
-    """Connect to a running Flutter app and dump its semantics tree."""
-    proc = subprocess.run(
-        [
-            "python3",
-            "wrongsv-external-tests/scripts/flutter_debug_bridge.py",
-            "--app", app,
-            "--port", str(port),
-            "--dump-semantics",
-        ],
-        capture_output=True,
-        text=True,
-        cwd="../",
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(f"Bridge failed: {proc.stderr}")
-    return json.loads(proc.stdout)
-
-def run_self_test(app: str, port: int) -> dict:
-    """Run app self-tests via VM service extension."""
-    proc = subprocess.run(
-        [
-            "python3",
-            "wrongsv-external-tests/scripts/flutter_debug_bridge.py",
-            "--app", app,
-            "--port", str(port),
-            "--call-extension", f"ext.{app}.runSelfTest",
-        ],
-        capture_output=True,
-        text=True,
-        cwd="../",
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(f"Bridge failed: {proc.stderr}")
-    return json.loads(proc.stdout)
-```
-
-## Proxy Testing Framework
-
-Node.js framework for comprehensive proxy evaluation. Combines Puppeteer browser automation and fetch-based traffic simulation to test proxy reliability, stability, and efficiency.
-
-### Quick Start
-```bash
-cd proxy-testing-framework
-npm install
-
-# Latency check (no browser needed)
-node evaluator/cli.js --proxy socks5://127.0.0.1:1080 --suite latency
-
-# Comprehensive evaluation
-node evaluator/cli.js --proxy socks5://127.0.0.1:1080 --suite comprehensive -o results/
-```
-
-### Convenience script
-```bash
-bash scripts/run-evaluation.sh --proxy socks5://127.0.0.1:1080 --suite latency
-bash scripts/run-evaluation.sh --app hiddify --suite comprehensive
-```
-
-### Using from ../wrongsv
-```js
-const { Evaluator } = require(
-  '../wrongsv-external-tests/proxy-testing-framework/evaluator'
-);
-const evaluator = new Evaluator({ proxy: 'socks5://127.0.0.1:1080' });
-const report = await evaluator.runSuite('comprehensive');
-// report.scores.overall → 0–100 score
-// report.recommendation → EXCELLENT/GOOD/FAIR/POOR/FAIL
-```
-
-### Programmatic API
-
-**Puppeteer debug (browser through proxy):**
-```js
-const { DebugSession } = require('./proxy-testing-framework/puppeteer-debug');
-const session = new DebugSession({
-  proxy: 'socks5://127.0.0.1:1080',
-  targets: ['https://example.com', 'https://httpbin.org/ip'],
-  outputDir: './debug-results/',
-});
-const report = await session.run();
-// report.harPath → HAR file for Chrome DevTools
-// report.screenshots → captured screenshots
-// report.networkSummary → totalRequests, errors, bytes
-await session.close();
-```
-
-**Traffic simulation (fetch through proxy):**
-```js
-const { BenchmarkRunner } = require('./proxy-testing-framework/traffic-simulator');
-const runner = new BenchmarkRunner({
-  proxy: 'socks5://127.0.0.1:1080',
-  profile: 'web-browsing',  // or api-heavy, video-streaming, social-media, general
-  duration: 30000,          // 30 seconds
-  concurrency: 5,
-});
-const results = await runner.run();
-// results.metrics.latency → { p50, p75, p90, p95, p99 }
-// results.metrics.errors → { total, rate, byType }
-// results.metrics.throughput → { requestsPerSec, bytesPerSec }
-```
-
-See [proxy-testing-framework/README.md](proxy-testing-framework/README.md) for full documentation.
-
-## Test Runner Modes
-
-```bash
-# Run widget tests only (no device needed)
-bash scripts/test_runner.sh --app hiddify --mode local
-
-# Full CI pipeline: unit + integration tests → JUnit XML
-bash scripts/test_runner.sh --app hiddify --mode ci --output results/
-
-# Bridge mode: connect to already-running app
-bash scripts/test_runner.sh --app hiddify --mode bridge --port 8181 --dump-semantics
-
-# Discover mode: launch app + wait for VM service + bridge
-bash scripts/test_runner.sh --app hiddify --mode discover --device emulator-5554 --dump-semantics
-```
-
-## Output Format
-
-All bridge commands produce JSON with a common schema:
-
-```json
-{
-  "runId": "uuid",
-  "appName": "hiddify|flclash",
-  "vmServiceUri": "http://127.0.0.1:8181/...=/",
-  "startTime": "2026-06-10T00:00:00Z",
-  "endTime": "2026-06-10T00:00:01Z",
-  "semanticsTree": {...},
-  "widgetTree": {...},
-  "customExtensionResults": [{"extension": "ext.app.xxx", "result": {...}}],
-  "testResults": [{"testName": "...", "passed": true, "durationMs": 0}],
-  "summary": {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
-}
-```
-
-Error envelopes:
-```json
-{
-  "error": true,
-  "code": "VM_SERVICE_UNAVAILABLE",
-  "message": "Could not connect...",
-  "retryable": true
-}
-```
-
-## JUnit Conversion
-
-```bash
-flutter test --machine | python3 scripts/convert_to_junit.py --output results/junit.xml
-python3 scripts/convert_to_junit.py --input results/unit_tests.jsonl --output results/junit.xml
+│   └── evaluator/               # Test suites + scoring + reports
+├── scripts/
+│   ├── start-proxy-app.sh       # Bash: launch app with config + Xvfb
+│   ├── run-proxy-test.sh        # Bash: 4-phase E2E orchestrator
+│   ├── test-vm-extensions.sh    # Bash: verify all VM extensions at runtime
+│   ├── flutter_debug_bridge.py  # Python: WebSocket JSON-RPC bridge
+│   ├── import-hiddify-config.py # Python: pre-populate Hiddify SQLite config
+│   └── ...
+├── configs/
+│   ├── sample-clash-config.yaml
+│   └── sample-singbox-config.json
+├── binaries/                    # Pre-built Flutter profile-mode binaries
+│   ├── flclash/
+│   └── hiddify/
+├── docs/
+│   ├── patches.md               # All source modifications to FlClash & Hiddify
+│   └── known-limitations.md     # Current limitations and trade-offs
+├── FlClash/                     # Git submodule — FlClash fork (debug branch)
+└── hiddify-next/                # Git submodule — hiddify-next fork (debug branch)
 ```
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────┐
-│           ../wrongsv (test orchestrator)          │
-│  subprocess.run(bridge.py) → JSON results        │
-└──────────────┬──────────────┬────────────────────┘
-               │              │
-    WebSocket JSON-RPC   WebSocket JSON-RPC
-    (VM Service)         (VM Service)
-               │              │
-    ┌──────────▼────┐  ┌─────▼──────────┐
-    │   Hiddify     │  │    FlClash     │
-    │  debug mode   │  │  developer mode│
-    │  VM svc :PORT │  │  VM svc :PORT  │
-    │  ext.hiddify.* │  │  ext.flclash.*│
-    └───────────────┘  └────────────────┘
+┌──────────────┐     WebSocket JSON-RPC     ┌──────────────────────┐
+│  orchestrate │◄──────────────────────────►│  FlClash / Hiddify   │
+│  .js (CLI)   │     ext.<app>.*            │  (profile mode)      │
+│              │                            │  + Xvfb (headless)   │
+│  proxy-app-  │                            │  + debug extensions  │
+│  manager     │                            └──────────────────────┘
+└──────┬───────┘
+       │
+       ▼
+┌──────────────────┐
+│  proxy-testing-  │
+│  framework       │
+│  (evaluator)     │
+└──────────────────┘
 ```
 
-Both apps use Flutter's built-in Dart VM Service Protocol (JSON-RPC over WebSocket). Custom service extensions (`ext.<app>.*`) provide app-specific test commands. The Python bridge connects, issues commands, and returns structured JSON.
+- **proxy-app-manager** — WebSocket bridge + process management. Launch, connect, test, shutdown.
+- **proxy-testing-framework** — Puppeteer + traffic simulator for proxy quality evaluation.
+- **orchestrate.js** — Single CLI combining both modules.
+
+## Debug Service Extensions
+
+Each app registers these extensions at startup:
+
+| Extension | Description |
+|-----------|-------------|
+| `ext.<app>.getAppState` | Platform info, dart version, timestamp |
+| `ext.<app>.dumpSemantics` | Full semantics tree as JSON |
+| `ext.<app>.dumpWidgetTree` | Widget tree deep-string (limited in profile mode) |
+| `ext.<app>.runSelfTest` | Internal consistency checks |
+| `ext.<app>.connectProxy` | Start proxy engine |
+| `ext.<app>.disconnectProxy` | Stop proxy engine |
+| `ext.<app>.getProxyStatus` | Current proxy connection state |
+| `ext.<app>.performSemanticsAction` | Tap/longPress on semantics nodes |
+| `ext.hiddify.importConfig` | Import a config file (Hiddify only) |
+
+Replace `<app>` with `flclash` or `hiddify`.
+
+## Programmatic API
+
+```js
+const { ProxyAppManager } = require('./proxy-app-manager');
+
+// Step-by-step lifecycle
+const mgr = new ProxyAppManager({
+  app: 'flclash',
+  config: './configs/sample-clash-config.yaml',
+});
+await mgr.launch();             // start app, detect VM URI, wait for extensions
+await mgr.connectProxy();       // start proxy engine
+const status = await mgr.getStatus();
+await mgr.disconnectProxy();    // stop proxy engine
+await mgr.shutdown();           // clean up
+
+// Or: full lifecycle in one call
+const results = await mgr.fullTest({ suite: 'latency' });
+
+// Access the VM bridge directly
+const { VmBridge } = require('./proxy-app-manager');
+const bridge = new VmBridge('http://127.0.0.1:41343/abc=/');
+await bridge.connect();
+const state = await bridge.callExtension('ext.flclash.getAppState');
+await bridge.disconnect();
+```
+
+## Adding a new proxy app
+
+```js
+const { BaseClient, registry } = require('./proxy-app-manager');
+
+class MyProxyClient extends BaseClient {
+  static get app() { return 'myproxy'; }
+  static get displayName() { return 'MyProxy'; }
+
+  get binaryPath() { return '/path/to/binary'; }
+  get defaultProxyPort() { return 1080; }
+
+  get extensions() {
+    return new Map(Object.entries({
+      connectProxy:    { method: 'ext.myproxy.connectProxy',    timeout: 30000 },
+      disconnectProxy: { method: 'ext.myproxy.disconnectProxy', timeout: 15000 },
+      getAppState:     { method: 'ext.myproxy.getAppState',     timeout: 10000 },
+    }));
+  }
+
+  async prepareConfig(configPath) { /* install config */ }
+}
+
+registry.register(MyProxyClient);
+// Now: node orchestrate.js --app myproxy --config ./config.json
+```
+
+## Rebuilding binaries
+
+```bash
+# FlClash
+cd FlClash
+flutter build linux --profile
+cp -r build/linux/x64/profile/bundle/* ../binaries/flclash/
+
+# Hiddify
+cd hiddify-next
+dart run build_runner build --delete-conflicting-outputs
+flutter build linux --profile
+cp -r build/linux/x64/profile/bundle/* ../binaries/hiddify/
+```
+
+## See also
+
+- [docs/patches.md](docs/patches.md) — Complete list of source modifications
+- [docs/known-limitations.md](docs/known-limitations.md) — Current limitations and trade-offs
+- [proxy-app-manager/README.md](proxy-app-manager/README.md) — Module API docs
+- [proxy-testing-framework/README.md](proxy-testing-framework/README.md) — Evaluator docs
