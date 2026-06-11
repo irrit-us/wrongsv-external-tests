@@ -42,6 +42,20 @@ Flutter's profile mode compiles with AOT, which disables the debugger/evaluator.
 `toStringDeep()` (used by `dumpWidgetTree`) returns minimal output. Full widget tree dumps
 require debug mode builds.
 
+### FlClash connectProxy — proxy port not bound without subscription
+
+`ext.flclash.connectProxy` calls `SetupAction.updateStatus(true)` which reports `"connected"`
+and `isStart: true`, but the Clash core may not actually bind a proxy port. Root cause:
+FlClash generates its Clash core config from profiles/subscriptions stored in its internal
+database. Without a profile imported (there is no `ext.flclash.importConfig` extension), the
+`currentProfileProvider` is null and `_setupConfig` can't produce a valid core configuration.
+
+**Impact:** `connectProxy` returns success but no TCP port opens. Hiddify does not have this
+issue — its `importConfig` extension + auto-generated sing-box config provides a working proxy.
+
+**Better approach (future):** Add `ext.flclash.importConfig` that creates a profile from a
+config file and activates it, mirroring Hiddify's flow.
+
 ## Build & infrastructure
 
 - **Linux only:** Binaries are built for Linux x86-64. macOS and Windows builds require

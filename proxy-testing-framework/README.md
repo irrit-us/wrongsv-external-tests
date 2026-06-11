@@ -34,6 +34,15 @@ ReportGenerator   → Output JSON, Markdown, HTML reports
 CLI               → Command-line entry point
 ```
 
+### user-simulator
+Puppeteer-based real user behavior simulation through SOCKS/HTTP proxy.
+```
+UserSimulator     → Launch headless Chromium through proxy, drive realistic behaviors
+BehaviorRunner    → Execute action sequences (navigate, scroll, click, type, wait, hover, evaluate)
+behaviors/        → 6 built-in behaviors (web-browsing, video-streaming, social-media, e-commerce, form-interaction, multi-page)
+utils/proxy.js    → Proxy URL parser + Puppeteer launch option builder
+```
+
 ## Quick Start
 
 ### 1. Install dependencies
@@ -95,6 +104,20 @@ const runner = new BenchmarkRunner({
   duration: 30000,
 });
 const trafficReport = await runner.run();
+
+// Low-level: User behavior simulation
+const { UserSimulator, listBehaviors } = require('./user-simulator');
+console.log(listBehaviors()); // 6 built-in profiles
+
+const sim = new UserSimulator({
+  proxy: 'socks5://127.0.0.1:1080',
+  behavior: 'web-browsing',
+  duration: 30000,
+  recordNetwork: true,
+});
+const userReport = await sim.run();
+// userReport.summary, userReport.actions, userReport.networkEvents
+await sim.close();
 
 // High-level: Full evaluation
 const evaluator = new Evaluator({ proxy: 'socks5://127.0.0.1:1080' });

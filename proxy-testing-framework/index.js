@@ -8,6 +8,7 @@
  * Modules:
  *   puppeteer-debug/    — Browser automation through proxy with HAR, screenshots, console capture
  *   traffic-simulator/  — fetch-based user behavior simulation with metrics collection
+ *   user-simulator/     — Puppeteer-based real user behavior simulation (6 behaviors)
  *   evaluator/          — Combined test suites with scoring and reports (JSON/MD/HTML)
  *
  * Usage:
@@ -31,4 +32,8 @@ module.exports = {
   userSimulator,
   Evaluator: evaluator.Evaluator,
   UserSimulator: userSimulator.UserSimulator,
+  BehaviorRunner: userSimulator.BehaviorRunner,
+  listBehaviors: userSimulator.listBehaviors,
+  parseProxyUrl: userSimulator.parseProxyUrl,
+  buildLaunchOptions: userSimulator.buildLaunchOptions,
 };

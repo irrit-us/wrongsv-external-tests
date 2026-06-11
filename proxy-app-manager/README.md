@@ -48,6 +48,7 @@ node orchestrate.js --mode shutdown --vm-uri http://127.0.0.1:41343/DP-Bi1xVQNo=
 | `--keep-running` | Don't stop app after test/full |
 | `--suite <name>` | Test suite for full mode (default: latency) |
 | `--output-dir <path>` | Results directory for full mode |
+| `--clean` | Remove config/log/data files after shutdown |
 
 ## Programmatic API
 
@@ -95,7 +96,8 @@ const results = await mgr.fullTest({
 | `performSemanticsAction({action, label, id})` | Tap/longPress a widget by label or id |
 | `callExtension(name, params)` | Call any registered extension |
 | `getProxyUrl()` | Get socks5://127.0.0.1:PORT URL |
-| `shutdown()` | Graceful stop + cleanup |
+| `shutdown(clean)` | Graceful stop; pass `true` to also remove config/log files |
+| `cleanup()` | Remove all test artifacts (config, data, logs) without full shutdown |
 | `fullTest(options)` | launch → connect → test → disconnect → shutdown |
 
 ## Supported clients
