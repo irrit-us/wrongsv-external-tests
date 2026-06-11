@@ -2,8 +2,8 @@
 /**
  * orchestrate.js — Unified CLI for proxy app lifecycle management.
  *
- * Single entry point for: launching apps with config, verifying debug
- * capabilities, running test cycles, and shutting down cleanly.
+ * Example script using the proxy-app-manager module. Lives outside the module
+ * at repo root for easy access.
  *
  * Modes:
  *   launch         Start app + install config + verify debug extensions + keep running
@@ -20,8 +20,8 @@
  */
 
 const path = require("path");
-const { ProxyAppManager, listClients } = require(".");
-const { VmBridge } = require("./src/VmBridge");
+const { ProxyAppManager, listClients } = require("./proxy-app-manager");
+const { VmBridge } = require("./proxy-app-manager/src/VmBridge");
 
 // =============================================================================
 // CLI argument parsing
@@ -132,7 +132,7 @@ Examples:
   # Start FlClash and verify debug works
   node orchestrate.js --app flclash --config ./configs/sample-clash-config.yaml
 
-  # Quick test cycle (launch → verify → connect → disconnect → stop)
+  # Quick test cycle
   node orchestrate.js --app hiddify --config ./configs/sample-singbox-config.json --mode test
 
   # Verify debug extensions on an already-running app
@@ -226,7 +226,6 @@ async function verifyDebugExtensions(bridge, client, appName, out) {
       const result = await bridge.callExtension(meta.method, extParams);
 
       if (result && !result.error) {
-        // Check for sane response based on extension type
         const sane = isSaneResponse(name, result);
         if (sane) {
           results[name] = { status: "ok", summary: summarize(name, result) };
@@ -270,7 +269,6 @@ function isSaneResponse(name, result) {
     case "dumpSemantics":
       return typeof result.id === "number" || (result.children !== undefined);
     case "dumpWidgetTree":
-      // May be empty in AOT/profile mode — that's fine
       return result.widgetTree !== undefined || result.error !== undefined;
     case "connectProxy":
     case "disconnectProxy":
@@ -343,7 +341,6 @@ async function cmdLaunch(opts, out) {
   const launch = await mgr.launch();
   out.ok(`VM: ${launch.vmUri}, proxy port: ${launch.proxyPort}`);
 
-  // Verify debug extensions
   const debugResult = await verifyDebugExtensions(
     mgr.bridge,
     mgr.client,
@@ -351,7 +348,6 @@ async function cmdLaunch(opts, out) {
     out
   );
 
-  // Report
   const data = {
     app: opts.app,
     vmUri: launch.vmUri,
@@ -371,7 +367,6 @@ async function cmdLaunch(opts, out) {
 
   out.final(data);
 
-  // Keep running until signal
   const shutdown = async () => {
     out.info("\nShutting down...");
     await mgr.shutdown();
@@ -444,15 +439,14 @@ async function cmdTest(opts, out) {
       out.fail(disc?.status || "unknown");
     }
 
-    // Build result data
     const data = {
       app: opts.app,
       vmUri: launch.vmUri,
       proxyPort: launch.proxyPort,
       proxyUrl: mgr.getProxyUrl(),
       debugExtensions: debugResult,
-      connect: connect,
-      status: status,
+      connect,
+      status,
       selfTest: self,
       disconnect: disc,
     };
@@ -471,18 +465,14 @@ async function cmdTest(opts, out) {
 
     out.info(`\n${opts.app}: test complete`);
     if (!opts.json) {
-      const extPassed = debugResult?.passed || 0;
-      const extTotal = debugResult?.total || 0;
-      out.info(`  Debug extensions: ${extPassed}/${extTotal}`);
+      out.info(`  Debug extensions: ${debugResult?.passed || 0}/${debugResult?.total || 0}`);
       out.info(`  Proxy: ${mgr.getProxyUrl()}`);
     }
     out.final(data);
   } catch (err) {
     out.fail(err.message);
     if (!opts.json) console.error(err.stack);
-    try {
-      await mgr.shutdown();
-    } catch (_) {}
+    try { await mgr.shutdown(); } catch (_) {}
     out.final({ error: err.message, debugExtensions: debugResult });
     process.exit(1);
   }
@@ -581,9 +571,7 @@ async function cmdFull(opts, out) {
   } catch (err) {
     out.fail(err.message);
     if (!opts.json) console.error(err.stack);
-    try {
-      await mgr.shutdown();
-    } catch (_) {}
+    try { await mgr.shutdown(); } catch (_) {}
     out.final({ error: err.message, debugExtensions: debugResult });
     process.exit(1);
   }
@@ -611,36 +599,30 @@ async function cmdDebugVerify(opts, out) {
       });
       if (probe && !probe.error) {
         appName = c.app;
-        const ClientClass = require("./src/clients/registry").registry.get(c.app);
+        const { registry } = require("./proxy-app-manager/src/clients/registry");
+        const ClientClass = registry.get(c.app);
         client = new ClientClass(process.cwd());
         break;
       }
-    } catch (_) {
-      // try next
-    }
+    } catch (_) {}
   }
 
   if (!client) {
-    // No client matched — use a generic client-like object with common extensions
-    const { BaseClient } = require("./src/BaseClient");
+    const { BaseClient } = require("./proxy-app-manager/src/BaseClient");
     client = new (class extends BaseClient {
-      static get app() {
-        return "unknown";
-      }
+      static get app() { return "unknown"; }
       get extensions() {
         const prefix = `ext.${appName}`;
-        return new Map(
-          Object.entries({
-            getAppState: { method: `${prefix}.getAppState`, timeout: 10000 },
-            runSelfTest: { method: `${prefix}.runSelfTest`, timeout: 15000 },
-            dumpSemantics: { method: `${prefix}.dumpSemantics`, timeout: 15000 },
-            dumpWidgetTree: { method: `${prefix}.dumpWidgetTree`, timeout: 15000 },
-            getProxyStatus: { method: `${prefix}.getProxyStatus`, timeout: 10000 },
-            connectProxy: { method: `${prefix}.connectProxy`, timeout: 30000 },
-            disconnectProxy: { method: `${prefix}.disconnectProxy`, timeout: 15000 },
-            performSemanticsAction: { method: `${prefix}.performSemanticsAction`, timeout: 15000 },
-          })
-        );
+        return new Map(Object.entries({
+          getAppState:           { method: `${prefix}.getAppState`,           timeout: 10000 },
+          runSelfTest:           { method: `${prefix}.runSelfTest`,           timeout: 15000 },
+          dumpSemantics:         { method: `${prefix}.dumpSemantics`,         timeout: 15000 },
+          dumpWidgetTree:        { method: `${prefix}.dumpWidgetTree`,        timeout: 15000 },
+          getProxyStatus:        { method: `${prefix}.getProxyStatus`,        timeout: 10000 },
+          connectProxy:          { method: `${prefix}.connectProxy`,          timeout: 30000 },
+          disconnectProxy:       { method: `${prefix}.disconnectProxy`,       timeout: 15000 },
+          performSemanticsAction:{ method: `${prefix}.performSemanticsAction`,timeout: 15000 },
+        }));
       }
     })();
   }
@@ -705,7 +687,6 @@ async function cmdShutdown(opts, out) {
   if (port) {
     try {
       const { execSync } = require("child_process");
-      // Find PID listening on that port
       const lsof = execSync(
         `ss -tlnp 'sport = :${port}' 2>/dev/null | grep -oP 'pid=\\K\\d+' || true`,
         { encoding: "utf-8", timeout: 3000 }
@@ -715,9 +696,7 @@ async function cmdShutdown(opts, out) {
         process.kill(parseInt(lsof, 10), "SIGTERM");
         out.ok(`PID ${lsof}`);
       }
-    } catch (_) {
-      // can't kill — fine
-    }
+    } catch (_) {}
   }
 
   out.info("\nShutdown complete.");
@@ -732,7 +711,6 @@ async function main() {
   const opts = parseArgs();
   const out = new Output(opts.json);
 
-  // Validate
   const needsConfig = ["launch", "test", "full"];
   if (needsConfig.includes(opts.mode) && !opts.config) {
     console.error(`ERROR: --config is required for ${opts.mode} mode`);
@@ -750,23 +728,12 @@ async function main() {
     }
   }
 
-  // Dispatch
   switch (opts.mode) {
-    case "launch":
-      await cmdLaunch(opts, out);
-      break;
-    case "test":
-      await cmdTest(opts, out);
-      break;
-    case "full":
-      await cmdFull(opts, out);
-      break;
-    case "debug-verify":
-      await cmdDebugVerify(opts, out);
-      break;
-    case "shutdown":
-      await cmdShutdown(opts, out);
-      break;
+    case "launch":       await cmdLaunch(opts, out);      break;
+    case "test":         await cmdTest(opts, out);        break;
+    case "full":         await cmdFull(opts, out);        break;
+    case "debug-verify": await cmdDebugVerify(opts, out); break;
+    case "shutdown":     await cmdShutdown(opts, out);    break;
     default:
       console.error(`ERROR: Unknown mode "${opts.mode}". Use: launch, test, full, debug-verify, shutdown`);
       process.exit(1);

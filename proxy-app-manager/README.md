@@ -6,22 +6,22 @@ Unified Node.js lifecycle manager for proxy apps (FlClash, Hiddify). Launch, con
 
 ```bash
 # Start an app with config, verify debug extensions, keep running
-node proxy-app-manager/orchestrate.js --app flclash --config configs/sample-clash-config.yaml
+node orchestrate.js --app flclash --config configs/sample-clash-config.yaml
 
 # Full test cycle (launch → debug verify → connect → status → self-test → disconnect → shutdown)
-node proxy-app-manager/orchestrate.js --app flclash --config configs/sample-clash-config.yaml --mode test
+node orchestrate.js --app flclash --config configs/sample-clash-config.yaml --mode test
 
 # Extended test (test + semantics + widget tree)
-node proxy-app-manager/orchestrate.js --app hiddify --config configs/sample-singbox-config.json --mode full
+node orchestrate.js --app hiddify --config configs/sample-singbox-config.json --mode full
 
 # Verify debug extensions on an already-running app
-node proxy-app-manager/orchestrate.js --mode debug-verify --vm-uri http://127.0.0.1:41343/DP-Bi1xVQNo=
+node orchestrate.js --mode debug-verify --vm-uri http://127.0.0.1:41343/DP-Bi1xVQNo=
 
 # Machine-readable JSON output
-node proxy-app-manager/orchestrate.js --app flclash --config config.yaml --mode test --json
+node orchestrate.js --app flclash --config config.yaml --mode test --json
 
 # Graceful shutdown of a running app
-node proxy-app-manager/orchestrate.js --mode shutdown --vm-uri http://127.0.0.1:41343/DP-Bi1xVQNo=
+node orchestrate.js --mode shutdown --vm-uri http://127.0.0.1:41343/DP-Bi1xVQNo=
 ```
 
 ### CLI Modes
