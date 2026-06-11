@@ -299,13 +299,16 @@ class ProxyAppManager {
   }
 
   // =========================================================================
-  // Shutdown
+  // Shutdown & Cleanup
   // =========================================================================
 
   /**
-   * Gracefully stop the app, close bridge, and clean up.
+   * Gracefully stop the app, close bridge, and clean up processes.
+   * Does NOT remove data files by default — use cleanup() for that.
+   *
+   * @param {boolean} [clean=false] — also remove config/log files
    */
-  async shutdown() {
+  async shutdown(clean = false) {
     if (this.bridge) {
       try {
         await this.bridge.disconnect();
@@ -317,15 +320,49 @@ class ProxyAppManager {
 
     if (this.process) {
       try {
-        await this.process.stop();
+        await this.process.stop(false, clean);
       } catch (_) {
         // ignore
       }
       this.process = null;
     }
 
+    if (clean) {
+      await this._cleanData();
+    }
+
     this._launched = false;
     this.vmUri = null;
+  }
+
+  /**
+   * Remove all test artifacts: config files, app data, logs.
+   * Safe to call after shutdown or independently.
+   */
+  async cleanup() {
+    // Kill processes first if still running
+    if (this.process) {
+      try { await this.process.stop(false, true); } catch (_) {}
+      this.process = null;
+    }
+    if (this.bridge) {
+      try { await this.bridge.disconnect(); } catch (_) {}
+      this.bridge = null;
+    }
+
+    await this._cleanData();
+    this._launched = false;
+    this.vmUri = null;
+  }
+
+  /**
+   * Remove config and data files created during the test.
+   * @internal
+   */
+  async _cleanData() {
+    if (this.client && typeof this.client.cleanData === "function") {
+      try { await this.client.cleanData(); } catch (_) {}
+    }
   }
 
   // =========================================================================

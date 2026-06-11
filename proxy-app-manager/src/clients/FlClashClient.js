@@ -126,6 +126,13 @@ class FlClashClient extends BaseClient {
       return this.defaultProxyPort;
     }
   }
+
+  // ---- Cleanup ----
+
+  async cleanData() {
+    const configDest = path.join(this.dataDir, "config.yaml");
+    try { fs.unlinkSync(configDest); } catch (_) {}
+  }
 }
 
 module.exports = { FlClashClient };

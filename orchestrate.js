@@ -39,6 +39,7 @@ function parseArgs() {
     vmUri: "",
     proxyPort: 0,
     keepRunning: false,
+    clean: false,
     suite: "latency",
     outputDir: "",
   };
@@ -79,6 +80,9 @@ function parseArgs() {
         break;
       case "--keep-running":
         opts.keepRunning = true;
+        break;
+      case "--clean":
+        opts.clean = true;
         break;
       case "--suite":
         opts.suite = next;
@@ -124,6 +128,7 @@ Flags:
   --timeout <ms>       Operation timeout in ms (default: 60000)
   --json               Output results as JSON
   --keep-running       Don't stop the app after test/full mode
+  --clean              Remove config/log/data files after shutdown
   --suite <name>       Test suite for full mode (default: latency)
   --output-dir <path>  Results output directory for full mode
   -h, --help           Show this help
@@ -252,6 +257,9 @@ async function verifyDebugExtensions(bridge, client, appName, out) {
     }
   }
 
+  // Clean up temp import test config
+  try { fs.unlinkSync(tmpConfig); } catch (_) {}
+
   const summary = { passed, failed, total: passed + failed, results };
   out.info(`\n  Debug extensions: ${passed}/${passed + failed} verified`);
 
@@ -369,7 +377,7 @@ async function cmdLaunch(opts, out) {
 
   const shutdown = async () => {
     out.info("\nShutting down...");
-    await mgr.shutdown();
+    await mgr.shutdown(opts.clean);
     process.exit(0);
   };
   process.on("SIGINT", shutdown);
@@ -460,8 +468,8 @@ async function cmdTest(opts, out) {
 
     // 7. Shutdown
     out.step("Shutdown");
-    await mgr.shutdown();
-    out.ok("cleaned up");
+    await mgr.shutdown(opts.clean);
+    out.ok(opts.clean ? "cleaned up (files removed)" : "cleaned up");
 
     out.info(`\n${opts.app}: test complete`);
     if (!opts.json) {
@@ -472,7 +480,7 @@ async function cmdTest(opts, out) {
   } catch (err) {
     out.fail(err.message);
     if (!opts.json) console.error(err.stack);
-    try { await mgr.shutdown(); } catch (_) {}
+    try { await mgr.shutdown(opts.clean); } catch (_) {}
     out.final({ error: err.message, debugExtensions: debugResult });
     process.exit(1);
   }
@@ -559,8 +567,8 @@ async function cmdFull(opts, out) {
 
     // 10. Shutdown
     out.step("Shutdown");
-    await mgr.shutdown();
-    out.ok("cleaned up");
+    await mgr.shutdown(opts.clean);
+    out.ok(opts.clean ? "cleaned up (files removed)" : "cleaned up");
 
     out.info(`\n${opts.app}: full test complete`);
     if (!opts.json) {
@@ -571,7 +579,7 @@ async function cmdFull(opts, out) {
   } catch (err) {
     out.fail(err.message);
     if (!opts.json) console.error(err.stack);
-    try { await mgr.shutdown(); } catch (_) {}
+    try { await mgr.shutdown(opts.clean); } catch (_) {}
     out.final({ error: err.message, debugExtensions: debugResult });
     process.exit(1);
   }

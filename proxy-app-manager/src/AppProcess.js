@@ -180,8 +180,9 @@ class AppProcess {
   /**
    * Gracefully stop the app and Xvfb.
    * @param {boolean} [force=false] - send SIGKILL instead of SIGTERM
+   * @param {boolean} [clean=false] - also remove log file and temp resources
    */
-  async stop(force = false) {
+  async stop(force = false, clean = false) {
     const signal = force ? "SIGKILL" : "SIGTERM";
 
     if (this.appProcess) {
@@ -200,6 +201,19 @@ class AppProcess {
         // already dead
       }
       this.xvfbProcess = null;
+    }
+
+    if (clean) {
+      this._cleanFiles();
+    }
+  }
+
+  /**
+   * Remove log file and other temp resources created by this run.
+   */
+  _cleanFiles() {
+    if (this.logPath) {
+      try { fs.unlinkSync(this.logPath); } catch (_) {}
     }
   }
 }

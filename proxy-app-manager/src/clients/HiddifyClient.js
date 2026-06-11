@@ -163,6 +163,31 @@ class HiddifyClient extends BaseClient {
     }
     return null;
   }
+
+  // ---- Cleanup ----
+
+  async cleanData() {
+    // Remove config files that accumulate across runs
+    const files = [
+      path.join(this.dataDir, "config.json"),
+      path.join(this.dataDir, "data", "current-config.json"),
+    ];
+    for (const f of files) {
+      try { fs.unlinkSync(f); } catch (_) {}
+    }
+    // Remove core-generated files (logs, temp)
+    const coreData = path.join(this.dataDir, "data");
+    const patterns = [".log", ".tmp"];
+    if (fs.existsSync(coreData)) {
+      try {
+        for (const entry of fs.readdirSync(coreData)) {
+          if (patterns.some((p) => entry.endsWith(p))) {
+            try { fs.unlinkSync(path.join(coreData, entry)); } catch (_) {}
+          }
+        }
+      } catch (_) {}
+    }
+  }
 }
 
 module.exports = { HiddifyClient };

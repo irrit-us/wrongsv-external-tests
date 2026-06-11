@@ -127,6 +127,19 @@ class BaseClient {
   extractProxyPort(_configPath) {
     return this.defaultProxyPort;
   }
+
+  // =========================================================================
+  // Cleanup
+  // =========================================================================
+
+  /**
+   * Remove installed config and data files created during testing.
+   * Override to clean app-specific data. Called by ProxyAppManager.cleanup().
+   *
+   * Subclasses should remove the config file they installed and any
+   * app-generated data that accumulates across runs.
+   */
+  async cleanData() {}
 }
 
 module.exports = { BaseClient };
