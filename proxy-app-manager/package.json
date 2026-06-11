@@ -1,0 +1,18 @@
+{
+  "name": "proxy-app-manager",
+  "version": "1.0.0",
+  "description": "Unified Node.js lifecycle manager for proxy apps (FlClash, Hiddify). Launch, connect, test, disconnect, shutdown — all via programmatic API. Extensible client registry for supporting more proxy apps.",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node -e \"const m = require('.'); console.log('Clients:', m.listClients().map(c => c.app));\""
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["proxy", "flutter", "vm-service", "e2e", "testing", "lifecycle"],
+  "license": "MIT"
+}
