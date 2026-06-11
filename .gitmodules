@@ -1,0 +1,8 @@
+[submodule "FlClash"]
+	path = FlClash
+	url = https://github.com/irrit-us/FlClash.git
+	branch = debug
+[submodule "hiddify-next"]
+	path = hiddify-next
+	url = https://github.com/irrit-us/hiddify-next.git
+	branch = debug

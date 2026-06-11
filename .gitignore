@@ -1,6 +1,7 @@
-# Source repos (not needed for running tests — only binaries matter)
-FlClash/
-hiddify-next/
+# Source repos are now git submodules — tracked by git
+
+# External repo (separate git repo, not a submodule)
+proxy-testing-framework/
 
 # Build artifacts
 build/
