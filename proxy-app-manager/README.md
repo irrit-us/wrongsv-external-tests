@@ -2,7 +2,54 @@
 
 Unified Node.js lifecycle manager for proxy apps (FlClash, Hiddify). Launch, connect, test, disconnect, shutdown — all via a clean programmatic API. Extensible client registry for adding more proxy apps.
 
-## Quick Start
+## CLI Quick Start
+
+```bash
+# Start an app with config, verify debug extensions, keep running
+node proxy-app-manager/orchestrate.js --app flclash --config configs/sample-clash-config.yaml
+
+# Full test cycle (launch → debug verify → connect → status → self-test → disconnect → shutdown)
+node proxy-app-manager/orchestrate.js --app flclash --config configs/sample-clash-config.yaml --mode test
+
+# Extended test (test + semantics + widget tree)
+node proxy-app-manager/orchestrate.js --app hiddify --config configs/sample-singbox-config.json --mode full
+
+# Verify debug extensions on an already-running app
+node proxy-app-manager/orchestrate.js --mode debug-verify --vm-uri http://127.0.0.1:41343/DP-Bi1xVQNo=
+
+# Machine-readable JSON output
+node proxy-app-manager/orchestrate.js --app flclash --config config.yaml --mode test --json
+
+# Graceful shutdown of a running app
+node proxy-app-manager/orchestrate.js --mode shutdown --vm-uri http://127.0.0.1:41343/DP-Bi1xVQNo=
+```
+
+### CLI Modes
+
+| Mode | Description |
+|------|-------------|
+| `launch` | Start app + install config + verify debug + keep running (default) |
+| `test` | Full cycle: launch → verify → connect → status → selfTest → disconnect → shutdown |
+| `full` | Extended test + semantics dump + widget tree |
+| `debug-verify` | Connect to running app, verify all debug extensions |
+| `shutdown` | Connect to running app, disconnect proxy, stop it |
+
+### CLI Flags
+
+| Flag | Description |
+|------|-------------|
+| `--app <name>` | App to use: `flclash` (default), `hiddify` |
+| `--config <path>` | Proxy config file (required for launch/test/full) |
+| `--mode <mode>` | Operation mode (default: `launch`) |
+| `--vm-uri <uri>` | VM service URI (required for debug-verify, shutdown) |
+| `--no-headless` | Show app window instead of Xvfb |
+| `--timeout <ms>` | Operation timeout in ms (default: 60000) |
+| `--json` | Output results as JSON |
+| `--keep-running` | Don't stop app after test/full |
+| `--suite <name>` | Test suite for full mode (default: latency) |
+| `--output-dir <path>` | Results directory for full mode |
+
+## Programmatic API
 
 ```js
 const { ProxyAppManager } = require('proxy-app-manager');
