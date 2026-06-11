@@ -1,6 +1,0 @@
-extensions:
-  - addsTo:
-      pack: advanced-security/ql-mcp-python-tools-src
-      extensible: targetFunction
-    data:
-      - ['targetFunc']

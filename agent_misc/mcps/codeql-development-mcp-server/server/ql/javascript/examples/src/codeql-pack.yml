@@ -1,5 +1,0 @@
-name: advanced-security/ql-mcp-javascript-examples-src
-version: '0.0.1'
-library: false
-dependencies:
-  codeql/javascript-all: '*'

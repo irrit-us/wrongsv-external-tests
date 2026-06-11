@@ -1,2 +1,0 @@
-| Example1.rb:12:3:12:12 | call to targetFunc | Call to `targetFunc` from `caller1` |
-| Example1.rb:16:3:16:12 | call to targetFunc | Call to `targetFunc` from `caller2` |

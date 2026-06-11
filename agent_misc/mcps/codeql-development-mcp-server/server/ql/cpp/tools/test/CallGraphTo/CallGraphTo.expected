@@ -1,2 +1,0 @@
-| Example1.cpp:12:5:12:14 | call to targetFunc | Call to `targetFunc` from `caller1` |
-| Example1.cpp:16:5:16:14 | call to targetFunc | Call to `targetFunc` from `caller2` |

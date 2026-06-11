@@ -1,2 +1,0 @@
-| Example1.cs:13:9:13:20 | call to method Unrelated1 | Call from `SourceFunc` to `Unrelated1` |
-| Example1.cs:14:9:14:20 | call to method Unrelated2 | Call from `SourceFunc` to `Unrelated2` |
