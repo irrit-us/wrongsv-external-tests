@@ -40,6 +40,7 @@ wrongsv-external-tests/
 ├── proxy-testing-framework/     # Node.js proxy evaluation framework
 │   ├── puppeteer-debug/         # Browser automation through proxy
 │   ├── traffic-simulator/       # fetch-based user behavior simulation
+│   ├── user-simulator/          # Puppeteer-based real user behavior simulation
 │   └── evaluator/               # Test suites + scoring + reports
 ├── scripts/
 │   ├── start-proxy-app.sh       # Bash: launch app with config + Xvfb
@@ -155,6 +156,39 @@ class MyProxyClient extends BaseClient {
 registry.register(MyProxyClient);
 // Now: node orchestrate.js --app myproxy --config ./config.json
 ```
+
+## Cleanup
+
+Repeated test runs accumulate config files, app data, and log files on disk. Cleanup
+methods exist at every layer to prevent unbounded disk growth.
+
+### CLI
+
+```bash
+# Remove config/log/data files after shutdown
+node orchestrate.js --app flclash --config ./config.yaml --mode test --clean
+```
+
+### Programmatic
+
+```js
+// Shutdown with cleanup (removes config + log files)
+await mgr.shutdown(true);
+
+// Or clean up without full shutdown (if already stopped)
+await mgr.cleanup();
+```
+
+### Cleanup layers
+
+| Layer | Method | What it cleans |
+|-------|--------|----------------|
+| `AppProcess` | `stop(force, clean)` / `_cleanFiles()` | Log file in /tmp |
+| `BaseClient` | `cleanData()` (abstract) | Hook for subclass data cleanup |
+| `FlClashClient` | `cleanData()` | `config.yaml` in data dir |
+| `HiddifyClient` | `cleanData()` | `config.json`, `current-config.json`, `.log`/`.tmp` files |
+| `ProxyAppManager` | `shutdown(clean)` / `cleanup()` / `_cleanData()` | Delegates to client.cleanData() |
+| `orchestrate.js` | `--clean` flag | Passes clean flag through to shutdown |
 
 ## Rebuilding binaries
 

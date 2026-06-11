@@ -1,8 +1,5 @@
 # Source repos are now git submodules — tracked by git
 
-# External repo (separate git repo, not a submodule)
-proxy-testing-framework/
-
 # Build artifacts
 build/
 .dart_tool/

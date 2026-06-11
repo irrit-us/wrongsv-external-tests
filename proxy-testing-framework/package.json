@@ -1,0 +1,23 @@
+{
+  "name": "proxy-testing-framework",
+  "version": "1.0.0",
+  "description": "Puppeteer debug + traffic simulator for comprehensive proxy evaluation",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node evaluator/cli.js --help",
+    "latency": "node evaluator/cli.js --suite latency",
+    "stability": "node evaluator/cli.js --suite stability",
+    "comprehensive": "node evaluator/cli.js --suite comprehensive"
+  },
+  "dependencies": {
+    "puppeteer": "^24.0.0",
+    "socks-proxy-agent": "^8.0.0",
+    "https-proxy-agent": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["proxy", "testing", "puppeteer", "traffic", "benchmark"],
+  "license": "MIT"
+}
