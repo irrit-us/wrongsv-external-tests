@@ -19,7 +19,6 @@ wrongsv-external-tests/
 │   └── evaluator/               # Combined test suites + scoring + reports
 ├── hiddify-next/              # Hiddify app (cloned, with debug extensions added)
 ├── FlClash/                   # FlClash app (cloned, with debug extensions added)
-├── agent_misc/                # Reference: flutter-testing-framework skill
 └── README.md
 ```
 

@@ -28,3 +28,6 @@ __pycache__/
 
 # Task list (local tracking, not for repo)
 TASKS.md
+
+# Legacy (removed from repo, kept locally)
+agent_misc/

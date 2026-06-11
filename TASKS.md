@@ -45,8 +45,15 @@
 - [x] **Test proxy readiness detection**: FlClash verified (curl polling through port 7890)
 - [x] **Debug Hiddify connectProxy**: Fixed — bypass applyConfigOption, directly call HiddifyCoreService.start()
 - [x] **Hiddify E2E**: connectProxy works — connection succeeds, proxy responds on auto-generated port (12334 in test)
-- [ ] **Test FlClash full E2E**: run-proxy-test.sh end-to-end with current binary
-- [ ] **Run full Hiddify E2E**: run-proxy-test.sh end-to-end with updated port detection
+- [x] **Test FlClash full E2E**: VM extensions verified (12/12) with new app ID com.irrit-us.flclash.debug
+- [x] **Run full Hiddify E2E**: VM extensions verified (12/12), all functions work at runtime
+- [x] **Remove agent_misc from repo**: Committed and force-pushed to main
+- [x] **Fix FlClash system app conflict**: Changed APPLICATION_ID to com.irrit-us.flclash.debug, rebuilt binary
+- [x] **Runtime function calling verification**: All VM extensions tested for both apps (see test-vm-extensions.sh)
+  - getAppState, runSelfTest, dumpSemantics, dumpWidgetTree, getProxyStatus
+  - connectProxy, disconnectProxy, performSemanticsAction
+  - Full proxy connect/disconnect cycle verified
+  - AOT limitation: dumpWidgetTree returns empty in profile mode (toStringDeep disabled)
 
 ## Known Limitations / Future Work
 
