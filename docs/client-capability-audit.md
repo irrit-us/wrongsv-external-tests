@@ -35,7 +35,8 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 - Server defects:
   `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
   `vless_grpc` failed against wrongsv
-  `vless_xhttp` failed against wrongsv
+- `vless_xhttp` now passes after forcing `mode: "stream-one"` in the generated
+  Mihomo/Xray-family client config.
 - Harness gaps:
   `vless_quic`, `vless_kcp`, `hysteria2`, `tuic`
 
@@ -48,9 +49,8 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   `shadowsocks_2022`, `trojan_tls`
 - Server defects:
   `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
-  `vless_xhttp` failed against wrongsv
 - Harness gaps:
-  `anytls`, `shadowtls`, `hysteria2`, `tuic`
+  `anytls`, `shadowtls`, `hysteria2`, `tuic`, `vless_xhttp`
 
 ### xray-core
 
@@ -93,16 +93,10 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 - `server.mihomo_grpc_interop`
   Mihomo-backed clients can select the gRPC carrier, but wrongsv does not maintain
   a stable HTTP/2/gRPC exchange.
-- `server.mihomo_xhttp_interop`
-  Mihomo-backed clients can select XHTTP, but wrongsv does not successfully
-  negotiate the transport.
-- `server.singbox_xhttp_interop`
-  sing-box reaches the XHTTP endpoint, but wrongsv returns malformed/aborted
-  HTTP/2 behavior.
 - `server.xray_xhttp_interop`
-  xray-core also fails against wrongsv's XHTTP carrier, so the issue is now
-  clearly server-side at the XHTTP transport layer rather than specific to
-  sing-box or Mihomo.
+  xray-core still fails against wrongsv's XHTTP carrier even after forcing
+  `mode: "stream-one"`, so the remaining issue is now narrowed to the
+  Xray-family side of wrongsv's XHTTP transport handling.
 - `server.xray_grpc_interop`
   xray-core can connect to the gRPC carrier, but compatibility probes do not stay healthy.
 - `server.v2ray_grpc_interop`

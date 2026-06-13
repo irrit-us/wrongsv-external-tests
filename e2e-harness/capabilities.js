@@ -41,13 +41,6 @@ const SERVER_DEFECTS = {
     detail:
       "Mihomo-backed clients attempt the gRPC carrier, but wrongsv closes the connection before a stable HTTP/2 request/response flow is established.",
   },
-  "server.mihomo_xhttp_interop": {
-    id: "server.mihomo_xhttp_interop",
-    title: "wrongsv XHTTP carrier is not Mihomo-compatible",
-    severity: "high",
-    detail:
-      "Mihomo-backed clients attempt XHTTP, but wrongsv does not complete a valid HTTP/2 exchange and the VLESS header is never accepted.",
-  },
   "server.singbox_xhttp_interop": {
     id: "server.singbox_xhttp_interop",
     title: "wrongsv XHTTP carrier is not sing-box-compatible",
@@ -101,11 +94,9 @@ const CLIENT_CAPABILITIES = {
       "server.vmess_standard_interop",
       "server.mihomo_wireguard_protocol",
       "server.mihomo_grpc_interop",
-      "server.mihomo_xhttp_interop",
     ],
     scenarioDefects: {
       vless_grpc: "server.mihomo_grpc_interop",
-      vless_xhttp: "server.mihomo_xhttp_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
     harnessGaps: ["vless_quic", "vless_kcp", "hysteria2", "tuic"],
@@ -134,11 +125,9 @@ const CLIENT_CAPABILITIES = {
       "server.vmess_standard_interop",
       "server.mihomo_wireguard_protocol",
       "server.mihomo_grpc_interop",
-      "server.mihomo_xhttp_interop",
     ],
     scenarioDefects: {
       vless_grpc: "server.mihomo_grpc_interop",
-      vless_xhttp: "server.mihomo_xhttp_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
     harnessGaps: ["vless_quic", "vless_kcp", "hysteria2", "tuic"],
@@ -154,7 +143,6 @@ const CLIENT_CAPABILITIES = {
       "vless_ws_tcp",
       "vless_httpupgrade",
       "vless_grpc",
-      "vless_xhttp",
       "vless_quic",
       "shadowsocks_aead",
       "shadowsocks_2022",
@@ -162,12 +150,11 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.vmess_standard_interop", "server.singbox_xhttp_interop"],
+    serverDefects: ["server.vmess_standard_interop"],
     scenarioDefects: {
-      vless_xhttp: "server.singbox_xhttp_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
-    harnessGaps: ["anytls", "shadowtls", "hysteria2", "tuic"],
+    harnessGaps: ["anytls", "shadowtls", "hysteria2", "tuic", "vless_xhttp"],
   },
   "sing-box": {
     label: "sing-box",
@@ -180,7 +167,6 @@ const CLIENT_CAPABILITIES = {
       "vless_ws_tcp",
       "vless_httpupgrade",
       "vless_grpc",
-      "vless_xhttp",
       "vless_quic",
       "shadowsocks_aead",
       "shadowsocks_2022",
@@ -188,12 +174,11 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.vmess_standard_interop", "server.singbox_xhttp_interop"],
+    serverDefects: ["server.vmess_standard_interop"],
     scenarioDefects: {
-      vless_xhttp: "server.singbox_xhttp_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
-    harnessGaps: ["anytls", "shadowtls", "hysteria2", "tuic"],
+    harnessGaps: ["anytls", "shadowtls", "hysteria2", "tuic", "vless_xhttp"],
   },
   "xray-core": {
     label: "xray-core",
