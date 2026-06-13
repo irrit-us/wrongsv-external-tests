@@ -3,7 +3,12 @@ const net = require("net");
 const path = require("path");
 const { spawn } = require("child_process");
 const { ProxyAppManager } = require("../proxy-app-manager");
-const { ClashApiDebugClient, VmBridgeDebugClient } = require("./debug-control");
+const {
+  ClashApiDebugClient,
+  CompositeDebugClient,
+  ProcessDebugClient,
+  VmBridgeDebugClient,
+} = require("./debug-control");
 
 function firstExistingBinary(candidates) {
   for (const candidate of candidates) {
@@ -134,6 +139,7 @@ class CoreProcessRunner {
     this.name = options.name;
     this.binary = options.binary;
     this.args = options.args;
+    this.configPath = options.configPath;
     this.proxyPort = options.proxyPort;
     this.workDir = options.workDir || path.dirname(this.binary);
     this.logPath = options.logPath;
@@ -167,12 +173,27 @@ class CoreProcessRunner {
   }
 
   buildDebugClient() {
-    if (!this.debug) return null;
-    return new ClashApiDebugClient({
-      baseUrl: `http://${this.debug.host}:${this.debug.port}`,
-      secret: this.debug.secret,
-      logPath: this.logPath,
+    const processDebug = new ProcessDebugClient({
       client: this.name,
+      logPath: this.logPath,
+      configPath: this.configPath,
+      binary: this.binary,
+      proxyPort: this.proxyPort,
+      args: this.args,
+      pidProvider: () => this.process?.pid || null,
+    });
+    if (!this.debug) return processDebug;
+    return new CompositeDebugClient({
+      client: this.name,
+      parts: [
+        new ClashApiDebugClient({
+          baseUrl: `http://${this.debug.host}:${this.debug.port}`,
+          secret: this.debug.secret,
+          logPath: this.logPath,
+          client: this.name,
+        }),
+        processDebug,
+      ],
     });
   }
 
@@ -215,6 +236,7 @@ function createClientRunner(options) {
         name: "clash-verge-rev",
         binary: resolveMihomoBinary(options.repoRoot),
         args: ["-d", options.outputDir, "-f", options.configPath],
+        configPath: options.configPath,
         proxyPort: 7890,
         logPath: path.join(options.outputDir, "clash-verge-rev.log"),
         debug: {
@@ -229,6 +251,7 @@ function createClientRunner(options) {
         name: "xray-core",
         binary: resolveXrayBinary(options.repoRoot),
         args: ["run", "-config", options.configPath],
+        configPath: options.configPath,
         proxyPort: 10808,
         logPath: path.join(options.outputDir, "xray-core.log"),
       });
@@ -238,6 +261,7 @@ function createClientRunner(options) {
         name: "v2ray",
         binary: resolveV2RayBinary(options.repoRoot),
         args: ["run", "-config", options.configPath],
+        configPath: options.configPath,
         proxyPort: 10818,
         logPath: path.join(options.outputDir, "v2ray.log"),
       });
@@ -247,6 +271,7 @@ function createClientRunner(options) {
         name: "sing-box",
         binary: resolveSingBoxBinary(options.repoRoot),
         args: ["run", "-c", options.configPath],
+        configPath: options.configPath,
         proxyPort: 10809,
         logPath: path.join(options.outputDir, "sing-box.log"),
         debug: {

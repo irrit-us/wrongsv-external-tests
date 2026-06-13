@@ -22,6 +22,24 @@ then classifies the outcome as one of:
   `https://www.v2fly.org/en_US/v5/config/proxy/shadowsocks.html`  
   `https://www.v2fly.org/en_US/v5/config/proxy/trojan.html`
 
+## Debug Surfaces
+
+- `clash-verge-rev` and `sing-box` now emit composite `debug-*.json` artifacts:
+  runtime control state from the Clash API plus process/socket/config/log
+  snapshots from the reusable process-level debug client.
+- `FlClash` and `Hiddify` continue to emit VM-service snapshots through the
+  Flutter bridge path.
+- `xray-core` and `V2Ray/V2Fly` now also emit reusable `debug-*.json`
+  artifacts via the process-level debug client, including PID, `/proc` status,
+  listening sockets, config summary, and log tail. Example runs:
+  [xray debug](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-debug-check-1/vless_raw_tcp/debug-initial.json)
+  and
+  [v2ray debug](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-debug-check-1/vless_raw_tcp/debug-initial.json).
+- Runtime tweaks remain best-effort: Clash-family cores expose live selector/API
+  mutation, while Xray/V2Ray currently expose process-level inspection only
+  because the tested binaries do not ship a comparable control API in this
+  harness.
+
 ## Executed Matrices
 
 ### clash-verge-rev (Mihomo core path)
