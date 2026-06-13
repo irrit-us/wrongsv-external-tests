@@ -27,13 +27,11 @@ then classifies the outcome as one of:
 ### clash-verge-rev (Mihomo core path)
 
 Runtime path: Mihomo core via [run-client-matrix.js](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/run-client-matrix.js)  
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-grpc-recheck-3/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-grpc-recheck-3/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-vmess-recheck-1/matrix.json)
 
 - Covered:
-  `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `vless_grpc`, `shadowsocks_aead`,
+  `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `vless_grpc`, `vmess_standard`, `shadowsocks_aead`,
   `shadowsocks_2022`, `trojan_tls`
-- Server defects:
-  `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
 - `vless_xhttp` now passes after forcing `mode: "stream-one"` in the generated
   Mihomo/Xray-family client config.
 - Harness gaps:
@@ -41,38 +39,34 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### sing-box
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-vmess-recheck-1/matrix.json)
 
 - Covered:
-  `vless_reality_vision`, `vless_httpupgrade`, `vless_quic`,
+  `vless_reality_vision`, `vless_httpupgrade`, `vless_quic`, `vmess_standard`,
   `shadowsocks_2022`, `trojan_tls`
-- Server defects:
-  `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
 - Harness gaps:
   `anytls`, `shadowtls`, `hysteria2`, `tuic`, `vless_xhttp`
 
 ### xray-core
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-grpc-recheck-6/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-grpc-recheck-6/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-vmess-recheck-3/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-kcp-check-2/matrix.json)
 
 - Covered:
-  `vless_reality_vision`, `vless_httpupgrade`, `vless_grpc`, `vless_xhttp`, `shadowsocks_2022`
-- Server defects:
-  `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
+  `vless_reality_vision`, `vless_httpupgrade`, `vless_grpc`, `vless_xhttp`, `vmess_standard`, `shadowsocks_2022`
 - `vless_xhttp` now passes after wrongsv added plaintext HTTP/1.1 `stream-one`
   handling plus carrier-local metrics accounting.
 - Harness gaps:
-  `vless_kcp` currently blocked by xray 26.5.9 config migration (`mkcp header & seed` removal)
+  `vless_kcp` no longer fails at config-load time after moving to the current
+  finalmask-based schema, but the latest run still times out under traffic with
+  no server-side metrics, so runtime behavior remains under investigation
   `vless_tls_tcp`, `trojan_tls`, `vless_quic`
 
 ### V2Ray / V2Fly
 
-Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json)
+Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-vmess-recheck-1/matrix.json)
 
 - Covered:
-  `vless_raw_tcp`, `vless_ws_tcp`, `vless_grpc`, `shadowsocks_aead`
-- Server defects:
-  `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
+  `vless_raw_tcp`, `vless_ws_tcp`, `vless_grpc`, `vmess_standard`, `shadowsocks_aead`
 - Not a server defect:
   `vless_httpupgrade` is not accepted by the tested V2Ray 5.49.0 binary, so it was removed
   from the runnable capability set
@@ -85,9 +79,10 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   multi-stream HTTP/2 reuse plus per-user gRPC metrics, and the latest external
   rechecks show `vless_grpc` passing for Mihomo-core, xray-core, and V2Ray/V2Fly.
 
-- `server.vmess_standard_interop`
-  Standard VMess-capable clients fail because wrongsv is not wire-compatible with
-  the v2fly/xray VMess dialect.
+- Note: wrongsv's VMess inbound now matches the standard xray/v2fly AEAD
+  dialect closely enough for `xray-core`, `V2Ray/V2Fly`, `sing-box`,
+  `clash-verge-rev`, `FlClash`, and `Hiddify` VMess compatibility and traffic
+  sweeps to pass in the latest external rechecks.
 - `server.mihomo_wireguard_protocol`
   Mihomo-class clients expose WireGuard support, but wrongsv still has no WireGuard server-side mode.
 - `server.v2ray_meek_transport`

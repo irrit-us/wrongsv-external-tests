@@ -1,11 +1,4 @@
 const SERVER_DEFECTS = {
-  "server.vmess_standard_interop": {
-    id: "server.vmess_standard_interop",
-    title: "wrongsv VMess is not wire-compatible with standard clients",
-    severity: "high",
-    detail:
-      "wrongsv's VMess KDF/header handling diverges from the v2fly/xray dialect, so standard VMess-capable clients should be expected to fail until the server implementation is reconciled.",
-  },
   "server.v2ray_meek_transport": {
     id: "server.v2ray_meek_transport",
     title: "wrongsv lacks V2Ray Meek transport support",
@@ -62,13 +55,8 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: [
-      "server.vmess_standard_interop",
-      "server.mihomo_wireguard_protocol",
-    ],
-    scenarioDefects: {
-      vmess_standard: "server.vmess_standard_interop",
-    },
+    serverDefects: ["server.mihomo_wireguard_protocol"],
+    scenarioDefects: {},
     harnessGaps: ["vless_quic", "vless_kcp", "hysteria2", "tuic"],
   },
   "clash-verge-rev": {
@@ -91,13 +79,8 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: [
-      "server.vmess_standard_interop",
-      "server.mihomo_wireguard_protocol",
-    ],
-    scenarioDefects: {
-      vmess_standard: "server.vmess_standard_interop",
-    },
+    serverDefects: ["server.mihomo_wireguard_protocol"],
+    scenarioDefects: {},
     harnessGaps: ["vless_quic", "vless_kcp", "hysteria2", "tuic"],
   },
   hiddify: {
@@ -118,10 +101,8 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.vmess_standard_interop"],
-    scenarioDefects: {
-      vmess_standard: "server.vmess_standard_interop",
-    },
+    serverDefects: [],
+    scenarioDefects: {},
     harnessGaps: ["anytls", "shadowtls", "hysteria2", "tuic", "vless_xhttp"],
   },
   "sing-box": {
@@ -142,10 +123,8 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.vmess_standard_interop"],
-    scenarioDefects: {
-      vmess_standard: "server.vmess_standard_interop",
-    },
+    serverDefects: [],
+    scenarioDefects: {},
     harnessGaps: ["anytls", "shadowtls", "hysteria2", "tuic", "vless_xhttp"],
   },
   "xray-core": {
@@ -163,10 +142,8 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.vmess_standard_interop"],
-    scenarioDefects: {
-      vmess_standard: "server.vmess_standard_interop",
-    },
+    serverDefects: [],
+    scenarioDefects: {},
     harnessGaps: ["vless_tls_tcp", "trojan_tls", "vless_quic", "vless_kcp"],
   },
   v2ray: {
@@ -181,14 +158,11 @@ const CLIENT_CAPABILITIES = {
     ],
     browserScenario: "vless_raw_tcp",
     serverDefects: [
-      "server.vmess_standard_interop",
       "server.v2ray_meek_transport",
       "server.v2ray_tlsmirror_transport",
       "server.v2ray_docs_transport",
     ],
-    scenarioDefects: {
-      vmess_standard: "server.vmess_standard_interop",
-    },
+    scenarioDefects: {},
     harnessGaps: ["trojan_tls", "vless_quic", "shadowsocks_2022", "vless_httpupgrade", "vless_kcp"],
   },
 };

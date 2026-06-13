@@ -114,7 +114,6 @@ function buildScenarios(wrongsvRepo) {
       family: "vmess",
       configPath: config("vmess.toml"),
       serverName: "localhost",
-      expectedDefectId: "server.vmess_standard_interop",
     },
   };
 }
