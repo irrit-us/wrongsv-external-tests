@@ -117,6 +117,15 @@ function buildScenarios(wrongsvRepo) {
       password: "your-secure-password",
       serverName: "localhost",
     },
+    shadowtls_tcp: {
+      id: "shadowtls_tcp",
+      label: "ShadowTLS TCP",
+      family: "shadowtls",
+      configPath: config("shadowtls.toml"),
+      serverPort: 443,
+      password: "your-shadowtls-password",
+      serverName: "localhost",
+    },
     vmess_standard: {
       id: "vmess_standard",
       label: "VMess standard client interop",
