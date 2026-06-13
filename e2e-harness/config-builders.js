@@ -482,34 +482,52 @@ function buildSingBoxAnytlsRuntimeConfig(scenario, options = {}) {
   return JSON.stringify(config, null, 2);
 }
 
-function buildSingBoxShadowTlsRuntimeConfig(scenario, options = {}) {
-  const primaryTag = options.clientName || "wrongsv";
-  const outbounds = [
-    {
-      type: "shadowtls",
-      tag: primaryTag,
-      server: "127.0.0.1",
-      server_port: options.serverPort || scenario.serverPort,
-      version: 3,
-      password: scenario.password,
-      tls: {
-        enabled: true,
-        server_name: scenario.serverName || "localhost",
-        insecure: true,
-      },
+function buildSingBoxShadowTlsRuntimeConfig(rawConfig, scenario, options = {}) {
+  const parsed = parseJson(rawConfig);
+  const outbounds = extractSingBoxOutbounds(parsed);
+  const primary = clone(
+    outbounds.find((item) => item.tag && item.tag !== "direct") || outbounds[0]
+  );
+  if (!primary) {
+    throw new Error("wrongsv sing-box config did not contain a primary outbound");
+  }
+
+  const detourTag = options.detourTag || `${options.clientName || "wrongsv"}-shadowtls`;
+  delete primary.tls;
+  primary.detour = detourTag;
+
+  const nextOutbounds = outbounds.map((outbound) =>
+    outbound.tag === primary.tag ? primary : outbound
+  );
+  nextOutbounds.push({
+    type: "shadowtls",
+    tag: detourTag,
+    server: "127.0.0.1",
+    server_port: options.serverPort || scenario.serverPort,
+    version: 3,
+    password: scenario.password,
+    tls: {
+      enabled: true,
+      server_name: scenario.serverName || "localhost",
+      insecure: true,
     },
-  ];
-  let finalTag = primaryTag;
+  });
+
+  let finalTag = primary.tag || options.clientName || "wrongsv";
   if (options.debugController) {
-    outbounds.push({ type: "direct", tag: "direct" });
-    outbounds.push({
+    const directTag = nextOutbounds.find((item) => item.tag === "direct")?.tag || "direct";
+    if (!nextOutbounds.find((item) => item.tag === directTag)) {
+      nextOutbounds.push({ type: "direct", tag: directTag });
+    }
+    nextOutbounds.push({
       type: "selector",
       tag: "selector",
-      outbounds: [primaryTag, "direct"],
-      default: primaryTag,
+      outbounds: [finalTag, directTag],
+      default: finalTag,
     });
     finalTag = "selector";
   }
+
   const config = {
     log: { level: "warn" },
     inbounds: [
@@ -520,8 +538,9 @@ function buildSingBoxShadowTlsRuntimeConfig(scenario, options = {}) {
         listen_port: options.mixedPort || 10809,
       },
     ],
-    outbounds,
+    outbounds: nextOutbounds,
     route: {
+      auto_detect_interface: false,
       final: finalTag,
     },
   };
@@ -618,7 +637,7 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
       if (family === "shadowtls") {
         return {
           extension: ".json",
-          content: buildSingBoxShadowTlsRuntimeConfig(scenario, {
+          content: buildSingBoxShadowTlsRuntimeConfig(rawConfig, scenario, {
             mixedPort: 12334,
             clientName,
             serverPort,
@@ -678,7 +697,7 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
       if (family === "shadowtls") {
         return {
           extension: ".json",
-          content: buildSingBoxShadowTlsRuntimeConfig(scenario, {
+          content: buildSingBoxShadowTlsRuntimeConfig(rawConfig, scenario, {
             mixedPort: 10809,
             clientName,
             serverPort,
