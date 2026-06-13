@@ -122,6 +122,7 @@ const CLIENT_CAPABILITIES = {
       "vless_httpupgrade",
       "vless_grpc",
       "vless_quic",
+      "vless_xhttp",
       "hysteria2_tcp",
       "tuic_tcp",
       "anytls_tcp",
@@ -134,7 +135,7 @@ const CLIENT_CAPABILITIES = {
     browserScenario: "vless_raw_tcp",
     serverDefects: [],
     scenarioDefects: {},
-    harnessGaps: ["vless_xhttp"],
+    harnessGaps: [],
   },
   "xray-core": {
     label: "xray-core",
