@@ -124,6 +124,47 @@ function buildMihomoTrojanRuntimeConfig(scenario, options = {}) {
   );
 }
 
+function buildMihomoHysteria2RuntimeConfig(scenario, options = {}) {
+  return buildMihomoShellConfig(
+    {
+      name: options.clientName || "wrongsv",
+      type: "hysteria2",
+      server: "127.0.0.1",
+      port: options.serverPort || scenario.serverPort,
+      password: scenario.password,
+      up: scenario.up || "50 Mbps",
+      down: scenario.down || "100 Mbps",
+      sni: scenario.serverName || "localhost",
+      "skip-cert-verify": true,
+      alpn: ["h3"],
+      udp: true,
+    },
+    options
+  );
+}
+
+function buildMihomoTuicRuntimeConfig(scenario, options = {}) {
+  return buildMihomoShellConfig(
+    {
+      name: options.clientName || "wrongsv",
+      type: "tuic",
+      server: "127.0.0.1",
+      port: options.serverPort || scenario.serverPort,
+      uuid: scenario.uuid,
+      password: scenario.password,
+      "udp-relay-mode": scenario.udpRelayMode || "native",
+      "reduce-rtt": true,
+      "request-timeout": 8000,
+      "congestion-controller": scenario.congestionControl || "cubic",
+      sni: scenario.serverName || "localhost",
+      "skip-cert-verify": true,
+      alpn: ["h3"],
+      udp: true,
+    },
+    options
+  );
+}
+
 function normalizeXrayOutbound(outbound) {
   const next = clone(outbound);
   if (next.stream_settings && !next.streamSettings) {
@@ -765,6 +806,34 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         return {
           extension: ".yaml",
           content: buildMihomoTrojanRuntimeConfig(scenario, {
+            mixedPort: 7890,
+            clientName,
+            serverPort,
+            debugController:
+              client === "clash-verge-rev"
+                ? { host: "127.0.0.1", port: 19090, secret: "wrongsv-debug" }
+                : undefined,
+          }),
+        };
+      }
+      if (family === "hysteria2") {
+        return {
+          extension: ".yaml",
+          content: buildMihomoHysteria2RuntimeConfig(scenario, {
+            mixedPort: 7890,
+            clientName,
+            serverPort,
+            debugController:
+              client === "clash-verge-rev"
+                ? { host: "127.0.0.1", port: 19090, secret: "wrongsv-debug" }
+                : undefined,
+          }),
+        };
+      }
+      if (family === "tuic") {
+        return {
+          extension: ".yaml",
+          content: buildMihomoTuicRuntimeConfig(scenario, {
             mixedPort: 7890,
             clientName,
             serverPort,

@@ -27,18 +27,31 @@ then classifies the outcome as one of:
 ### clash-verge-rev (Mihomo core path)
 
 Runtime path: Mihomo core via [run-client-matrix.js](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/run-client-matrix.js)  
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-grpc-recheck-3/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-vmess-recheck-1/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-grpc-recheck-3/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-hysteria2-check-2/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-tuic-check-2/tuic_tcp/report.json)
 
 - Covered:
-  `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `vless_grpc`, `vmess_standard`, `shadowsocks_aead`,
+  `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `vless_grpc`,
+  `hysteria2_tcp`, `tuic_tcp`, `vmess_standard`, `shadowsocks_aead`,
   `shadowsocks_2022`, `trojan_tls`
 - `vless_xhttp` now passes after forcing `mode: "stream-one"` in the generated
   Mihomo/Xray-family client config.
 - Harness gaps:
-  `vless_quic`, `vless_kcp`, `hysteria2`, `tuic`
+  `vless_quic`, `vless_kcp`
 - Current KCP note: the Mihomo core on this box still tries a TCP dial against
   the KCP port even when `network: mkcp` / `mkcp-opts` are present, so this
   remains a client/runtime gap rather than a wrongsv server defect.
+
+### FlClash
+
+Result files: [suite](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-suite-3/report.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-hysteria2-check-1/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-tuic-check-1/tuic_tcp/report.json)
+
+- Covered through the actual GUI client:
+  `vless_raw_tcp`, `vmess_standard`, `hysteria2_tcp`, `tuic_tcp`
+- Broader protocol capability for the underlying Mihomo core follows the
+  `clash-verge-rev` section above; the dedicated FlClash GUI automation here is
+  still a smaller subset.
+- Remaining client/runtime gaps:
+  `vless_quic`, `vless_kcp`
 
 ### sing-box
 
