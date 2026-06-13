@@ -108,6 +108,7 @@ class SuiteRunner {
     });
 
     let clientRunner;
+    let debugClient = null;
     const metricsClient = this.metricsPort
       ? new WrongsvMetricsClient({
           url: `http://127.0.0.1:${this.metricsPort}/metrics`,
@@ -149,7 +150,12 @@ class SuiteRunner {
       });
 
       const launch = await clientRunner.start();
+      debugClient =
+        typeof clientRunner.buildDebugClient === "function"
+          ? clientRunner.buildDebugClient()
+          : null;
       const targetCatalog = buildTargetCatalog(`http://127.0.0.1.nip.io:${this.targetPort}`);
+      const debugArtifacts = await this._captureDebugInitial(debugClient);
 
       const compatibilityBefore = metricsClient ? await metricsClient.snapshot() : null;
       const compatibility = await runCompatibilityProbe(
@@ -200,6 +206,8 @@ class SuiteRunner {
         }
       }
 
+      await this._captureDebugFinal(debugClient, debugArtifacts);
+
       const result = {
         client: this.client,
         generatedAt: new Date().toISOString(),
@@ -218,6 +226,7 @@ class SuiteRunner {
         },
         clientRuntimeConfig: configPath,
         launch,
+        debug: debugArtifacts,
         compatibility: {
           ...compatibility,
           metricsDelta: WrongsvMetricsClient.delta(
@@ -243,6 +252,65 @@ class SuiteRunner {
       await wrongsv.stop();
       await localServer.stop();
     }
+  }
+
+  async _captureDebugInitial(debugClient) {
+    if (!debugClient) {
+      return null;
+    }
+
+    const artifacts = {};
+    const writeJson = (name, data) => {
+      const file = path.join(this.outputDir, name);
+      fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
+      return file;
+    };
+
+    try {
+      artifacts.initial = writeJson(
+        "debug-initial.json",
+        await this._withDebugTimeout(debugClient.snapshot())
+      );
+    } catch (error) {
+      artifacts.initialError = error.message;
+    }
+
+    if (typeof debugClient.exerciseRuntimeTweaks === "function") {
+      try {
+        artifacts.tweaks = writeJson(
+          "debug-tweaks.json",
+          await this._withDebugTimeout(debugClient.exerciseRuntimeTweaks())
+        );
+      } catch (error) {
+        artifacts.tweakError = error.message;
+      }
+    }
+
+    return artifacts;
+  }
+
+  async _captureDebugFinal(debugClient, artifacts) {
+    if (!debugClient || !artifacts) return;
+    try {
+      const file = path.join(this.outputDir, "debug-final.json");
+      fs.writeFileSync(
+        file,
+        JSON.stringify(await this._withDebugTimeout(debugClient.snapshot()), null, 2),
+        "utf8"
+      );
+      artifacts.final = file;
+    } catch (error) {
+      artifacts.finalError = error.message;
+    }
+  }
+
+  async _withDebugTimeout(promise, ms = 15000) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`debug operation timed out after ${ms}ms`)), ms)
+      ),
+    ]);
   }
 }
 

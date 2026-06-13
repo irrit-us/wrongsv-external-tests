@@ -3,6 +3,7 @@ const net = require("net");
 const path = require("path");
 const { spawn } = require("child_process");
 const { ProxyAppManager } = require("../proxy-app-manager");
+const { ClashApiDebugClient, VmBridgeDebugClient } = require("./debug-control");
 
 function firstExistingBinary(candidates) {
   for (const candidate of candidates) {
@@ -108,6 +109,14 @@ class ProxyAppClientRunner {
     return this.manager.getProxyUrl();
   }
 
+  buildDebugClient() {
+    if (!this.manager) return null;
+    return new VmBridgeDebugClient({
+      manager: this.manager,
+      client: this.app,
+    });
+  }
+
   async stop() {
     if (!this.manager) return;
     try {
@@ -127,6 +136,7 @@ class CoreProcessRunner {
     this.proxyPort = options.proxyPort;
     this.workDir = options.workDir || path.dirname(this.binary);
     this.logPath = options.logPath;
+    this.debug = options.debug || null;
     this.process = null;
   }
 
@@ -153,6 +163,16 @@ class CoreProcessRunner {
 
   getProxyUrl() {
     return `socks5://127.0.0.1:${this.proxyPort}`;
+  }
+
+  buildDebugClient() {
+    if (!this.debug) return null;
+    return new ClashApiDebugClient({
+      baseUrl: `http://${this.debug.host}:${this.debug.port}`,
+      secret: this.debug.secret,
+      logPath: this.logPath,
+      client: this.name,
+    });
   }
 
   async stop() {
@@ -196,6 +216,11 @@ function createClientRunner(options) {
         args: ["-d", options.outputDir, "-f", options.configPath],
         proxyPort: 7890,
         logPath: path.join(options.outputDir, "clash-verge-rev.log"),
+        debug: {
+          host: "127.0.0.1",
+          port: 19090,
+          secret: "wrongsv-debug",
+        },
       });
     case "xray-core":
       return new CoreProcessRunner({
@@ -223,6 +248,11 @@ function createClientRunner(options) {
         args: ["run", "-c", options.configPath],
         proxyPort: 10809,
         logPath: path.join(options.outputDir, "sing-box.log"),
+        debug: {
+          host: "127.0.0.1",
+          port: 19091,
+          secret: "wrongsv-debug",
+        },
       });
     default:
       throw new Error(`Unsupported client runner: ${options.client}`);

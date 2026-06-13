@@ -80,6 +80,11 @@ function buildMihomoShellConfig(proxy, options = {}) {
     ],
     rules: ["MATCH,PROXY"],
   };
+  if (options.debugController) {
+    config["external-controller"] =
+      `${options.debugController.host}:${options.debugController.port}`;
+    config.secret = options.debugController.secret;
+  }
   return toYaml(config);
 }
 
@@ -282,6 +287,17 @@ function buildSingBoxRuntimeConfig(rawConfig, options = {}) {
   const parsed = parseJson(rawConfig);
   const outbounds = extractSingBoxOutbounds(parsed);
   const primary = outbounds.find((item) => item.tag && item.tag !== "direct") || outbounds[0];
+  const finalTag = options.debugController ? "selector" : primary.tag || options.clientName || "wrongsv";
+  const nextOutbounds = [...outbounds];
+  if (options.debugController) {
+    const directTag = nextOutbounds.find((item) => item.tag === "direct")?.tag || "direct";
+    nextOutbounds.push({
+      type: "selector",
+      tag: "selector",
+      outbounds: [primary.tag || options.clientName || "wrongsv", directTag],
+      default: primary.tag || options.clientName || "wrongsv",
+    });
+  }
   const config = {
     log: {
       level: "warn",
@@ -294,79 +310,123 @@ function buildSingBoxRuntimeConfig(rawConfig, options = {}) {
         listen_port: options.mixedPort || 10809,
       },
     ],
-    outbounds,
+    outbounds: nextOutbounds,
     route: {
       auto_detect_interface: false,
-      final: primary.tag || options.clientName || "wrongsv",
+      final: finalTag,
     },
   };
+  if (options.debugController) {
+    config.experimental = {
+      clash_api: {
+        external_controller: `${options.debugController.host}:${options.debugController.port}`,
+        secret: options.debugController.secret,
+      },
+    };
+  }
   return JSON.stringify(config, null, 2);
 }
 
 function buildSingBoxShadowsocksRuntimeConfig(scenario, options = {}) {
-  return JSON.stringify(
+  const primaryTag = options.clientName || "wrongsv";
+  const outbounds = [
     {
-      log: { level: "warn" },
-      inbounds: [
-        {
-          type: "mixed",
-          tag: "mixed-in",
-          listen: "127.0.0.1",
-          listen_port: options.mixedPort || 10809,
-        },
-      ],
-      outbounds: [
-        {
-          type: "shadowsocks",
-          tag: options.clientName || "wrongsv",
-          server: "127.0.0.1",
-          server_port: options.serverPort || scenario.serverPort,
-          method: scenario.method,
-          password: scenario.password,
-        },
-      ],
-      route: {
-        final: options.clientName || "wrongsv",
-      },
+      type: "shadowsocks",
+      tag: primaryTag,
+      server: "127.0.0.1",
+      server_port: options.serverPort || scenario.serverPort,
+      method: scenario.method,
+      password: scenario.password,
     },
-    null,
-    2
-  );
+  ];
+  let finalTag = primaryTag;
+  if (options.debugController) {
+    outbounds.push({ type: "direct", tag: "direct" });
+    outbounds.push({
+      type: "selector",
+      tag: "selector",
+      outbounds: [primaryTag, "direct"],
+      default: primaryTag,
+    });
+    finalTag = "selector";
+  }
+  const config = {
+    log: { level: "warn" },
+    inbounds: [
+      {
+        type: "mixed",
+        tag: "mixed-in",
+        listen: "127.0.0.1",
+        listen_port: options.mixedPort || 10809,
+      },
+    ],
+    outbounds,
+    route: {
+      final: finalTag,
+    },
+  };
+  if (options.debugController) {
+    config.experimental = {
+      clash_api: {
+        external_controller: `${options.debugController.host}:${options.debugController.port}`,
+        secret: options.debugController.secret,
+      },
+    };
+  }
+  return JSON.stringify(config, null, 2);
 }
 
 function buildSingBoxTrojanRuntimeConfig(scenario, options = {}) {
-  return JSON.stringify(
+  const primaryTag = options.clientName || "wrongsv";
+  const outbounds = [
     {
-      log: { level: "warn" },
-      inbounds: [
-        {
-          type: "mixed",
-          tag: "mixed-in",
-          listen: "127.0.0.1",
-          listen_port: options.mixedPort || 10809,
-        },
-      ],
-      outbounds: [
-        {
-          type: "trojan",
-          tag: options.clientName || "wrongsv",
-          server: "127.0.0.1",
-          server_port: options.serverPort || scenario.serverPort,
-          password: scenario.password,
-          tls: {
-            enabled: true,
-            server_name: scenario.serverName || "localhost",
-            insecure: true,
-          },
-        },
-      ],
-      route: {
-        final: options.clientName || "wrongsv",
+      type: "trojan",
+      tag: primaryTag,
+      server: "127.0.0.1",
+      server_port: options.serverPort || scenario.serverPort,
+      password: scenario.password,
+      tls: {
+        enabled: true,
+        server_name: scenario.serverName || "localhost",
+        insecure: true,
       },
     },
-    null,
-    2
-  );
+  ];
+  let finalTag = primaryTag;
+  if (options.debugController) {
+    outbounds.push({ type: "direct", tag: "direct" });
+    outbounds.push({
+      type: "selector",
+      tag: "selector",
+      outbounds: [primaryTag, "direct"],
+      default: primaryTag,
+    });
+    finalTag = "selector";
+  }
+  const config = {
+    log: { level: "warn" },
+    inbounds: [
+      {
+        type: "mixed",
+        tag: "mixed-in",
+        listen: "127.0.0.1",
+        listen_port: options.mixedPort || 10809,
+      },
+    ],
+    outbounds,
+    route: {
+      final: finalTag,
+    },
+  };
+  if (options.debugController) {
+    config.experimental = {
+      clash_api: {
+        external_controller: `${options.debugController.host}:${options.debugController.port}`,
+        secret: options.debugController.secret,
+      },
+    };
+  }
+  return JSON.stringify(config, null, 2);
 }
 
 function buildHiddifyRuntimeConfig(rawConfig, options = {}) {
@@ -385,6 +445,10 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
             mixedPort: 7890,
             clientName,
             serverPort,
+            debugController:
+              client === "clash-verge-rev"
+                ? { host: "127.0.0.1", port: 19090, secret: "wrongsv-debug" }
+                : undefined,
           }),
         };
       }
@@ -395,6 +459,10 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
             mixedPort: 7890,
             clientName,
             serverPort,
+            debugController:
+              client === "clash-verge-rev"
+                ? { host: "127.0.0.1", port: 19090, secret: "wrongsv-debug" }
+                : undefined,
           }),
         };
       }
@@ -403,6 +471,10 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         content: buildMihomoRuntimeConfig(rawConfig, {
           mixedPort: 7890,
           clientName,
+          debugController:
+            client === "clash-verge-rev"
+              ? { host: "127.0.0.1", port: 19090, secret: "wrongsv-debug" }
+              : undefined,
         }),
       };
     case "hiddify":
@@ -441,6 +513,10 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
             mixedPort: 10809,
             clientName,
             serverPort,
+            debugController:
+              client === "sing-box"
+                ? { host: "127.0.0.1", port: 19091, secret: "wrongsv-debug" }
+                : undefined,
           }),
         };
       }
@@ -451,6 +527,10 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
             mixedPort: 10809,
             clientName,
             serverPort,
+            debugController:
+              client === "sing-box"
+                ? { host: "127.0.0.1", port: 19091, secret: "wrongsv-debug" }
+                : undefined,
           }),
         };
       }
@@ -459,6 +539,10 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         content: buildSingBoxRuntimeConfig(rawConfig, {
           mixedPort: 10809,
           clientName,
+          debugController:
+            client === "sing-box"
+              ? { host: "127.0.0.1", port: 19091, secret: "wrongsv-debug" }
+              : undefined,
         }),
       };
     case "xray-core":

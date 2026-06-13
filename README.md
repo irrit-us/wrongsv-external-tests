@@ -134,6 +134,20 @@ See [docs/client-capability-audit.md](docs/client-capability-audit.md) for the
 protocol-by-protocol capability matrix, confirmed server defects, and current
 client-specific harness gaps.
 
+## Debug Surfaces
+
+The harness now captures debug artifacts for both GUI and core clients:
+
+- `FlClash` / `Hiddify`: VM-service snapshots (`getAppState`, `runSelfTest`,
+  semantics, widget tree) are written as `debug-*.json`.
+- `clash-verge-rev` core path: Mihomo Clash controller API is enabled on
+  loopback and the harness records runtime snapshots plus selector actions.
+- `sing-box`: Clash API is enabled on loopback and the harness records
+  runtime snapshots plus selector actions.
+
+These artifacts are emitted alongside each suite output directory so runtime
+UI tweaks and controller-driven changes can be correlated with server behavior.
+
 ## Programmatic API
 
 ```js
