@@ -828,7 +828,11 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
   }
 }
 
-function rawConfigFormat(client) {
+function rawConfigFormat(client, scenario = null) {
+  const scenarioOverride = scenario?.rawFormatByClient?.[client];
+  if (scenarioOverride) {
+    return scenarioOverride;
+  }
   switch (client) {
     case "flclash":
     case "clash-verge-rev":

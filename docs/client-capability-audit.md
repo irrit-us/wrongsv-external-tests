@@ -55,19 +55,27 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   ShadowTLS detour instead of a standalone outbound.
 - Harness gaps:
   `hysteria2`, `tuic`, `vless_xhttp`
+- Current XHTTP note: the installed plain sing-box 1.12.12 binary rejects both
+  native `transport.type: "xhttp"` and Hiddify's custom `type: "xray"`
+  wrapper, so this remains a real client-core capability gap here rather than a
+  wrongsv server defect.
 
 ### Hiddify
 
-Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-check-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-vmess-recheck-1/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-shadowtls-check-1/matrix.json)
+Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-check-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-vmess-recheck-1/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-shadowtls-check-1/matrix.json), [XHTTP check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-check-4/vless_xhttp/report.json), [XHTTP long](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-long-2/vless_xhttp/report.json)
 
 - Covered:
-  `vmess_standard`, `shadowtls_tcp`
+  `vmess_standard`, `shadowtls_tcp`, `vless_xhttp`
 - `shadowtls_tcp` now passes through the same reusable VLESS-over-ShadowTLS
   harness path used for sing-box-core.
+- `vless_xhttp` now passes through Hiddify's custom `type: "xray"` outbound
+  wrapper, which embeds wrongsv's Xray-format `splithttp` config instead of
+  relying on the narrower native transport-type list exposed by the packaged
+  sing-box fork.
 - Harness gaps:
   `anytls` is still blocked in the packaged Hiddify core on this box:
   its runtime logs reject `type: "anytls"` as an unknown outbound type.
-  `hysteria2`, `tuic`, `vless_xhttp`
+  `hysteria2`, `tuic`
 
 ### xray-core
 

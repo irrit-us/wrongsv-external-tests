@@ -95,6 +95,7 @@ const CLIENT_CAPABILITIES = {
       "vless_httpupgrade",
       "vless_grpc",
       "vless_quic",
+      "vless_xhttp",
       "anytls_tcp",
       "shadowtls_tcp",
       "shadowsocks_aead",
@@ -105,7 +106,7 @@ const CLIENT_CAPABILITIES = {
     browserScenario: "vless_raw_tcp",
     serverDefects: [],
     scenarioDefects: {},
-    harnessGaps: ["hysteria2", "tuic", "vless_xhttp"],
+    harnessGaps: ["hysteria2", "tuic"],
   },
   "sing-box": {
     label: "sing-box",

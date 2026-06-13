@@ -125,7 +125,7 @@ class SuiteRunner {
         this.scenario.family === "vmess" ||
         this.scenario.family === "shadowtls";
       const rawClientConfig = needsGeneratedConfig
-        ? wrongsv.generateClientConfig(rawConfigFormat(this.client), {
+        ? wrongsv.generateClientConfig(rawConfigFormat(this.client, this.scenario), {
             clientName: `${this.client}-wrongsv`,
           })
         : null;

@@ -62,6 +62,9 @@ function buildScenarios(wrongsvRepo) {
       family: "vless",
       configPath: config("xhttp.toml"),
       serverName: "localhost",
+      rawFormatByClient: {
+        hiddify: "hiddify",
+      },
     },
     vless_quic: {
       id: "vless_quic",
