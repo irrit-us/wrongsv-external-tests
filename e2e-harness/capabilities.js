@@ -27,13 +27,6 @@ const SERVER_DEFECTS = {
     detail:
       "Mihomo-class clients expose WireGuard support, but wrongsv does not implement a WireGuard inbound/proxy mode.",
     },
-  "server.singbox_xhttp_interop": {
-    id: "server.singbox_xhttp_interop",
-    title: "wrongsv XHTTP carrier is not sing-box-compatible",
-    severity: "high",
-    detail:
-      "sing-box reaches wrongsv's XHTTP endpoint, but the response path is malformed and compatibility probes fail.",
-    },
 };
 
 const CLIENT_CAPABILITIES = {
