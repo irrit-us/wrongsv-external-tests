@@ -39,13 +39,14 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### sing-box
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-vmess-recheck-1/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-vmess-recheck-1/matrix.json), [AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-anytls-check-1/matrix.json)
 
 - Covered:
   `vless_reality_vision`, `vless_httpupgrade`, `vless_quic`, `vmess_standard`,
+  `anytls_tcp`,
   `shadowsocks_2022`, `trojan_tls`
 - Harness gaps:
-  `anytls`, `shadowtls`, `hysteria2`, `tuic`, `vless_xhttp`
+  `shadowtls`, `hysteria2`, `tuic`, `vless_xhttp`
 
 ### xray-core
 

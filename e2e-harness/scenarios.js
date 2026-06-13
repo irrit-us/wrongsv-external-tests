@@ -108,6 +108,15 @@ function buildScenarios(wrongsvRepo) {
       serverName: "localhost",
       browserBehavior: "web-browsing",
     },
+    anytls_tcp: {
+      id: "anytls_tcp",
+      label: "AnyTLS TCP",
+      family: "anytls",
+      configPath: config("anytls-tcp.toml"),
+      serverPort: 443,
+      password: "your-secure-password",
+      serverName: "localhost",
+    },
     vmess_standard: {
       id: "vmess_standard",
       label: "VMess standard client interop",

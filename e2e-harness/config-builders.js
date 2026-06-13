@@ -429,6 +429,59 @@ function buildSingBoxTrojanRuntimeConfig(scenario, options = {}) {
   return JSON.stringify(config, null, 2);
 }
 
+function buildSingBoxAnytlsRuntimeConfig(scenario, options = {}) {
+  const primaryTag = options.clientName || "wrongsv";
+  const outbounds = [
+    {
+      type: "anytls",
+      tag: primaryTag,
+      server: "127.0.0.1",
+      server_port: options.serverPort || scenario.serverPort,
+      password: scenario.password,
+      tls: {
+        enabled: true,
+        server_name: scenario.serverName || "localhost",
+        insecure: true,
+      },
+    },
+  ];
+  let finalTag = primaryTag;
+  if (options.debugController) {
+    outbounds.push({ type: "direct", tag: "direct" });
+    outbounds.push({
+      type: "selector",
+      tag: "selector",
+      outbounds: [primaryTag, "direct"],
+      default: primaryTag,
+    });
+    finalTag = "selector";
+  }
+  const config = {
+    log: { level: "warn" },
+    inbounds: [
+      {
+        type: "mixed",
+        tag: "mixed-in",
+        listen: "127.0.0.1",
+        listen_port: options.mixedPort || 10809,
+      },
+    ],
+    outbounds,
+    route: {
+      final: finalTag,
+    },
+  };
+  if (options.debugController) {
+    config.experimental = {
+      clash_api: {
+        external_controller: `${options.debugController.host}:${options.debugController.port}`,
+        secret: options.debugController.secret,
+      },
+    };
+  }
+  return JSON.stringify(config, null, 2);
+}
+
 function buildHiddifyRuntimeConfig(rawConfig, options = {}) {
   return buildSingBoxRuntimeConfig(rawConfig, options);
 }
@@ -498,6 +551,16 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
           }),
         };
       }
+      if (family === "anytls") {
+        return {
+          extension: ".json",
+          content: buildSingBoxAnytlsRuntimeConfig(scenario, {
+            mixedPort: 12334,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
       return {
         extension: ".json",
         content: buildHiddifyRuntimeConfig(rawConfig, {
@@ -524,6 +587,20 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         return {
           extension: ".json",
           content: buildSingBoxTrojanRuntimeConfig(scenario, {
+            mixedPort: 10809,
+            clientName,
+            serverPort,
+            debugController:
+              client === "sing-box"
+                ? { host: "127.0.0.1", port: 19091, secret: "wrongsv-debug" }
+                : undefined,
+          }),
+        };
+      }
+      if (family === "anytls") {
+        return {
+          extension: ".json",
+          content: buildSingBoxAnytlsRuntimeConfig(scenario, {
             mixedPort: 10809,
             clientName,
             serverPort,
