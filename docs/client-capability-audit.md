@@ -27,14 +27,13 @@ then classifies the outcome as one of:
 ### clash-verge-rev (Mihomo core path)
 
 Runtime path: Mihomo core via [run-client-matrix.js](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/run-client-matrix.js)  
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-grpc-recheck-3/matrix.json)
 
 - Covered:
-  `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `shadowsocks_aead`,
+  `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `vless_grpc`, `shadowsocks_aead`,
   `shadowsocks_2022`, `trojan_tls`
 - Server defects:
   `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
-  `vless_grpc` failed against wrongsv
 - `vless_xhttp` now passes after forcing `mode: "stream-one"` in the generated
   Mihomo/Xray-family client config.
 - Harness gaps:
@@ -54,13 +53,12 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### xray-core
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-grpc-recheck-6/matrix.json)
 
 - Covered:
-  `vless_reality_vision`, `vless_httpupgrade`, `vless_xhttp`, `shadowsocks_2022`
+  `vless_reality_vision`, `vless_httpupgrade`, `vless_grpc`, `vless_xhttp`, `shadowsocks_2022`
 - Server defects:
   `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
-  `vless_grpc` is unstable against wrongsv: first probe may pass, follow-on requests fail
 - `vless_xhttp` now passes after wrongsv added plaintext HTTP/1.1 `stream-one`
   handling plus carrier-local metrics accounting.
 - Harness gaps:
@@ -69,13 +67,12 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### V2Ray / V2Fly
 
-Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json)
+Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json)
 
 - Covered:
-  `vless_raw_tcp`, `vless_ws_tcp`, `shadowsocks_aead`
+  `vless_raw_tcp`, `vless_ws_tcp`, `vless_grpc`, `shadowsocks_aead`
 - Server defects:
   `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
-  `vless_grpc` is unstable against wrongsv
 - Not a server defect:
   `vless_httpupgrade` is not accepted by the tested V2Ray 5.49.0 binary, so it was removed
   from the runnable capability set
@@ -84,21 +81,13 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ## Confirmed Server Defects
 
-- Note: wrongsv's gRPC handler now has an explicit in-tree regression test for
-  multiple HTTP/2 streams on one connection. That removed one clear server bug,
-  but the client matrices below still show incomplete end-to-end gRPC
-  interoperability with Mihomo / xray-core / V2Fly.
+- Note: wrongsv's gRPC handler now has explicit in-tree regressions for
+  multi-stream HTTP/2 reuse plus per-user gRPC metrics, and the latest external
+  rechecks show `vless_grpc` passing for Mihomo-core, xray-core, and V2Ray/V2Fly.
 
 - `server.vmess_standard_interop`
   Standard VMess-capable clients fail because wrongsv is not wire-compatible with
   the v2fly/xray VMess dialect.
-- `server.mihomo_grpc_interop`
-  Mihomo-backed clients can select the gRPC carrier, but wrongsv does not maintain
-  a stable HTTP/2/gRPC exchange.
-- `server.xray_grpc_interop`
-  xray-core can connect to the gRPC carrier, but compatibility probes do not stay healthy.
-- `server.v2ray_grpc_interop`
-  V2Ray/V2Fly can initiate the gRPC carrier, but compatibility probes fail after the first connection.
 - `server.mihomo_wireguard_protocol`
   Mihomo-class clients expose WireGuard support, but wrongsv still has no WireGuard server-side mode.
 - `server.v2ray_meek_transport`

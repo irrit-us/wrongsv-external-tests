@@ -33,35 +33,14 @@ const SERVER_DEFECTS = {
     severity: "medium",
     detail:
       "Mihomo-class clients expose WireGuard support, but wrongsv does not implement a WireGuard inbound/proxy mode.",
-  },
-  "server.mihomo_grpc_interop": {
-    id: "server.mihomo_grpc_interop",
-    title: "wrongsv gRPC carrier is not Mihomo-compatible",
-    severity: "high",
-    detail:
-      "Mihomo-backed clients attempt the gRPC carrier, but wrongsv closes the connection before a stable HTTP/2 request/response flow is established.",
-  },
+    },
   "server.singbox_xhttp_interop": {
     id: "server.singbox_xhttp_interop",
     title: "wrongsv XHTTP carrier is not sing-box-compatible",
     severity: "high",
     detail:
       "sing-box reaches wrongsv's XHTTP endpoint, but the response path is malformed and compatibility probes fail.",
-  },
-  "server.xray_grpc_interop": {
-    id: "server.xray_grpc_interop",
-    title: "wrongsv gRPC carrier is unstable for xray-core",
-    severity: "high",
-    detail:
-      "xray-core can initiate the gRPC outbound, but follow-on probe requests receive empty replies from wrongsv's gRPC path.",
-  },
-  "server.v2ray_grpc_interop": {
-    id: "server.v2ray_grpc_interop",
-    title: "wrongsv gRPC carrier is unstable for V2Ray/V2Fly",
-    severity: "high",
-    detail:
-      "V2Ray/V2Fly can initiate the gRPC outbound, but compatibility probes fail after the initial connection because wrongsv does not sustain the expected request flow.",
-  },
+    },
 };
 
 const CLIENT_CAPABILITIES = {
@@ -86,10 +65,8 @@ const CLIENT_CAPABILITIES = {
     serverDefects: [
       "server.vmess_standard_interop",
       "server.mihomo_wireguard_protocol",
-      "server.mihomo_grpc_interop",
     ],
     scenarioDefects: {
-      vless_grpc: "server.mihomo_grpc_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
     harnessGaps: ["vless_quic", "vless_kcp", "hysteria2", "tuic"],
@@ -117,10 +94,8 @@ const CLIENT_CAPABILITIES = {
     serverDefects: [
       "server.vmess_standard_interop",
       "server.mihomo_wireguard_protocol",
-      "server.mihomo_grpc_interop",
     ],
     scenarioDefects: {
-      vless_grpc: "server.mihomo_grpc_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
     harnessGaps: ["vless_quic", "vless_kcp", "hysteria2", "tuic"],
@@ -188,12 +163,8 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: [
-      "server.vmess_standard_interop",
-      "server.xray_grpc_interop",
-    ],
+    serverDefects: ["server.vmess_standard_interop"],
     scenarioDefects: {
-      vless_grpc: "server.xray_grpc_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
     harnessGaps: ["vless_tls_tcp", "trojan_tls", "vless_quic", "vless_kcp"],
@@ -214,10 +185,8 @@ const CLIENT_CAPABILITIES = {
       "server.v2ray_meek_transport",
       "server.v2ray_tlsmirror_transport",
       "server.v2ray_docs_transport",
-      "server.v2ray_grpc_interop",
     ],
     scenarioDefects: {
-      vless_grpc: "server.v2ray_grpc_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
     harnessGaps: ["trojan_tls", "vless_quic", "shadowsocks_2022", "vless_httpupgrade", "vless_kcp"],
