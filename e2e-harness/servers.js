@@ -76,6 +76,7 @@ class WrongsvServer {
     this.metricsBind = options.metricsBind || "127.0.0.1";
     this.serverHost = options.serverHost || "127.0.0.1";
     this.serverName = options.serverName || "localhost";
+    this.listenProtocol = options.listenProtocol || "tcp";
     this.process = null;
     this.binary = options.binary || path.join(this.wrongsvRepo, "target", "release", "wrongsv");
     this.logPath = path.join(this.outputDir, "wrongsv.log");
@@ -99,7 +100,11 @@ class WrongsvServer {
     });
     this.process.stdout.on("data", (chunk) => out.write(chunk));
     this.process.stderr.on("data", (chunk) => out.write(chunk));
-    await waitForPort(this.listenHost, readListenPort(next), 10000);
+    if (this.listenProtocol === "tcp") {
+      await waitForPort(this.listenHost, readListenPort(next), 10000);
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, 750));
+    }
     if (this.metricsPort) {
       await waitForPort(this.metricsBind, this.metricsPort, 10000);
     }

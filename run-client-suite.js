@@ -80,7 +80,7 @@ Usage:
   node run-client-suite.js --client flclash [options]
 
 Options:
-  --client <name>           flclash | hiddify | xray-core | sing-box
+  --client <name>           flclash | clash-verge-rev | hiddify | xray-core | v2ray | sing-box
   --wrongsv-config <path>   wrongsv TOML config (default: ../wrongsv/configs/tls-vision.toml)
   --output-dir <path>       results directory
   --metrics-port <port>     wrongsv metrics port, or "none" (default: 59100)

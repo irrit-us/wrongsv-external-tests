@@ -19,6 +19,10 @@ node run-client-suite.js --client hiddify
 node run-client-suite.js --client sing-box
 node run-client-suite.js --client xray-core --wrongsv-config ../wrongsv/configs/reality-vision.toml
 
+# Capability-driven multi-scenario audit
+node run-client-matrix.js --client clash-verge-rev
+node run-client-matrix.js --client v2ray
+
 # Start and leave running (with debug verification)
 node orchestrate.js --app flclash --config configs/sample-clash-config.yaml
 
@@ -32,6 +36,7 @@ node orchestrate.js --app flclash --config config.yaml --mode test --json
 wrongsv-external-tests/
 ├── orchestrate.js               # CLI entry point — full lifecycle management
 ├── run-client-suite.js          # End-to-end wrongsv/client evaluation harness
+├── run-client-matrix.js         # Capability-driven multi-scenario audit
 ├── e2e-harness/                 # wrongsv server runner + client adapters + metrics scraper
 ├── proxy-app-manager/           # Node.js lifecycle module
 │   ├── index.js                 # Public API: ProxyAppManager, BaseClient, VmBridge, ...
@@ -119,9 +124,15 @@ Replace `<app>` with `flclash` or `hiddify`.
 The reusable suite runner currently knows how to adapt wrongsv-generated configs for:
 
 - `flclash`
+- `clash-verge-rev` (Mihomo core path)
 - `hiddify`
 - `sing-box`
 - `xray-core` (validated with REALITY configs; see `docs/known-limitations.md`)
+- `v2ray`
+
+See [docs/client-capability-audit.md](docs/client-capability-audit.md) for the
+protocol-by-protocol capability matrix, confirmed server defects, and current
+client-specific harness gaps.
 
 ## Programmatic API
 

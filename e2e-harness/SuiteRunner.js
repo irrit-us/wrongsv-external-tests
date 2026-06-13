@@ -65,6 +65,7 @@ class SuiteRunner {
     this.wrongsvRepo =
       options.wrongsvRepo || path.resolve(this.repoRoot, "..", "wrongsv");
     this.client = options.client;
+    this.scenario = options.scenario || null;
     this.wrongsvConfig = path.resolve(
       options.wrongsvConfig || path.join(this.wrongsvRepo, "configs", "tls-vision.toml")
     );
@@ -100,6 +101,7 @@ class SuiteRunner {
       baseConfigPath: this.wrongsvConfig,
       outputDir: this.outputDir,
       listenPort: this.listenPort,
+      listenProtocol: this.scenario?.listenProtocol,
       metricsPort: this.metricsPort,
       serverHost: this.serverHost,
       serverName: this.serverName,
@@ -116,13 +118,21 @@ class SuiteRunner {
       await localServer.start();
       await wrongsv.start();
 
-      const rawClientConfig = wrongsv.generateClientConfig(rawConfigFormat(this.client), {
-        clientName: `${this.client}-wrongsv`,
-      });
+      const needsGeneratedConfig =
+        !this.scenario ||
+        this.scenario.family === "vless" ||
+        this.scenario.family === "vmess";
+      const rawClientConfig = needsGeneratedConfig
+        ? wrongsv.generateClientConfig(rawConfigFormat(this.client), {
+            clientName: `${this.client}-wrongsv`,
+          })
+        : null;
       const runtimeConfig = buildClientRuntimeConfig({
         client: this.client,
         rawConfig: rawClientConfig,
         clientName: `${this.client}-wrongsv`,
+        scenario: this.scenario,
+        serverPort: this.listenPort,
       });
       const configPath = runtimeConfigPath(
         this.outputDir,

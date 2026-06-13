@@ -4,6 +4,20 @@ const path = require("path");
 const { spawn } = require("child_process");
 const { ProxyAppManager } = require("../proxy-app-manager");
 
+function firstExistingBinary(candidates) {
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    if (candidate.includes(path.sep)) {
+      if (fs.existsSync(candidate)) {
+        return candidate;
+      }
+      continue;
+    }
+    return candidate;
+  }
+  return null;
+}
+
 function waitForPort(host, port, timeoutMs = 30000) {
   const started = Date.now();
   return new Promise((resolve, reject) => {
@@ -27,22 +41,36 @@ function waitForPort(host, port, timeoutMs = 30000) {
 }
 
 function resolveXrayBinary(repoRoot) {
-  const candidates = [
+  return firstExistingBinary([
     process.env.XRAY_BIN,
     path.join(repoRoot, "..", "test-deploy", "xray"),
     "xray",
-  ].filter(Boolean);
-  return candidates[0];
+  ]);
+}
+
+function resolveMihomoBinary(repoRoot) {
+  return firstExistingBinary([
+    process.env.MIHOMO_BIN,
+    path.join(repoRoot, "..", "test-deploy", "mihomo"),
+    "mihomo",
+  ]);
+}
+
+function resolveV2RayBinary(repoRoot) {
+  return firstExistingBinary([
+    process.env.V2RAY_BIN,
+    path.join(repoRoot, "..", "test-deploy", "v2ray"),
+    "v2ray",
+  ]);
 }
 
 function resolveSingBoxBinary(repoRoot) {
-  const candidates = [
+  return firstExistingBinary([
     process.env.SING_BOX_BIN,
     path.join(repoRoot, "..", "test-deploy", "sing-box"),
     "/usr/sbin/sing-box",
     "sing-box",
-  ].filter(Boolean);
-  return candidates[0];
+  ]);
 }
 
 class ProxyAppClientRunner {
@@ -160,6 +188,15 @@ function createClientRunner(options) {
         app: "hiddify",
         configPath: options.configPath,
       });
+    case "clash-verge-rev":
+      return new CoreProcessRunner({
+        repoRoot: options.repoRoot,
+        name: "clash-verge-rev",
+        binary: resolveMihomoBinary(options.repoRoot),
+        args: ["-d", options.outputDir, "-f", options.configPath],
+        proxyPort: 7890,
+        logPath: path.join(options.outputDir, "clash-verge-rev.log"),
+      });
     case "xray-core":
       return new CoreProcessRunner({
         repoRoot: options.repoRoot,
@@ -168,6 +205,15 @@ function createClientRunner(options) {
         args: ["run", "-config", options.configPath],
         proxyPort: 10808,
         logPath: path.join(options.outputDir, "xray-core.log"),
+      });
+    case "v2ray":
+      return new CoreProcessRunner({
+        repoRoot: options.repoRoot,
+        name: "v2ray",
+        binary: resolveV2RayBinary(options.repoRoot),
+        args: ["run", "-config", options.configPath],
+        proxyPort: 10818,
+        logPath: path.join(options.outputDir, "v2ray.log"),
       });
     case "sing-box":
       return new CoreProcessRunner({

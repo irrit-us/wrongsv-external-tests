@@ -61,8 +61,7 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
-function buildMihomoRuntimeConfig(rawConfig, options = {}) {
-  const proxy = parseJson(rawConfig);
+function buildMihomoShellConfig(proxy, options = {}) {
   const proxyName = proxy.name || options.clientName || "wrongsv";
   const config = {
     "mixed-port": options.mixedPort || 7890,
@@ -82,6 +81,42 @@ function buildMihomoRuntimeConfig(rawConfig, options = {}) {
     rules: ["MATCH,PROXY"],
   };
   return toYaml(config);
+}
+
+function buildMihomoRuntimeConfig(rawConfig, options = {}) {
+  const proxy = parseJson(rawConfig);
+  return buildMihomoShellConfig(proxy, options);
+}
+
+function buildMihomoShadowsocksRuntimeConfig(scenario, options = {}) {
+  return buildMihomoShellConfig(
+    {
+      name: options.clientName || "wrongsv",
+      type: "ss",
+      server: "127.0.0.1",
+      port: options.serverPort || scenario.serverPort,
+      cipher: scenario.method,
+      password: scenario.password,
+      udp: true,
+    },
+    options
+  );
+}
+
+function buildMihomoTrojanRuntimeConfig(scenario, options = {}) {
+  return buildMihomoShellConfig(
+    {
+      name: options.clientName || "wrongsv",
+      type: "trojan",
+      server: "127.0.0.1",
+      port: options.serverPort || scenario.serverPort,
+      password: scenario.password,
+      udp: true,
+      sni: scenario.serverName || "localhost",
+      "skip-cert-verify": true,
+    },
+    options
+  );
 }
 
 function normalizeXrayOutbound(outbound) {
@@ -136,17 +171,111 @@ function buildXrayRuntimeConfig(rawConfig, options = {}) {
   return JSON.stringify(config, null, 2);
 }
 
+function buildXrayShadowsocksRuntimeConfig(scenario, options = {}) {
+  const config = {
+    log: { loglevel: "warning" },
+    inbounds: [
+      {
+        port: options.socksPort || 10808,
+        protocol: "socks",
+        listen: "127.0.0.1",
+        tag: "socks-in",
+        settings: { udp: true },
+      },
+    ],
+    outbounds: [
+      {
+        protocol: "shadowsocks",
+        tag: options.clientName || "wrongsv",
+        settings: {
+          address: "127.0.0.1",
+          port: options.serverPort || scenario.serverPort,
+          method: scenario.method,
+          password: scenario.password,
+        },
+      },
+      {
+        protocol: "freedom",
+        tag: "direct",
+      },
+    ],
+    routing: {
+      rules: [
+        {
+          type: "field",
+          inboundTag: ["socks-in"],
+          outboundTag: options.clientName || "wrongsv",
+        },
+      ],
+    },
+  };
+  return JSON.stringify(config, null, 2);
+}
+
+function buildV2RayShadowsocksRuntimeConfig(scenario, options = {}) {
+  const config = {
+    log: { loglevel: "warning" },
+    inbounds: [
+      {
+        port: options.socksPort || 10818,
+        protocol: "socks",
+        listen: "127.0.0.1",
+        tag: "socks-in",
+        settings: { udp: true },
+      },
+    ],
+    outbounds: [
+      {
+        protocol: "shadowsocks",
+        tag: options.clientName || "wrongsv",
+        settings: {
+          servers: [
+            {
+              address: "127.0.0.1",
+              port: options.serverPort || scenario.serverPort,
+              method: scenario.method,
+              password: scenario.password,
+            },
+          ],
+        },
+      },
+      {
+        protocol: "freedom",
+        tag: "direct",
+      },
+    ],
+    routing: {
+      rules: [
+        {
+          type: "field",
+          inboundTag: ["socks-in"],
+          outboundTag: options.clientName || "wrongsv",
+        },
+      ],
+    },
+  };
+  return JSON.stringify(config, null, 2);
+}
+
 function extractSingBoxOutbounds(parsed) {
   if (Array.isArray(parsed?.outbounds)) {
-    return parsed.outbounds;
+    return parsed.outbounds.map((outbound) => normalizeSingBoxOutbound(outbound));
   }
   if (Array.isArray(parsed?.configs)) {
-    return parsed.configs;
+    return parsed.configs.map((outbound) => normalizeSingBoxOutbound(outbound));
   }
   if (parsed?.type) {
-    return [parsed];
+    return [normalizeSingBoxOutbound(parsed)];
   }
   throw new Error("wrongsv sing-box config did not contain outbounds");
+}
+
+function normalizeSingBoxOutbound(outbound) {
+  const next = clone(outbound);
+  if (next.transport?.type === "quic" && next.tls?.utls) {
+    delete next.tls.utls;
+  }
+  return next;
 }
 
 function buildSingBoxRuntimeConfig(rawConfig, options = {}) {
@@ -174,13 +303,101 @@ function buildSingBoxRuntimeConfig(rawConfig, options = {}) {
   return JSON.stringify(config, null, 2);
 }
 
+function buildSingBoxShadowsocksRuntimeConfig(scenario, options = {}) {
+  return JSON.stringify(
+    {
+      log: { level: "warn" },
+      inbounds: [
+        {
+          type: "mixed",
+          tag: "mixed-in",
+          listen: "127.0.0.1",
+          listen_port: options.mixedPort || 10809,
+        },
+      ],
+      outbounds: [
+        {
+          type: "shadowsocks",
+          tag: options.clientName || "wrongsv",
+          server: "127.0.0.1",
+          server_port: options.serverPort || scenario.serverPort,
+          method: scenario.method,
+          password: scenario.password,
+        },
+      ],
+      route: {
+        final: options.clientName || "wrongsv",
+      },
+    },
+    null,
+    2
+  );
+}
+
+function buildSingBoxTrojanRuntimeConfig(scenario, options = {}) {
+  return JSON.stringify(
+    {
+      log: { level: "warn" },
+      inbounds: [
+        {
+          type: "mixed",
+          tag: "mixed-in",
+          listen: "127.0.0.1",
+          listen_port: options.mixedPort || 10809,
+        },
+      ],
+      outbounds: [
+        {
+          type: "trojan",
+          tag: options.clientName || "wrongsv",
+          server: "127.0.0.1",
+          server_port: options.serverPort || scenario.serverPort,
+          password: scenario.password,
+          tls: {
+            enabled: true,
+            server_name: scenario.serverName || "localhost",
+            insecure: true,
+          },
+        },
+      ],
+      route: {
+        final: options.clientName || "wrongsv",
+      },
+    },
+    null,
+    2
+  );
+}
+
 function buildHiddifyRuntimeConfig(rawConfig, options = {}) {
   return buildSingBoxRuntimeConfig(rawConfig, options);
 }
 
-function buildClientRuntimeConfig({ client, rawConfig, clientName }) {
+function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, serverPort }) {
+  const family = scenario?.family || "vless";
   switch (client) {
     case "flclash":
+    case "clash-verge-rev":
+      if (family === "shadowsocks") {
+        return {
+          extension: ".yaml",
+          content: buildMihomoShadowsocksRuntimeConfig(scenario, {
+            mixedPort: 7890,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
+      if (family === "trojan") {
+        return {
+          extension: ".yaml",
+          content: buildMihomoTrojanRuntimeConfig(scenario, {
+            mixedPort: 7890,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
       return {
         extension: ".yaml",
         content: buildMihomoRuntimeConfig(rawConfig, {
@@ -189,6 +406,26 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName }) {
         }),
       };
     case "hiddify":
+      if (family === "shadowsocks") {
+        return {
+          extension: ".json",
+          content: buildSingBoxShadowsocksRuntimeConfig(scenario, {
+            mixedPort: 12334,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
+      if (family === "trojan") {
+        return {
+          extension: ".json",
+          content: buildSingBoxTrojanRuntimeConfig(scenario, {
+            mixedPort: 12334,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
       return {
         extension: ".json",
         content: buildHiddifyRuntimeConfig(rawConfig, {
@@ -197,6 +434,26 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName }) {
         }),
       };
     case "sing-box":
+      if (family === "shadowsocks") {
+        return {
+          extension: ".json",
+          content: buildSingBoxShadowsocksRuntimeConfig(scenario, {
+            mixedPort: 10809,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
+      if (family === "trojan") {
+        return {
+          extension: ".json",
+          content: buildSingBoxTrojanRuntimeConfig(scenario, {
+            mixedPort: 10809,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
       return {
         extension: ".json",
         content: buildSingBoxRuntimeConfig(rawConfig, {
@@ -205,10 +462,38 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName }) {
         }),
       };
     case "xray-core":
+      if (family === "shadowsocks") {
+        return {
+          extension: ".json",
+          content: buildXrayShadowsocksRuntimeConfig(scenario, {
+            socksPort: 10808,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
       return {
         extension: ".json",
         content: buildXrayRuntimeConfig(rawConfig, {
           socksPort: 10808,
+          clientName,
+        }),
+      };
+    case "v2ray":
+      if (family === "shadowsocks") {
+        return {
+          extension: ".json",
+          content: buildV2RayShadowsocksRuntimeConfig(scenario, {
+            socksPort: 10818,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
+      return {
+        extension: ".json",
+        content: buildXrayRuntimeConfig(rawConfig, {
+          socksPort: 10818,
           clientName,
         }),
       };
@@ -220,11 +505,13 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName }) {
 function rawConfigFormat(client) {
   switch (client) {
     case "flclash":
+    case "clash-verge-rev":
       return "mihomo";
     case "hiddify":
     case "sing-box":
       return "sing-box";
     case "xray-core":
+    case "v2ray":
       return "xray";
     default:
       throw new Error(`Unknown client format mapping for ${client}`);
