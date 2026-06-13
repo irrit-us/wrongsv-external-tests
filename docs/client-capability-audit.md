@@ -54,13 +54,15 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### xray-core
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json)
 
 - Covered:
-  `vless_reality_vision`, `vless_httpupgrade`, `shadowsocks_2022`
+  `vless_reality_vision`, `vless_httpupgrade`, `vless_xhttp`, `shadowsocks_2022`
 - Server defects:
   `vmess_standard` confirmed wrongsv's custom VMess dialect mismatch
   `vless_grpc` is unstable against wrongsv: first probe may pass, follow-on requests fail
+- `vless_xhttp` now passes after wrongsv added plaintext HTTP/1.1 `stream-one`
+  handling plus carrier-local metrics accounting.
 - Harness gaps:
   `vless_kcp` currently blocked by xray 26.5.9 config migration (`mkcp header & seed` removal)
   `vless_tls_tcp`, `trojan_tls`, `vless_quic`
@@ -93,10 +95,6 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 - `server.mihomo_grpc_interop`
   Mihomo-backed clients can select the gRPC carrier, but wrongsv does not maintain
   a stable HTTP/2/gRPC exchange.
-- `server.xray_xhttp_interop`
-  xray-core still fails against wrongsv's XHTTP carrier even after forcing
-  `mode: "stream-one"`, so the remaining issue is now narrowed to the
-  Xray-family side of wrongsv's XHTTP transport handling.
 - `server.xray_grpc_interop`
   xray-core can connect to the gRPC carrier, but compatibility probes do not stay healthy.
 - `server.v2ray_grpc_interop`
