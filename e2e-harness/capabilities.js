@@ -55,6 +55,13 @@ const SERVER_DEFECTS = {
     detail:
       "sing-box reaches wrongsv's XHTTP endpoint, but the response path is malformed and compatibility probes fail.",
   },
+  "server.xray_xhttp_interop": {
+    id: "server.xray_xhttp_interop",
+    title: "wrongsv XHTTP carrier is not xray-core-compatible",
+    severity: "high",
+    detail:
+      "xray-core also fails against wrongsv's XHTTP carrier, so the remaining issue is server-side at the XHTTP transport layer rather than specific to sing-box or Mihomo.",
+  },
   "server.xray_grpc_interop": {
     id: "server.xray_grpc_interop",
     title: "wrongsv gRPC carrier is unstable for xray-core",
@@ -203,9 +210,14 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.vmess_standard_interop", "server.xray_grpc_interop"],
+    serverDefects: [
+      "server.vmess_standard_interop",
+      "server.xray_grpc_interop",
+      "server.xray_xhttp_interop",
+    ],
     scenarioDefects: {
       vless_grpc: "server.xray_grpc_interop",
+      vless_xhttp: "server.xray_xhttp_interop",
       vmess_standard: "server.vmess_standard_interop",
     },
     harnessGaps: ["vless_tls_tcp", "trojan_tls", "vless_quic", "vless_kcp"],

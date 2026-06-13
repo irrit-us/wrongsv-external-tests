@@ -13,6 +13,7 @@ function parseArgs(argv) {
     metricsPort: 59100,
     targetPortStart: 3300,
     withBrowser: false,
+    profiles: ["local-quick"],
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -51,6 +52,10 @@ function parseArgs(argv) {
         opts.scenarios = next.split(",").filter(Boolean);
         i++;
         break;
+      case "--profiles":
+        opts.profiles = next.split(",").filter(Boolean);
+        i++;
+        break;
       case "--with-browser":
         opts.withBrowser = true;
         break;
@@ -84,6 +89,7 @@ Options:
   --metrics-port <port>      wrongsv metrics port, or "none"
   --target-port-start <n>    first local target-server port
   --scenarios <csv>          optional scenario subset
+  --profiles <csv>           traffic profiles per scenario (default: local-quick)
   --with-browser             run the client's designated browser scenario
 `);
 }
@@ -209,7 +215,7 @@ async function main() {
       targetPort: options.targetPortStart + index,
       trafficDuration: options.trafficDuration,
       userDuration: options.userDuration,
-      trafficProfiles: ["local-quick"],
+      trafficProfiles: options.profiles,
       userBehaviors:
         options.withBrowser &&
         capability.browserScenario === scenarioId &&
