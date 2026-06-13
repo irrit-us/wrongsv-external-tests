@@ -543,6 +543,121 @@ function buildSingBoxAnytlsRuntimeConfig(scenario, options = {}) {
   return JSON.stringify(config, null, 2);
 }
 
+function buildSingBoxHysteria2RuntimeConfig(scenario, options = {}) {
+  const primaryTag = options.clientName || "wrongsv";
+  const outbounds = [
+    {
+      type: "hysteria2",
+      tag: primaryTag,
+      server: "127.0.0.1",
+      server_port: options.serverPort || scenario.serverPort,
+      up_mbps: scenario.upMbps || 50,
+      down_mbps: scenario.downMbps || 100,
+      password: scenario.password,
+      tls: {
+        enabled: true,
+        server_name: scenario.serverName || "localhost",
+        insecure: true,
+      },
+    },
+  ];
+  let finalTag = primaryTag;
+  if (options.debugController) {
+    outbounds.push({ type: "direct", tag: "direct" });
+    outbounds.push({
+      type: "selector",
+      tag: "selector",
+      outbounds: [primaryTag, "direct"],
+      default: primaryTag,
+    });
+    finalTag = "selector";
+  }
+  const config = {
+    log: { level: "warn" },
+    inbounds: [
+      {
+        type: "mixed",
+        tag: "mixed-in",
+        listen: "127.0.0.1",
+        listen_port: options.mixedPort || 10809,
+      },
+    ],
+    outbounds,
+    route: {
+      final: finalTag,
+    },
+  };
+  if (options.debugController) {
+    config.experimental = {
+      clash_api: {
+        external_controller: `${options.debugController.host}:${options.debugController.port}`,
+        secret: options.debugController.secret,
+      },
+    };
+  }
+  return JSON.stringify(config, null, 2);
+}
+
+function buildSingBoxTuicRuntimeConfig(scenario, options = {}) {
+  const primaryTag = options.clientName || "wrongsv";
+  const outbounds = [
+    {
+      type: "tuic",
+      tag: primaryTag,
+      server: "127.0.0.1",
+      server_port: options.serverPort || scenario.serverPort,
+      uuid: scenario.uuid,
+      password: scenario.password,
+      congestion_control: scenario.congestionControl || "cubic",
+      udp_relay_mode: scenario.udpRelayMode || "native",
+      udp_over_stream: false,
+      zero_rtt_handshake: false,
+      heartbeat: scenario.heartbeat || "10s",
+      tls: {
+        enabled: true,
+        server_name: scenario.serverName || "localhost",
+        insecure: true,
+        alpn: ["h3"],
+      },
+    },
+  ];
+  let finalTag = primaryTag;
+  if (options.debugController) {
+    outbounds.push({ type: "direct", tag: "direct" });
+    outbounds.push({
+      type: "selector",
+      tag: "selector",
+      outbounds: [primaryTag, "direct"],
+      default: primaryTag,
+    });
+    finalTag = "selector";
+  }
+  const config = {
+    log: { level: "warn" },
+    inbounds: [
+      {
+        type: "mixed",
+        tag: "mixed-in",
+        listen: "127.0.0.1",
+        listen_port: options.mixedPort || 10809,
+      },
+    ],
+    outbounds,
+    route: {
+      final: finalTag,
+    },
+  };
+  if (options.debugController) {
+    config.experimental = {
+      clash_api: {
+        external_controller: `${options.debugController.host}:${options.debugController.port}`,
+        secret: options.debugController.secret,
+      },
+    };
+  }
+  return JSON.stringify(config, null, 2);
+}
+
 function buildSingBoxShadowTlsRuntimeConfig(rawConfig, scenario, options = {}) {
   const parsed = parseJson(rawConfig);
   const outbounds = extractSingBoxOutbounds(parsed);
@@ -712,6 +827,26 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
           }),
         };
       }
+      if (family === "hysteria2") {
+        return {
+          extension: ".json",
+          content: buildSingBoxHysteria2RuntimeConfig(scenario, {
+            mixedPort: 12334,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
+      if (family === "tuic") {
+        return {
+          extension: ".json",
+          content: buildSingBoxTuicRuntimeConfig(scenario, {
+            mixedPort: 12334,
+            clientName,
+            serverPort,
+          }),
+        };
+      }
       return {
         extension: ".json",
         content: buildHiddifyRuntimeConfig(rawConfig, {
@@ -766,6 +901,34 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         return {
           extension: ".json",
           content: buildSingBoxShadowTlsRuntimeConfig(rawConfig, scenario, {
+            mixedPort: 10809,
+            clientName,
+            serverPort,
+            debugController:
+              client === "sing-box"
+                ? { host: "127.0.0.1", port: 19091, secret: "wrongsv-debug" }
+                : undefined,
+          }),
+        };
+      }
+      if (family === "hysteria2") {
+        return {
+          extension: ".json",
+          content: buildSingBoxHysteria2RuntimeConfig(scenario, {
+            mixedPort: 10809,
+            clientName,
+            serverPort,
+            debugController:
+              client === "sing-box"
+                ? { host: "127.0.0.1", port: 19091, secret: "wrongsv-debug" }
+                : undefined,
+          }),
+        };
+      }
+      if (family === "tuic") {
+        return {
+          extension: ".json",
+          content: buildSingBoxTuicRuntimeConfig(scenario, {
             mixedPort: 10809,
             clientName,
             serverPort,

@@ -42,19 +42,22 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### sing-box
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-vmess-recheck-1/matrix.json), [AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-anytls-check-3/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-shadowtls-check-2/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-vmess-recheck-1/matrix.json), [AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-anytls-check-3/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-shadowtls-check-2/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-hysteria2-check-4/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-tuic-check-5/tuic_tcp/report.json)
 
 - Covered:
   `vless_reality_vision`, `vless_httpupgrade`, `vless_quic`, `vmess_standard`,
-  `anytls_tcp`, `shadowtls_tcp`,
+  `anytls_tcp`, `shadowtls_tcp`, `hysteria2_tcp`, `tuic_tcp`,
   `shadowsocks_2022`, `trojan_tls`
 - `anytls_tcp` now also reports per-user byte and connection deltas after the
   sing-anytls SOCKS5 metrics path was wired into the shared metrics registry.
 - `shadowtls_tcp` now passes after wrongsv switched to ShadowTLS v3 wire
   behavior and the reusable harness builder was updated to send VLESS through a
   ShadowTLS detour instead of a standalone outbound.
+- `hysteria2_tcp` and `tuic_tcp` now both pass on the installed sing-box core,
+  and the refreshed server runs show per-user byte deltas for `user@example.com`
+  once the QUIC handlers were wired into wrongsv's metrics registry.
 - Harness gaps:
-  `hysteria2`, `tuic`, `vless_xhttp`
+  `vless_xhttp`
 - Current XHTTP note: the installed plain sing-box 1.12.12 binary rejects both
   native `transport.type: "xhttp"` and Hiddify's custom `type: "xray"`
   wrapper, so this remains a real client-core capability gap here rather than a
@@ -62,12 +65,15 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### Hiddify
 
-Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-check-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-vmess-recheck-1/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-shadowtls-check-1/matrix.json), [XHTTP check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-check-4/vless_xhttp/report.json), [XHTTP long](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-long-2/vless_xhttp/report.json)
+Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-check-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-vmess-recheck-1/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-shadowtls-check-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-hysteria2-check-2/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-tuic-check-3/tuic_tcp/report.json), [XHTTP check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-check-4/vless_xhttp/report.json), [XHTTP long](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-long-2/vless_xhttp/report.json)
 
 - Covered:
-  `vmess_standard`, `shadowtls_tcp`, `vless_xhttp`
+  `vmess_standard`, `shadowtls_tcp`, `hysteria2_tcp`, `tuic_tcp`, `vless_xhttp`
 - `shadowtls_tcp` now passes through the same reusable VLESS-over-ShadowTLS
   harness path used for sing-box-core.
+- `hysteria2_tcp` and `tuic_tcp` now also pass through Hiddify's packaged core
+  using the same reusable runtime builders as sing-box, and the refreshed
+  server-side runs now emit per-user byte deltas for `user@example.com`.
 - `vless_xhttp` now passes through Hiddify's custom `type: "xray"` outbound
   wrapper, which embeds wrongsv's Xray-format `splithttp` config instead of
   relying on the narrower native transport-type list exposed by the packaged
@@ -75,7 +81,6 @@ Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-t
 - Harness gaps:
   `anytls` is still blocked in the packaged Hiddify core on this box:
   its runtime logs reject `type: "anytls"` as an unknown outbound type.
-  `hysteria2`, `tuic`
 
 ### xray-core
 
