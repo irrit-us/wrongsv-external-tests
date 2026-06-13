@@ -35,5 +35,4 @@ Client-side limitations:
 - `vless_kcp`: still a client/runtime gap. Mihomo VLESS transport does not
   actually speak mKCP here and falls back to TCP connect behavior.
 - `vless_quic`: still unconfirmed in the reusable matrix.
-- `WireGuard`: supported by the client, but currently recorded as a `wrongsv`
-  server feature gap because the server has no WireGuard mode.
+- `WireGuard`: now covered through wrongsv's userspace tunnel-service mode.

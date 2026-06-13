@@ -52,10 +52,13 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 - Covered:
   `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `vless_grpc`,
-  `hysteria2_tcp`, `tuic_tcp`, `vmess_standard`, `shadowsocks_aead`,
+  `wireguard_tunnel_http`, `hysteria2_tcp`, `tuic_tcp`, `vmess_standard`, `shadowsocks_aead`,
   `shadowsocks_2022`, `trojan_tls`
 - `vless_xhttp` now passes after forcing `mode: "stream-one"` in the generated
   Mihomo/Xray-family client config.
+- `wireguard_tunnel_http` now passes through wrongsv's new userspace
+  WireGuard tunnel service at
+  [results/clash-verge-wireguard-check-2](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-wireguard-check-2/matrix.json).
 - Harness gaps:
   `vless_quic`, `vless_kcp`
 - Current KCP note: the Mihomo core on this box still tries a TCP dial against
@@ -64,10 +67,10 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### FlClash
 
-Result files: [suite](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-suite-3/report.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-hysteria2-check-1/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-tuic-check-1/tuic_tcp/report.json)
+Result files: [suite](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-suite-3/report.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-hysteria2-check-1/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-tuic-check-1/tuic_tcp/report.json), [WireGuard check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-wireguard-check-2/matrix.json)
 
 - Covered through the actual GUI client:
-  `vless_raw_tcp`, `vmess_standard`, `hysteria2_tcp`, `tuic_tcp`
+  `vless_raw_tcp`, `wireguard_tunnel_http`, `vmess_standard`, `hysteria2_tcp`, `tuic_tcp`
 - Broader protocol capability for the underlying Mihomo core follows the
   `clash-verge-rev` section above; the dedicated FlClash GUI automation here is
   still a smaller subset.
@@ -165,5 +168,4 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   dialect closely enough for `xray-core`, `V2Ray/V2Fly`, `sing-box`,
   `clash-verge-rev`, `FlClash`, and `Hiddify` VMess compatibility and traffic
   sweeps to pass in the latest external rechecks.
-- `server.mihomo_wireguard_protocol`
-  Mihomo-class clients expose WireGuard support, but wrongsv still has no WireGuard server-side mode.
+- None currently confirmed in the latest client-capability sweeps.

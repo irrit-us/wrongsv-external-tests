@@ -77,7 +77,7 @@ class SuiteRunner {
         `${this.client}-suite-${new Date().toISOString().replace(/[:.]/g, "-")}`
       );
     this.listenPort = options.listenPort || 50443;
-    this.targetPort = options.targetPort || 3099;
+    this.targetPort = options.targetPort || this.scenario?.targetPort || 3099;
     this.metricsPort = options.metricsPort || null;
     this.serverHost = options.serverHost || "127.0.0.1";
     this.serverName = options.serverName || "localhost";
@@ -157,13 +157,15 @@ class SuiteRunner {
         typeof clientRunner.buildDebugClient === "function"
           ? clientRunner.buildDebugClient()
           : null;
-      const targetCatalog = buildTargetCatalog(`http://127.0.0.1.nip.io:${this.targetPort}`);
+      const clientBaseUrl =
+        this.scenario?.targetBaseUrl || `http://127.0.0.1.nip.io:${this.targetPort}`;
+      const targetCatalog = buildTargetCatalog(clientBaseUrl);
       const debugArtifacts = await this._captureDebugInitial(debugClient);
 
       const compatibilityBefore = metricsClient ? await metricsClient.snapshot() : null;
       const compatibility = await runCompatibilityProbe(
         clientRunner.getProxyUrl(),
-        localServer.baseUrl
+        this.scenario?.targetBaseUrl || localServer.baseUrl
       );
       const compatibilityAfter = metricsClient ? await metricsClient.snapshot() : null;
 
@@ -174,7 +176,7 @@ class SuiteRunner {
           proxy: clientRunner.getProxyUrl(),
           profile,
           duration: this.trafficDuration,
-          baseUrl: localServer.baseUrl,
+          baseUrl: this.scenario?.targetBaseUrl || localServer.baseUrl,
         }).run();
         const after = metricsClient ? await metricsClient.snapshot() : null;
         trafficReports.push({

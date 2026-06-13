@@ -1,12 +1,4 @@
-const SERVER_DEFECTS = {
-  "server.mihomo_wireguard_protocol": {
-    id: "server.mihomo_wireguard_protocol",
-    title: "wrongsv lacks WireGuard server-side support",
-    severity: "medium",
-    detail:
-      "Mihomo-class clients expose WireGuard support, but wrongsv does not implement a WireGuard inbound/proxy mode.",
-    },
-};
+const SERVER_DEFECTS = {};
 
 const CLIENT_CAPABILITIES = {
   flclash: {
@@ -21,6 +13,7 @@ const CLIENT_CAPABILITIES = {
       "vless_httpupgrade",
       "vless_grpc",
       "vless_xhttp",
+      "wireguard_tunnel_http",
       "hysteria2_tcp",
       "tuic_tcp",
       "shadowsocks_aead",
@@ -29,7 +22,7 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.mihomo_wireguard_protocol"],
+    serverDefects: [],
     scenarioDefects: {},
     harnessGaps: ["vless_quic", "vless_kcp"],
   },
@@ -47,6 +40,7 @@ const CLIENT_CAPABILITIES = {
       "vless_httpupgrade",
       "vless_grpc",
       "vless_xhttp",
+      "wireguard_tunnel_http",
       "hysteria2_tcp",
       "tuic_tcp",
       "shadowsocks_aead",
@@ -55,7 +49,7 @@ const CLIENT_CAPABILITIES = {
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
-    serverDefects: ["server.mihomo_wireguard_protocol"],
+    serverDefects: [],
     scenarioDefects: {},
     harnessGaps: ["vless_quic", "vless_kcp"],
   },

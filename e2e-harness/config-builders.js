@@ -165,6 +165,24 @@ function buildMihomoTuicRuntimeConfig(scenario, options = {}) {
   );
 }
 
+function buildMihomoWireGuardRuntimeConfig(scenario, options = {}) {
+  return buildMihomoShellConfig(
+    {
+      name: options.clientName || "wrongsv",
+      type: "wireguard",
+      server: "127.0.0.1",
+      port: options.serverPort || scenario.serverPort,
+      ip: scenario.clientIp || "10.66.66.2/32",
+      "private-key": scenario.clientPrivateKey,
+      "public-key": scenario.serverPublicKey,
+      "allowed-ips": scenario.allowedIps || ["10.66.66.1/32"],
+      mtu: scenario.mtu || 1400,
+      udp: true,
+    },
+    options
+  );
+}
+
 function normalizeXrayOutbound(outbound) {
   const next = clone(outbound);
   if (next.stream_settings && !next.streamSettings) {
@@ -938,6 +956,20 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         return {
           extension: ".yaml",
           content: buildMihomoTuicRuntimeConfig(scenario, {
+            mixedPort: 7890,
+            clientName,
+            serverPort,
+            debugController:
+              client === "clash-verge-rev"
+                ? { host: "127.0.0.1", port: 19090, secret: "wrongsv-debug" }
+                : undefined,
+            }),
+        };
+      }
+      if (manualRuntime === "wireguard") {
+        return {
+          extension: ".yaml",
+          content: buildMihomoWireGuardRuntimeConfig(scenario, {
             mixedPort: 7890,
             clientName,
             serverPort,
