@@ -8,6 +8,9 @@ then classifies the outcome as one of:
 - `harness gap`: the capability exists and wrongsv may support it, but the external harness
   does not yet emit a valid runtime config or launch path for that client version
 
+Per-client debug and harness integration references live under
+[client-debugging/README.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/docs/client-debugging/README.md).
+
 ## Capability Basis
 
 - clash-verge-rev official repo: GUI shell that manages Mihomo / sing-box / Xray kernels  
