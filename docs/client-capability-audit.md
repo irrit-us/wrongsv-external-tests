@@ -82,6 +82,11 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ## Confirmed Server Defects
 
+- Note: wrongsv's gRPC handler now has an explicit in-tree regression test for
+  multiple HTTP/2 streams on one connection. That removed one clear server bug,
+  but the client matrices below still show incomplete end-to-end gRPC
+  interoperability with Mihomo / xray-core / V2Fly.
+
 - `server.vmess_standard_interop`
   Standard VMess-capable clients fail because wrongsv is not wire-compatible with
   the v2fly/xray VMess dialect.
