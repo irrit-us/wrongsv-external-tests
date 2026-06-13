@@ -36,6 +36,9 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   Mihomo/Xray-family client config.
 - Harness gaps:
   `vless_quic`, `vless_kcp`, `hysteria2`, `tuic`
+- Current KCP note: the Mihomo core on this box still tries a TCP dial against
+  the KCP port even when `network: mkcp` / `mkcp-opts` are present, so this
+  remains a client/runtime gap rather than a wrongsv server defect.
 
 ### sing-box
 
@@ -68,29 +71,33 @@ Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-t
 
 ### xray-core
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-grpc-recheck-6/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-vmess-recheck-3/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-kcp-check-2/matrix.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-grpc-recheck-6/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-vmess-recheck-3/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-kcp-check-6/vless_kcp/report.json)
 
 - Covered:
-  `vless_reality_vision`, `vless_httpupgrade`, `vless_grpc`, `vless_xhttp`, `vmess_standard`, `shadowsocks_2022`
+  `vless_reality_vision`, `vless_httpupgrade`, `vless_grpc`, `vless_xhttp`, `vless_kcp`, `vmess_standard`, `shadowsocks_2022`
 - `vless_xhttp` now passes after wrongsv added plaintext HTTP/1.1 `stream-one`
   handling plus carrier-local metrics accounting.
+- `vless_kcp` now passes after wrongsv replaced the generic Rust KCP session
+  layer with an Xray-compatible mKCP segment engine. The latest xray-core
+  recheck (`xray-kcp-check-6`) also reports normal traffic metrics and
+  per-user byte deltas.
 - Harness gaps:
-  `vless_kcp` no longer fails at config-load time after moving to the current
-  finalmask-based schema, but the latest run still times out under traffic with
-  no server-side metrics, so runtime behavior remains under investigation
   `vless_tls_tcp`, `trojan_tls`, `vless_quic`
 
 ### V2Ray / V2Fly
 
-Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-vmess-recheck-1/matrix.json)
+Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-vmess-recheck-1/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-kcp-check-2/vless_kcp/report.json)
 
 - Covered:
-  `vless_raw_tcp`, `vless_ws_tcp`, `vless_grpc`, `vmess_standard`, `shadowsocks_aead`
+  `vless_raw_tcp`, `vless_ws_tcp`, `vless_grpc`, `vless_kcp`, `vmess_standard`, `shadowsocks_aead`
 - Not a server defect:
   `vless_httpupgrade` is not accepted by the tested V2Ray 5.49.0 binary, so it was removed
   from the runnable capability set
+- `vless_kcp` now passes after the V2Ray adapter converts wrongsv's newer
+  Xray-style KCP output into the legacy `kcpSettings.seed` form expected by the
+  tested V2Fly 5.49.0 runtime.
 - Harness gaps:
-  `trojan_tls`, `vless_quic`, `shadowsocks_2022`, `vless_kcp`
+  `trojan_tls`, `vless_quic`, `shadowsocks_2022`
 
 ## Confirmed Server Defects
 

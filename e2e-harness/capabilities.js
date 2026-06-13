@@ -141,6 +141,7 @@ const CLIENT_CAPABILITIES = {
       "vless_httpupgrade",
       "vless_grpc",
       "vless_xhttp",
+      "vless_kcp",
       "shadowsocks_aead",
       "shadowsocks_2022",
       "vmess_standard",
@@ -148,7 +149,7 @@ const CLIENT_CAPABILITIES = {
     browserScenario: "vless_raw_tcp",
     serverDefects: [],
     scenarioDefects: {},
-    harnessGaps: ["vless_tls_tcp", "trojan_tls", "vless_quic", "vless_kcp"],
+    harnessGaps: ["vless_tls_tcp", "trojan_tls", "vless_quic"],
   },
   v2ray: {
     label: "V2Ray / V2Fly",
@@ -157,6 +158,7 @@ const CLIENT_CAPABILITIES = {
       "vless_raw_tcp",
       "vless_ws_tcp",
       "vless_grpc",
+      "vless_kcp",
       "shadowsocks_aead",
       "vmess_standard",
     ],
@@ -167,7 +169,7 @@ const CLIENT_CAPABILITIES = {
       "server.v2ray_docs_transport",
     ],
     scenarioDefects: {},
-    harnessGaps: ["trojan_tls", "vless_quic", "shadowsocks_2022", "vless_httpupgrade", "vless_kcp"],
+    harnessGaps: ["trojan_tls", "vless_quic", "shadowsocks_2022", "vless_httpupgrade"],
   },
 };
 

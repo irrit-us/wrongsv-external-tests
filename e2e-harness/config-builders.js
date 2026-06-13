@@ -176,6 +176,67 @@ function buildXrayRuntimeConfig(rawConfig, options = {}) {
   return JSON.stringify(config, null, 2);
 }
 
+function normalizeV2RayOutbound(outbound) {
+  const next = normalizeXrayOutbound(outbound);
+  const stream = next.streamSettings;
+  if (
+    stream?.network === "mkcp" &&
+    stream.finalmask?.udp?.length &&
+    stream.finalmask.udp[0]?.type === "mkcp-aes128gcm" &&
+    stream.finalmask.udp[0]?.settings?.password
+  ) {
+    stream.kcpSettings = {
+      ...(stream.kcpSettings || {}),
+      seed: stream.finalmask.udp[0].settings.password,
+    };
+    delete stream.finalmask;
+  }
+  return next;
+}
+
+function buildV2RayRuntimeConfig(rawConfig, options = {}) {
+  const parsed = parseJson(rawConfig);
+  const outbounds = (parsed.outbounds || []).map(normalizeV2RayOutbound);
+  if (outbounds.length === 0) {
+    throw new Error("wrongsv xray config did not contain any outbounds");
+  }
+  const primaryTag = outbounds[0].tag || options.clientName || "wrongsv";
+  const config = {
+    log: {
+      loglevel: "warning",
+    },
+    inbounds: [
+      {
+        tag: "socks-in",
+        listen: "127.0.0.1",
+        port: options.socksPort || 10818,
+        protocol: "socks",
+        settings: {
+          udp: true,
+        },
+      },
+    ],
+    outbounds: [
+      ...outbounds,
+      {
+        protocol: "freedom",
+        tag: "direct",
+      },
+    ],
+    routing: {
+      domainStrategy: "AsIs",
+      rules: [
+        {
+          type: "field",
+          inboundTag: ["socks-in"],
+          outboundTag: primaryTag,
+        },
+      ],
+    },
+  };
+  return JSON.stringify(config, null, 2);
+}
+
 function buildXrayShadowsocksRuntimeConfig(scenario, options = {}) {
   const config = {
     log: { loglevel: "warning" },
@@ -757,7 +818,7 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
       }
       return {
         extension: ".json",
-        content: buildXrayRuntimeConfig(rawConfig, {
+        content: buildV2RayRuntimeConfig(rawConfig, {
           socksPort: 10818,
           clientName,
         }),
