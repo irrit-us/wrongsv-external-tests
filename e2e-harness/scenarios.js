@@ -66,6 +66,18 @@ function buildScenarios(wrongsvRepo) {
         hiddify: "hiddify",
       },
     },
+    vless_meek: {
+      id: "vless_meek",
+      label: "VLESS Meek",
+      family: "vless",
+      configPath: config("meek.toml"),
+      serverName: "localhost",
+      meekPath: "/meek",
+      tlsPin: "89Frfi0UHw7pCqP0ikybxf27wLnrM0UpfVHQ0oj/o3Y=",
+      manualRuntimeByClient: {
+        v2ray: "meek",
+      },
+    },
     vless_quic: {
       id: "vless_quic",
       label: "VLESS QUIC",

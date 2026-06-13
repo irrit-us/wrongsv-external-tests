@@ -256,11 +256,16 @@ function createClientRunner(options) {
         logPath: path.join(options.outputDir, "xray-core.log"),
       });
     case "v2ray":
+      const v2rayArgs = ["run"];
+      if (options.runnerOptions?.configFormat) {
+        v2rayArgs.push("--format", options.runnerOptions.configFormat);
+      }
+      v2rayArgs.push("-config", options.configPath);
       return new CoreProcessRunner({
         repoRoot: options.repoRoot,
         name: "v2ray",
         binary: resolveV2RayBinary(options.repoRoot),
-        args: ["run", "-config", options.configPath],
+        args: v2rayArgs,
         configPath: options.configPath,
         proxyPort: 10818,
         logPath: path.join(options.outputDir, "v2ray.log"),

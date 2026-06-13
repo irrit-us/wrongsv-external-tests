@@ -148,6 +148,7 @@ class SuiteRunner {
         client: this.client,
         configPath,
         outputDir: this.outputDir,
+        runnerOptions: runtimeConfig.runnerOptions,
       });
 
       const launch = await clientRunner.start();

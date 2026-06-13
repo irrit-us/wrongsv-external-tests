@@ -241,6 +241,10 @@ function buildV2RayRuntimeConfig(rawConfig, options = {}) {
   if (outbounds.length === 0) {
     throw new Error("wrongsv xray config did not contain any outbounds");
   }
+  return buildV2RayConfigFromOutbounds(outbounds, options);
+}
+
+function buildV2RayConfigFromOutbounds(outbounds, options = {}) {
   const primaryTag = outbounds[0].tag || options.clientName || "wrongsv";
   const config = {
     log: {
@@ -248,13 +252,13 @@ function buildV2RayRuntimeConfig(rawConfig, options = {}) {
     },
     inbounds: [
       {
-        tag: "socks-in",
-        listen: "127.0.0.1",
-        port: options.socksPort || 10818,
-        protocol: "socks",
         settings: {
           udp: true,
         },
+        listen: "127.0.0.1",
+        tag: "socks-in",
+        port: options.socksPort || 10818,
+        protocol: "socks",
       },
     ],
     outbounds: [
@@ -276,6 +280,71 @@ function buildV2RayRuntimeConfig(rawConfig, options = {}) {
     },
   };
   return JSON.stringify(config, null, 2);
+}
+
+function buildV2RayV5ConfigFromOutbounds(outbounds, options = {}) {
+  const config = {
+    log: {
+      error: {
+        level: "Warning",
+        type: "Console",
+      },
+      access: {
+        type: "None",
+      },
+    },
+    inbounds: [
+      {
+        protocol: "socks",
+        settings: {
+          udpEnabled: true,
+          address: "127.0.0.1",
+          packetEncoding: "Packet",
+        },
+        port: options.socksPort || 10818,
+        listen: "127.0.0.1",
+        tag: "socks-in",
+      },
+    ],
+    outbounds,
+  };
+  return JSON.stringify(config, null, 2);
+}
+
+function buildV2RayMeekRuntimeConfig(rawConfig, scenario, options = {}) {
+  const parsed = parseJson(rawConfig);
+  const outbounds = (parsed.outbounds || []).map(normalizeV2RayOutbound);
+  if (outbounds.length === 0) {
+    throw new Error("wrongsv xray config did not contain any outbounds");
+  }
+  const source = outbounds[0];
+  const endpoint = source.settings?.vnext?.[0];
+  const user = endpoint?.users?.[0];
+  if (!endpoint?.address || !endpoint?.port || !user?.id) {
+    throw new Error("wrongsv xray config did not contain a usable VLESS endpoint");
+  }
+  const primary = {
+    protocol: "vless",
+    tag: source.tag || options.clientName || "wrongsv",
+    settings: {
+      address: endpoint.address,
+      port: endpoint.port,
+      uuid: user.id,
+    },
+    streamSettings: {
+    transport: "meek",
+    transportSettings: {
+      url: `https://127.0.0.1:${options.serverPort}/${(scenario.meekPath || "meek").replace(/^\/+/, "")}`,
+    },
+    security: "tls",
+    securitySettings: {
+      serverName: scenario.serverName || "localhost",
+      pinnedPeerCertificateChainSha256: [scenario.tlsPin],
+      allowInsecureIfPinnedPeerCertificate: true,
+    },
+    },
+  };
+  return buildV2RayV5ConfigFromOutbounds([primary], options);
 }
 
 function buildXrayShadowsocksRuntimeConfig(scenario, options = {}) {
@@ -785,6 +854,7 @@ function buildHiddifyRuntimeConfig(rawConfig, options = {}) {
 
 function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, serverPort }) {
   const family = scenario?.family || "vless";
+  const manualRuntime = scenario?.manualRuntimeByClient?.[client];
   switch (client) {
     case "flclash":
     case "clash-verge-rev":
@@ -1038,6 +1108,19 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         }),
       };
     case "v2ray":
+      if (manualRuntime === "meek") {
+        return {
+          extension: ".json",
+          content: buildV2RayMeekRuntimeConfig(rawConfig, scenario, {
+            socksPort: 10818,
+            clientName,
+            serverPort,
+          }),
+          runnerOptions: {
+            configFormat: "jsonv5",
+          },
+        };
+      }
       if (family === "shadowsocks") {
         return {
           extension: ".json",

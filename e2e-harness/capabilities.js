@@ -1,11 +1,4 @@
 const SERVER_DEFECTS = {
-  "server.v2ray_meek_transport": {
-    id: "server.v2ray_meek_transport",
-    title: "wrongsv lacks V2Ray Meek transport support",
-    severity: "medium",
-    detail:
-      "V2Fly documents Meek as a client transport, but wrongsv has no server-side Meek implementation.",
-  },
   "server.v2ray_tlsmirror_transport": {
     id: "server.v2ray_tlsmirror_transport",
     title: "wrongsv lacks V2Ray TLSMirror transport support",
@@ -161,13 +154,13 @@ const CLIENT_CAPABILITIES = {
       "vless_raw_tcp",
       "vless_ws_tcp",
       "vless_grpc",
+      "vless_meek",
       "vless_kcp",
       "shadowsocks_aead",
       "vmess_standard",
     ],
     browserScenario: "vless_raw_tcp",
     serverDefects: [
-      "server.v2ray_meek_transport",
       "server.v2ray_tlsmirror_transport",
       "server.v2ray_docs_transport",
     ],
