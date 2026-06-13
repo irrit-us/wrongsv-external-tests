@@ -493,25 +493,32 @@ function buildSingBoxShadowTlsRuntimeConfig(rawConfig, scenario, options = {}) {
   }
 
   const detourTag = options.detourTag || `${options.clientName || "wrongsv"}-shadowtls`;
-  delete primary.tls;
-  primary.detour = detourTag;
+  const alreadyWrapped =
+    primary.detour && outbounds.some((item) => item.type === "shadowtls" && item.tag === primary.detour);
 
-  const nextOutbounds = outbounds.map((outbound) =>
-    outbound.tag === primary.tag ? primary : outbound
-  );
-  nextOutbounds.push({
-    type: "shadowtls",
-    tag: detourTag,
-    server: "127.0.0.1",
-    server_port: options.serverPort || scenario.serverPort,
-    version: 3,
-    password: scenario.password,
-    tls: {
-      enabled: true,
-      server_name: scenario.serverName || "localhost",
-      insecure: true,
-    },
-  });
+  const nextOutbounds = alreadyWrapped
+    ? outbounds
+    : (() => {
+        delete primary.tls;
+        primary.detour = detourTag;
+        const rewritten = outbounds.map((outbound) =>
+          outbound.tag === primary.tag ? primary : outbound
+        );
+        rewritten.push({
+          type: "shadowtls",
+          tag: detourTag,
+          server: "127.0.0.1",
+          server_port: options.serverPort || scenario.serverPort,
+          version: 3,
+          password: scenario.password,
+          tls: {
+            enabled: true,
+            server_name: scenario.serverName || "localhost",
+            insecure: true,
+          },
+        });
+        return rewritten;
+      })();
 
   let finalTag = primary.tag || options.clientName || "wrongsv";
   if (options.debugController) {
