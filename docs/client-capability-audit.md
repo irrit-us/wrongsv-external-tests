@@ -99,6 +99,10 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 - `server.singbox_xhttp_interop`
   sing-box reaches the XHTTP endpoint, but wrongsv returns malformed/aborted
   HTTP/2 behavior.
+- `server.xray_xhttp_interop`
+  xray-core also fails against wrongsv's XHTTP carrier, so the issue is now
+  clearly server-side at the XHTTP transport layer rather than specific to
+  sing-box or Mihomo.
 - `server.xray_grpc_interop`
   xray-core can connect to the gRPC carrier, but compatibility probes do not stay healthy.
 - `server.v2ray_grpc_interop`
