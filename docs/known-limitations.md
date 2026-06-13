@@ -42,19 +42,22 @@ Flutter's profile mode compiles with AOT, which disables the debugger/evaluator.
 `toStringDeep()` (used by `dumpWidgetTree`) returns minimal output. Full widget tree dumps
 require debug mode builds.
 
-### FlClash connectProxy — proxy port not bound without subscription
+### FlClash requires pre-launch profile import
 
-`ext.flclash.connectProxy` calls `SetupAction.updateStatus(true)` which reports `"connected"`
-and `isStart: true`, but the Clash core may not actually bind a proxy port. Root cause:
-FlClash generates its Clash core config from profiles/subscriptions stored in its internal
-database. Without a profile imported (there is no `ext.flclash.importConfig` extension), the
-`currentProfileProvider` is null and `_setupConfig` can't produce a valid core configuration.
+FlClash still expects an active profile in its local database before `connectProxy` can bind
+its SOCKS/mixed port. The harness now handles this by running `scripts/import-flclash-config.py`
+before launch, which writes the profile file, updates `database.sqlite`, and sets
+`currentProfileId` in `shared_preferences.json`.
 
-**Impact:** `connectProxy` returns success but no TCP port opens. Hiddify does not have this
-issue — its `importConfig` extension + auto-generated sing-box config provides a working proxy.
+**Impact:** the app-manager path is now functional, but the imported-profile state lives outside
+the Flutter VM extensions. Any alternative launcher must perform the same import step first.
 
-**Better approach (future):** Add `ext.flclash.importConfig` that creates a profile from a
-config file and activates it, mirroring Hiddify's flow.
+### xray-core TLS mode rejects `allowInsecure`
+
+Recent xray-core builds (tested with 26.5.9 on June 13, 2026) reject legacy TLS configs that use
+`tlsSettings.allowInsecure`. The harness therefore validates xray-core against REALITY-based
+wrongsv configs by default; plain TLS configs need either pinned certificates or an updated
+config translation layer.
 
 ## Build & infrastructure
 

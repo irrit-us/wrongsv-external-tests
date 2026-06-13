@@ -7,14 +7,17 @@ exports.name = "form-interaction";
 exports.description =
   "Simulates login/signup: form filling, typing, POST submissions";
 
-exports.generateSession = function ({ duration = 30000 } = {}) {
+exports.generateSession = function ({ duration = 30000, targets = null } = {}) {
   const actions = [];
+  const formPage = targets?.formPage || "https://httpbin.org/forms/post";
+  const apiPage = targets?.apiPage || "https://httpbin.org/post";
+  const xhrEndpoint = targets?.xhrEndpoint || "/post";
 
   // Load a page with a form
   actions.push(
     {
       type: "navigate",
-      url: "https://httpbin.org/forms/post",
+      url: formPage,
       waitUntil: "networkidle2",
       label: "load-form",
     },
@@ -56,13 +59,13 @@ exports.generateSession = function ({ duration = 30000 } = {}) {
     actions.push(
       {
         type: "navigate",
-        url: "https://httpbin.org/post",
+        url: apiPage,
         waitUntil: "networkidle2",
         label: "api-page",
       },
       {
         type: "evaluate",
-        code: `fetch('/post', {method:'POST', body:JSON.stringify({action:'test',ts:Date.now()}), headers:{'Content-Type':'application/json'}})`,
+        code: `fetch(${JSON.stringify(xhrEndpoint)}, {method:'POST', body:JSON.stringify({action:'test',ts:Date.now()}), headers:{'Content-Type':'application/json'}})`,
         label: "xhr-post",
       },
       { type: "wait", ms: randomBetween(1000, 2000), label: "xhr-wait" }

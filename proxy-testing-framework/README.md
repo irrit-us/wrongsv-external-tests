@@ -18,8 +18,8 @@ DebugSession      → Unified orchestrator
 ### traffic-simulator
 fetch-based user behavior simulation through proxy.
 ```
-ProxyFetchClient  → fetch() through proxy with per-request timing
-BehaviorProfile   → 6 realistic user profiles (web-browsing, video-streaming, etc.)
+ProxyFetchClient  → curl-based requests through SOCKS/HTTP proxy with per-request timing
+BehaviorProfile   → local + remote traffic profiles, including download-heavy and session-churn
 PatternGenerator  → Generates burst-based request patterns
 MetricsCollector  → Latency (p50/p95/p99), throughput, error distribution
 BenchmarkRunner   → End-to-end benchmark orchestration
@@ -39,7 +39,7 @@ Puppeteer-based real user behavior simulation through SOCKS/HTTP proxy.
 ```
 UserSimulator     → Launch headless Chromium through proxy, drive realistic behaviors
 BehaviorRunner    → Execute action sequences (navigate, scroll, click, type, wait, hover, evaluate)
-behaviors/        → 6 built-in behaviors (web-browsing, video-streaming, social-media, e-commerce, form-interaction, multi-page)
+behaviors/        → browser behaviors for browsing, downloads, rapid switching, forms, social, e-commerce
 utils/proxy.js    → Proxy URL parser + Puppeteer launch option builder
 ```
 
@@ -160,6 +160,10 @@ async function evaluateProxy(proxyUrl) {
 | `social-media` | Image-heavy scrolling | 4–8 |
 | `general` | Balanced mix | 3–6 |
 | `quick-check` | Minimal requests, fast latency | 1 |
+| `local-quick` | Fast local loopback validation | 1–2 |
+| `local-general` | Balanced local site traffic | 2–4 |
+| `local-download-heavy` | Chunked + large downloads | 1–2 |
+| `local-session-churn` | Short-lived mixed request bursts | 4–8 |
 
 ## Test Suites
 

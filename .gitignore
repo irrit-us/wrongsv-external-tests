@@ -8,6 +8,7 @@ build/
 
 # Test results
 results/
+.runtime/
 
 # IDE
 .idea/

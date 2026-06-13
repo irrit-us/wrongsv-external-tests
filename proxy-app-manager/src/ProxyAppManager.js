@@ -55,7 +55,9 @@ class ProxyAppManager {
       );
     }
     /** @type {import('./BaseClient').BaseClient} */
-    this.client = new ClientClass(this.repoRoot);
+    this.client = new ClientClass(this.repoRoot, {
+      runtimeRoot: options.runtimeRoot,
+    });
 
     /** @type {AppProcess|null} */
     this.process = null;
@@ -100,6 +102,7 @@ class ProxyAppManager {
       headless: this.headless,
       vmUriPattern: this.client.vmUriPattern,
       launchTimeout: this.timeout,
+      env: this.client.environment,
     });
 
     await this.process.start();

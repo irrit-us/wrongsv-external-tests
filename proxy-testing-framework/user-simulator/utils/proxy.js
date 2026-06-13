@@ -20,7 +20,12 @@ function parseProxyUrl(proxyUrl) {
   };
 }
 
-function buildLaunchOptions({ proxy, headless = true, extraArgs = [] } = {}) {
+function buildLaunchOptions({
+  proxy,
+  headless = true,
+  extraArgs = [],
+  proxyLocalTargets = false,
+} = {}) {
   const parsed = parseProxyUrl(proxy);
 
   const args = [
@@ -35,7 +40,14 @@ function buildLaunchOptions({ proxy, headless = true, extraArgs = [] } = {}) {
     args.push(`--proxy-server=${parsed.type}://${parsed.host}:${parsed.port}`);
     if (parsed.type.startsWith("socks")) {
       // Resolve hostnames through the proxy too
-      args.push("--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1");
+      args.push(
+        proxyLocalTargets
+          ? "--host-resolver-rules=MAP * ~NOTFOUND"
+          : "--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1"
+      );
+    }
+    if (proxyLocalTargets) {
+      args.push("--proxy-bypass-list=<-loopback>");
     }
   }
 

@@ -10,12 +10,14 @@ exports.name = "video-streaming";
 exports.description =
   "Simulates video watching: sustained streaming downloads through proxy";
 
-exports.generateSession = function ({ duration = 30000 } = {}) {
+exports.generateSession = function ({ duration = 30000, targets = null } = {}) {
   const actions = [];
+  const landingUrl = targets?.videoLanding || "https://httpbin.org/html";
+  const streamTargets = targets?.streams || null;
 
   // Phase 1: Load a page (simulating opening a video platform)
   actions.push(
-    { type: "navigate", url: "https://httpbin.org/html", waitUntil: "networkidle2", label: "load-platform" },
+    { type: "navigate", url: landingUrl, waitUntil: "networkidle2", label: "load-platform" },
     { type: "wait", ms: randomBetween(1000, 2000), label: "page-settle" }
   );
 
@@ -25,13 +27,17 @@ exports.generateSession = function ({ duration = 30000 } = {}) {
   const chunks = Math.max(3, Math.floor(remainingMs / 5000));
 
   for (let i = 0; i < chunks; i++) {
-    // Video segment sizes: 128KB-1MB to simulate real video chunks
-    const segmentSize = randomBetween(128 * 1024, 1024 * 1024);
+    const segmentUrl = streamTargets
+      ? streamTargets[i % streamTargets.length]
+      : `https://httpbin.org/stream-bytes/${randomBetween(128 * 1024, 1024 * 1024)}`;
     actions.push(
       {
-        type: "navigate",
-        url: `https://httpbin.org/stream-bytes/${segmentSize}`,
-        waitUntil: "load",
+        type: streamTargets ? "evaluate" : "navigate",
+        url: segmentUrl,
+        code: streamTargets
+          ? `fetch(${JSON.stringify(segmentUrl)}).then((r) => r.arrayBuffer())`
+          : undefined,
+        waitUntil: streamTargets ? undefined : "load",
         label: `video-chunk-${i}`,
       },
       { type: "wait", ms: randomBetween(500, 1500), label: `buffer-${i}` }

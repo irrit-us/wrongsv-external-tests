@@ -8,19 +8,21 @@ exports.name = "multi-page";
 exports.description =
   "Simulates multi-tab browsing: different content types, connection pooling";
 
-exports.generateSession = function ({ duration = 30000 } = {}) {
+exports.generateSession = function ({ duration = 30000, targets = null } = {}) {
   const actions = [];
 
   // Diverse target set — each page exercises different proxy behaviors
-  const sites = [
-    { url: "https://httpbin.org/html", label: "html-page", type: "text/html" },
-    { url: "https://httpbin.org/image/jpeg", label: "jpeg-image", type: "image/jpeg" },
-    { url: "https://httpbin.org/image/png", label: "png-image", type: "image/png" },
-    { url: "https://httpbin.org/gzip", label: "gzip-json", type: "gzip" },
-    { url: "https://httpbin.org/stream-bytes/65536", label: "stream-64k", type: "stream" },
-    { url: "https://httpbin.org/delay/1", label: "delay-1s", type: "delay" },
-    { url: "https://httpbin.org/links/5/0", label: "links-page", type: "text/html" },
-  ];
+  const sites =
+    targets?.multiPageSites || [
+      { url: "https://httpbin.org/html", label: "html-page", type: "text/html" },
+      { url: "https://httpbin.org/image/jpeg", label: "jpeg-image", type: "image/jpeg" },
+      { url: "https://httpbin.org/image/png", label: "png-image", type: "image/png" },
+      { url: "https://httpbin.org/gzip", label: "gzip-json", type: "gzip" },
+      { url: "https://httpbin.org/stream-bytes/65536", label: "stream-64k", type: "stream" },
+      { url: "https://httpbin.org/delay/1", label: "delay-1s", type: "delay" },
+      { url: "https://httpbin.org/links/5/0", label: "links-page", type: "text/html" },
+    ];
+  const finalCheck = targets?.finalCheck || "https://httpbin.org/ip";
 
   const pageMs = Math.max(3000, duration / Math.max(3, sites.length));
   const pages = Math.min(sites.length, Math.floor(duration / pageMs));
@@ -39,7 +41,7 @@ exports.generateSession = function ({ duration = 30000 } = {}) {
 
   // End with a page that confirms all connections were proxied
   actions.push(
-    { type: "navigate", url: "https://httpbin.org/ip", waitUntil: "networkidle2", label: "check-ip" },
+    { type: "navigate", url: finalCheck, waitUntil: "networkidle2", label: "check-ip" },
     { type: "wait", ms: 1000, label: "final" }
   );
 

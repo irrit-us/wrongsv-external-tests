@@ -29,8 +29,10 @@ class UserSimulator {
    * @param {number} [options.duration=30000] - target simulation duration in ms
    * @param {boolean} [options.headless=true] - run browser headless
    * @param {string[]} [options.urls] - override target URLs for the behavior
+   * @param {Object} [options.targets] - named target catalog for richer local behaviors
    * @param {Object} [options.puppeteerOpts] - extra Puppeteer launch options
    * @param {boolean} [options.recordNetwork=false] - capture full request/response data
+   * @param {boolean} [options.proxyLocalTargets=false] - send loopback targets through the proxy
    * @param {boolean} [options.verbose=false] - log actions to stderr
    */
   constructor(options = {}) {
@@ -41,8 +43,10 @@ class UserSimulator {
     this.duration = options.duration || 30000;
     this.headless = options.headless !== false;
     this.urls = options.urls || null;
+    this.targets = options.targets || null;
     this.puppeteerOpts = options.puppeteerOpts || {};
     this.recordNetwork = options.recordNetwork || false;
+    this.proxyLocalTargets = options.proxyLocalTargets || false;
     this.verbose = options.verbose || false;
 
     // Resolve behavior
@@ -86,6 +90,7 @@ class UserSimulator {
     const launchOpts = buildLaunchOptions({
       proxy: this.proxy,
       headless: this.headless,
+      proxyLocalTargets: this.proxyLocalTargets,
     });
     Object.assign(launchOpts, this.puppeteerOpts);
 
@@ -111,6 +116,7 @@ class UserSimulator {
     const actions = this.behaviorDef.generateSession({
       duration: this.duration,
       urls: this.urls,
+      targets: this.targets,
     });
 
     if (this.verbose) {

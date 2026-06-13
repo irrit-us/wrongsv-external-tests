@@ -22,8 +22,8 @@ exports.description =
  * @param {string[]} [opts.urls] - override target URLs
  * @returns {Array<{phase: string, actions: Array}>}
  */
-exports.generateSession = function ({ duration = 30000, urls = null } = {}) {
-  const targets = urls || DEFAULT_URLS;
+exports.generateSession = function ({ duration = 30000, urls = null, targets = null } = {}) {
+  const pages = urls || targets?.pages || DEFAULT_URLS;
   const actions = [];
 
   // Distribute page visits across the duration.
@@ -32,7 +32,7 @@ exports.generateSession = function ({ duration = 30000, urls = null } = {}) {
   const visits = Math.max(2, Math.floor(duration / avgVisitMs));
 
   for (let i = 0; i < visits; i++) {
-    const url = targets[i % targets.length];
+    const url = pages[i % pages.length];
 
     actions.push(
       // Page load

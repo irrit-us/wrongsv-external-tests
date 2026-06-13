@@ -167,6 +167,13 @@ class HiddifyClient extends BaseClient {
   // ---- Cleanup ----
 
   async cleanData() {
+    if (this.runtimeRoot) {
+      try {
+        fs.rmSync(this.dataDir, { recursive: true, force: true });
+      } catch (_) {}
+      return;
+    }
+
     // Remove config files that accumulate across runs
     const files = [
       path.join(this.dataDir, "config.json"),

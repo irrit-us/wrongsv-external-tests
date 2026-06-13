@@ -248,6 +248,45 @@ const PROFILE_DEFINITIONS = {
     },
     rampUpMs: 1000,
   },
+
+  "local-download-heavy": {
+    description: "Large downloads and chunked transfers against local test server",
+    templateMix: {
+      localDownload: 0.40,
+      localChunked: 0.30,
+      localApiGet: 0.10,
+      localDelay: 0.10,
+      localHtml: 0.10,
+    },
+    concurrency: { min: 1, max: 2 },
+    delayBetweenRequests: { min: 50, max: 300 },
+    burstPattern: {
+      burstSize: { min: 2, max: 5 },
+      pauseBetweenBursts: { min: 700, max: 2000 },
+    },
+    rampUpMs: 1000,
+  },
+
+  "local-session-churn": {
+    description: "Short-lived mixed sessions and reconnect-style request bursts",
+    templateMix: {
+      localPage: 0.20,
+      localApiGet: 0.20,
+      localApiPost: 0.15,
+      localDownload: 0.10,
+      localStatic: 0.10,
+      localDelay: 0.10,
+      localError: 0.10,
+      localHtml: 0.05,
+    },
+    concurrency: { min: 4, max: 8 },
+    delayBetweenRequests: { min: 5, max: 60 },
+    burstPattern: {
+      burstSize: { min: 8, max: 24 },
+      pauseBetweenBursts: { min: 200, max: 900 },
+    },
+    rampUpMs: 500,
+  },
 };
 
 /**
@@ -287,6 +326,34 @@ function buildLocalTemplates(baseUrl) {
     },
     localStream: {
       urls: [`${b}/stream/1024`, `${b}/stream/4096`, `${b}/stream/16384`],
+      method: "GET",
+      weight: 1,
+    },
+    localChunked: {
+      urls: [
+        `${b}/stream/chunked/262144?chunk=16384&delay=5`,
+        `${b}/stream/chunked/524288?chunk=32768&delay=8`,
+        `${b}/stream/chunked/1048576?chunk=65536&delay=10`,
+      ],
+      method: "GET",
+      weight: 1,
+    },
+    localDownload: {
+      urls: [
+        `${b}/download/131072`,
+        `${b}/download/524288`,
+        `${b}/download/1048576`,
+      ],
+      method: "GET",
+      weight: 1,
+    },
+    localPage: {
+      urls: [
+        `${b}/page/news`,
+        `${b}/page/feed`,
+        `${b}/page/store/catalog`,
+        `${b}/page/video`,
+      ],
       method: "GET",
       weight: 1,
     },

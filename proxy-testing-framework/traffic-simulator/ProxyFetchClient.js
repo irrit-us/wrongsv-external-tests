@@ -11,12 +11,7 @@
  *   console.log(client.lastTiming);  // { dns, connect, tls, ttfb, total }
  */
 
-const { SocksProxyAgent } = (() => {
-  try { return require("socks-proxy-agent"); } catch (_) { return {}; }
-})();
-const { HttpsProxyAgent } = (() => {
-  try { return require("https-proxy-agent"); } catch (_) { return {}; }
-})();
+const { spawn } = require("child_process");
 
 class ProxyFetchClient {
   /**
@@ -36,69 +31,8 @@ class ProxyFetchClient {
     this.retryBackoff = options.retryBackoff || 500;
     this.defaultHeaders = options.defaultHeaders || {};
     this.baseUrl = options.baseUrl || null;
-    this._agent = null;
     this._lastTiming = null;
     this._requestCount = 0;
-
-    if (this.proxyUrl) {
-      this._agent = this._createAgent(this.proxyUrl);
-    } else {
-      // Direct mode: explicitly bypass any system-level proxy (e.g. 11451).
-      // Node.js undici respects HTTP_PROXY/HTTPS_PROXY env vars by default.
-      // We create an agent that forces direct connection.
-      this._agent = this._createDirectAgent();
-    }
-  }
-
-  /**
-   * Create an agent that forces direct connection, bypassing system proxy.
-   */
-  _createDirectAgent() {
-    // The "direct" agent is null for undici — but we also need to ensure
-    // that system env vars HTTP_PROXY/HTTPS_PROXY don't interfere.
-    // We do this by explicitly NOT setting a dispatcher.
-    // However, if the system has HTTP_PROXY set, undici will use it.
-    // The safest approach: unset proxy env vars for direct connections,
-    // or use a dispatcher that bypasses.
-    //
-    // For Node 18+ built-in fetch, the cleanest approach is to use
-    // a custom undici Agent that ignores proxy env vars.
-    try {
-      // Try to use undici Agent for direct connection
-      const { Agent } = require("undici");
-      return new Agent({
-        connect: { rejectUnauthorized: false },
-        // By not setting proxy, we force direct
-      });
-    } catch (_) {
-      // undici not available; fall back to null (let fetch decide)
-      // Save and clear proxy env vars during direct requests
-      return null;
-    }
-  }
-
-  /**
-   * Create the appropriate proxy agent.
-   */
-  _createAgent(proxyUrl) {
-    const url = proxyUrl.toLowerCase();
-    if (url.startsWith("socks")) {
-      if (!SocksProxyAgent) {
-        throw new Error(
-          "socks-proxy-agent package required for SOCKS proxy. Install: npm install socks-proxy-agent"
-        );
-      }
-      return new SocksProxyAgent(proxyUrl);
-    }
-    if (url.startsWith("http")) {
-      if (!HttpsProxyAgent) {
-        throw new Error(
-          "https-proxy-agent package required for HTTP proxy. Install: npm install https-proxy-agent"
-        );
-      }
-      return new HttpsProxyAgent(proxyUrl);
-    }
-    throw new Error(`Unsupported proxy protocol: ${proxyUrl}`);
   }
 
   /**
@@ -119,60 +53,40 @@ class ProxyFetchClient {
       error: null,
     };
 
-    const startTime = performance.now();
-    const fetchInit = {
-      method: init.method || "GET",
-      headers: { ...this.defaultHeaders, ...(init.headers || {}) },
-      body: init.body,
-    };
-
-    // Attach proxy agent
-    if (this._agent) {
-      fetchInit.dispatcher = this._agent;
-    }
-
-    // Apply timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-    fetchInit.signal = controller.signal;
-
     try {
-      const response = await fetch(url, fetchInit);
-      clearTimeout(timeoutId);
-
-      const ttfbTime = performance.now();
-      const body = await response.text();
-      const endTime = performance.now();
+      const metrics = await this._curl(url, {
+        method: init.method || "GET",
+        headers: { ...this.defaultHeaders, ...(init.headers || {}) },
+        body: init.body,
+      });
 
       this._requestCount++;
       this._lastTiming = {
-        dns: -1, // undici fetch doesn't expose DNS timing separately
+        dns: -1,
         connect: -1,
         tls: -1,
-        ttfb: Math.round(ttfbTime - startTime),
-        total: Math.round(endTime - startTime),
-        status: response.status,
-        bodySize: body.length,
+        ttfb: metrics.ttfb,
+        total: metrics.total,
+        status: metrics.status,
+        bodySize: metrics.bodySize,
         error: null,
       };
 
       return {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        body,
+        ok: metrics.status >= 200 && metrics.status < 400,
+        status: metrics.status,
+        statusText: "",
+        headers: new Map(),
+        body: "",
         timing: { ...this._lastTiming },
       };
     } catch (err) {
-      clearTimeout(timeoutId);
-      const endTime = performance.now();
       this._lastTiming = {
         dns: -1,
         connect: -1,
         tls: -1,
         ttfb: -1,
-        total: Math.round(endTime - startTime),
+        total: -1,
         status: 0,
         bodySize: 0,
         error: err.message,
@@ -204,6 +118,92 @@ class ProxyFetchClient {
   /** Total request count for this client. */
   get requestCount() {
     return this._requestCount;
+  }
+
+  async _curl(url, request) {
+    const args = [
+      "--silent",
+      "--show-error",
+      "--location",
+      "--output",
+      "/dev/null",
+      "--request",
+      request.method,
+      "--max-time",
+      String(Math.max(this.timeout / 1000, 1)),
+      "--write-out",
+      "__CURL__%{http_code}:%{size_download}:%{time_starttransfer}:%{time_total}",
+    ];
+
+    if (this.proxyUrl) {
+      const lower = this.proxyUrl.toLowerCase();
+      const stripped = this.proxyUrl.replace(/^[a-z0-9]+:\/\//i, "");
+      if (lower.startsWith("socks5h://") || lower.startsWith("socks5://")) {
+        args.push("--socks5-hostname", stripped);
+      } else if (lower.startsWith("socks4://") || lower.startsWith("socks://")) {
+        args.push("--socks4", stripped);
+      } else if (lower.startsWith("http://") || lower.startsWith("https://")) {
+        args.push("--proxy", this.proxyUrl);
+      } else {
+        throw new Error(`Unsupported proxy protocol: ${this.proxyUrl}`);
+      }
+    } else {
+      args.push("--noproxy", "*");
+    }
+
+    for (const [key, value] of Object.entries(request.headers || {})) {
+      args.push("-H", `${key}: ${value}`);
+    }
+
+    const body =
+      request.body === undefined || request.body === null
+        ? null
+        : Buffer.isBuffer(request.body) || typeof request.body === "string"
+          ? request.body
+          : JSON.stringify(request.body);
+
+    if (body !== null) {
+      args.push("--data-binary", "@-");
+    }
+
+    args.push(url);
+
+    const { stdout, stderr, code } = await new Promise((resolve, reject) => {
+      const child = spawn("curl", args, {
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk.toString();
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk.toString();
+      });
+      child.on("error", reject);
+      child.on("close", (code) => resolve({ stdout, stderr, code }));
+      if (body !== null) {
+        child.stdin.end(body);
+      } else {
+        child.stdin.end();
+      }
+    });
+
+    if (code !== 0) {
+      throw new Error(stderr.trim() || `curl exited with code ${code}`);
+    }
+
+    const match = stdout.match(/__CURL__(\d+):([0-9.]+):([0-9.]+):([0-9.]+)$/);
+    if (!match) {
+      throw new Error(`unexpected curl metrics output: ${stdout}`);
+    }
+
+    return {
+      status: Number(match[1]),
+      bodySize: Math.round(Number(match[2])),
+      ttfb: Math.round(Number(match[3]) * 1000),
+      total: Math.round(Number(match[4]) * 1000),
+    };
   }
 }
 

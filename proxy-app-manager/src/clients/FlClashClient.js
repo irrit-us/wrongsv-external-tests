@@ -7,6 +7,7 @@
 
 const path = require("path");
 const fs = require("fs");
+const { execSync } = require("child_process");
 const { BaseClient } = require("../BaseClient");
 
 // Try to load yaml for port extraction; fall back to defaults if unavailable
@@ -91,11 +92,27 @@ class FlClashClient extends BaseClient {
   // ---- Lifecycle ----
 
   /**
-   * FlClash: just copy the config file to the data directory.
+   * FlClash: import the config as an app profile before launch.
    */
   async prepareConfig(configPath) {
     const dest = path.join(this.dataDir, "config.yaml");
     fs.mkdirSync(this.dataDir, { recursive: true });
+
+    const importScript = path.join(
+      this.repoRoot,
+      "scripts",
+      "import-flclash-config.py"
+    );
+    if (fs.existsSync(importScript)) {
+      execSync(
+        `python3 "${importScript}" --config "${configPath}" --data-dir "${this.dataDir}" --profile-name "Test Profile"`,
+        { stdio: "pipe", timeout: 10000 }
+      );
+    } else {
+      fs.copyFileSync(configPath, dest);
+    }
+
+    // Keep a copy at the legacy path for debugging and parity with manual runs.
     fs.copyFileSync(configPath, dest);
 
     const proxyPort = this.extractProxyPort(configPath);
@@ -130,6 +147,13 @@ class FlClashClient extends BaseClient {
   // ---- Cleanup ----
 
   async cleanData() {
+    if (this.runtimeRoot) {
+      try {
+        fs.rmSync(this.dataDir, { recursive: true, force: true });
+      } catch (_) {}
+      return;
+    }
+
     const configDest = path.join(this.dataDir, "config.yaml");
     try { fs.unlinkSync(configDest); } catch (_) {}
   }

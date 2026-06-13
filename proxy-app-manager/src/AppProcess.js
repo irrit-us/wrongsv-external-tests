@@ -106,7 +106,7 @@ class AppProcess {
       };
 
       this.appProcess.stdout.on("data", onData);
-      this.appProcess.stderr.on("data", (d) => logStream.write(d));
+      this.appProcess.stderr.on("data", onData);
 
       this.appProcess.on("exit", (code) => {
         if (!this.vmUri) {

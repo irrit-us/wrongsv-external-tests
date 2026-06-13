@@ -8,6 +8,8 @@ const socialMedia = require("./social-media");
 const eCommerce = require("./e-commerce");
 const formInteraction = require("./form-interaction");
 const multiPage = require("./multi-page");
+const downloadHeavy = require("./download-heavy");
+const rapidSwitching = require("./rapid-switching");
 
 const BUILTIN = [
   webBrowsing,
@@ -16,6 +18,8 @@ const BUILTIN = [
   eCommerce,
   formInteraction,
   multiPage,
+  downloadHeavy,
+  rapidSwitching,
 ];
 
 const registry = new Map();

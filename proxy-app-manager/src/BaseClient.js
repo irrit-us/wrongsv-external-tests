@@ -36,8 +36,9 @@ class BaseClient {
   /**
    * @param {string} repoRoot - path to the wrongsv-external-tests repo
    */
-  constructor(repoRoot) {
+  constructor(repoRoot, options = {}) {
     this.repoRoot = repoRoot;
+    this.runtimeRoot = options.runtimeRoot || null;
   }
 
   /** @returns {string} Absolute path to the app executable */
@@ -52,6 +53,9 @@ class BaseClient {
 
   /** @returns {string} App data directory (XDG_DATA_HOME based) */
   get dataDir() {
+    if (this.runtimeRoot) {
+      return path.join(this.runtimeRoot, this.constructor.displayName);
+    }
     const xdg = process.env.XDG_DATA_HOME || path.join(os.homedir(), ".local/share");
     return path.join(xdg, this.constructor.displayName);
   }
@@ -64,6 +68,15 @@ class BaseClient {
   /** @returns {number} Fallback proxy port if config doesn't specify */
   get defaultProxyPort() {
     return 1080;
+  }
+
+  /** @returns {Object<string, string>} Extra environment for the app process */
+  get environment() {
+    return this.runtimeRoot
+      ? {
+          XDG_DATA_HOME: this.runtimeRoot,
+        }
+      : {};
   }
 
   /**

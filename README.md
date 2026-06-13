@@ -12,6 +12,13 @@ npm install --prefix proxy-app-manager
 node orchestrate.js --app flclash --config configs/sample-clash-config.yaml --mode test
 node orchestrate.js --app hiddify --config configs/sample-singbox-config.json --mode test
 
+# End-to-end wrongsv evaluation with generated client configs, simulated traffic,
+# browser behavior, and metrics scraping
+node run-client-suite.js --client flclash
+node run-client-suite.js --client hiddify
+node run-client-suite.js --client sing-box
+node run-client-suite.js --client xray-core --wrongsv-config ../wrongsv/configs/reality-vision.toml
+
 # Start and leave running (with debug verification)
 node orchestrate.js --app flclash --config configs/sample-clash-config.yaml
 
@@ -24,6 +31,8 @@ node orchestrate.js --app flclash --config config.yaml --mode test --json
 ```
 wrongsv-external-tests/
 ├── orchestrate.js               # CLI entry point — full lifecycle management
+├── run-client-suite.js          # End-to-end wrongsv/client evaluation harness
+├── e2e-harness/                 # wrongsv server runner + client adapters + metrics scraper
 ├── proxy-app-manager/           # Node.js lifecycle module
 │   ├── index.js                 # Public API: ProxyAppManager, BaseClient, VmBridge, ...
 │   ├── src/
@@ -83,7 +92,9 @@ wrongsv-external-tests/
 
 - **proxy-app-manager** — WebSocket bridge + process management. Launch, connect, test, shutdown.
 - **proxy-testing-framework** — Puppeteer + traffic simulator for proxy quality evaluation.
-- **orchestrate.js** — Single CLI combining both modules.
+- **e2e-harness** — Composes `wrongsv`, app/core clients, traffic workloads, browser workloads, and metrics scraping into reusable client suites.
+- **orchestrate.js** — Example lifecycle CLI.
+- **run-client-suite.js** — Full wrongsv/client evaluation CLI using the modular harness.
 
 ## Debug Service Extensions
 
@@ -102,6 +113,15 @@ Each app registers these extensions at startup:
 | `ext.hiddify.importConfig` | Import a config file (Hiddify only) |
 
 Replace `<app>` with `flclash` or `hiddify`.
+
+## Supported End-to-End Clients
+
+The reusable suite runner currently knows how to adapt wrongsv-generated configs for:
+
+- `flclash`
+- `hiddify`
+- `sing-box`
+- `xray-core` (validated with REALITY configs; see `docs/known-limitations.md`)
 
 ## Programmatic API
 

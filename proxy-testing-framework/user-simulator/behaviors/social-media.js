@@ -7,17 +7,19 @@ exports.name = "social-media";
 exports.description =
   "Simulates social feed scrolling: rapid loads, images, scroll bursts";
 
-exports.generateSession = function ({ duration = 30000 } = {}) {
+exports.generateSession = function ({ duration = 30000, targets = null } = {}) {
   const actions = [];
 
   // Feed pages with different content types
-  const feedTargets = [
-    { url: "https://httpbin.org/image/jpeg", type: "image" },
-    { url: "https://httpbin.org/image/png", type: "image" },
-    { url: "https://httpbin.org/image/svg", type: "image" },
-    { url: "https://httpbin.org/html", type: "text" },
-    { url: "https://httpbin.org/links/5/0", type: "links" },
-  ];
+  const feedTargets =
+    targets?.feedItems?.map((url) => ({ url, type: "page" })) || [
+      { url: "https://httpbin.org/image/jpeg", type: "image" },
+      { url: "https://httpbin.org/image/png", type: "image" },
+      { url: "https://httpbin.org/image/svg", type: "image" },
+      { url: "https://httpbin.org/html", type: "text" },
+      { url: "https://httpbin.org/links/5/0", type: "links" },
+    ];
+  const landing = targets?.feedLanding || "https://httpbin.org/links/10/0";
 
   // Simulate fast feed scrolling — many quick interactions
   const interactionMs = 2000; // ~2s per feed item
@@ -25,7 +27,7 @@ exports.generateSession = function ({ duration = 30000 } = {}) {
 
   // Start with a page load
   actions.push(
-    { type: "navigate", url: "https://httpbin.org/links/10/0", waitUntil: "networkidle2", label: "open-feed" },
+    { type: "navigate", url: landing, waitUntil: "networkidle2", label: "open-feed" },
     { type: "wait", ms: randomBetween(800, 1500), label: "feed-load" }
   );
 
@@ -52,7 +54,7 @@ exports.generateSession = function ({ duration = 30000 } = {}) {
       actions.push(
         {
           type: "navigate",
-          url: "https://httpbin.org/links/10/0",
+          url: landing,
           waitUntil: "networkidle2",
           label: `back-feed-${i}`,
         },

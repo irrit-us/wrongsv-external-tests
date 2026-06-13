@@ -7,19 +7,22 @@ exports.name = "e-commerce";
 exports.description =
   "Simulates online shopping: product browsing, image loads, page hopping";
 
-exports.generateSession = function ({ duration = 30000 } = {}) {
+exports.generateSession = function ({ duration = 30000, targets = null } = {}) {
   const actions = [];
+  const landing = targets?.storeLanding || "https://httpbin.org/html";
+  const catalog = targets?.catalogPage || "https://httpbin.org/links/8/0";
 
   // Product catalog pages (simulated with httpbin)
-  const productPages = [
-    "https://httpbin.org/image/jpeg",
-    "https://httpbin.org/image/png",
-    "https://httpbin.org/image/webp",
-  ];
+  const productPages =
+    targets?.productPages || [
+      "https://httpbin.org/image/jpeg",
+      "https://httpbin.org/image/png",
+      "https://httpbin.org/image/webp",
+    ];
 
   // Landing page
   actions.push(
-    { type: "navigate", url: "https://httpbin.org/html", waitUntil: "networkidle2", label: "landing" },
+    { type: "navigate", url: landing, waitUntil: "networkidle2", label: "landing" },
     { type: "wait", ms: randomBetween(1000, 2500), label: "browse-landing" },
     { type: "scroll", distance: 200, label: "scroll-landing" },
     { type: "wait", ms: randomBetween(500, 1500), label: "pause-landing" }
@@ -27,7 +30,7 @@ exports.generateSession = function ({ duration = 30000 } = {}) {
 
   // Browse product listings
   actions.push(
-    { type: "navigate", url: "https://httpbin.org/links/8/0", waitUntil: "networkidle2", label: "search-results" },
+    { type: "navigate", url: catalog, waitUntil: "networkidle2", label: "search-results" },
     { type: "wait", ms: randomBetween(800, 2000), label: "scan-results" },
     { type: "scroll", distance: 350, label: "scroll-results" },
     { type: "wait", ms: randomBetween(800, 2000), label: "view-results" },
@@ -59,7 +62,7 @@ exports.generateSession = function ({ duration = 30000 } = {}) {
       actions.push(
         {
           type: "navigate",
-          url: "https://httpbin.org/links/8/0",
+          url: catalog,
           waitUntil: "networkidle2",
           label: `back-results-${i}`,
         },
