@@ -95,6 +95,7 @@ class ProxyAppClientRunner {
     });
     const launch = await this.manager.launch();
     const connect = await this.manager.connectProxy();
+    await waitForPort("127.0.0.1", this.manager.proxyPort, 30000);
     return {
       launch,
       connect,

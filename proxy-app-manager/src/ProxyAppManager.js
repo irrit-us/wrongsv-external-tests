@@ -120,7 +120,7 @@ class ProxyAppManager {
     await this._waitForExtensions(15000);
 
     // ---- Post-launch hook ----
-    await this.client.afterLaunch(this.vmUri);
+    await this.client.afterLaunch(this.vmUri, this.bridge);
 
     this._launched = true;
 
@@ -138,7 +138,29 @@ class ProxyAppManager {
   async connectProxy() {
     this._ensureLaunched();
     const meta = this.client.extensions.get("connectProxy");
-    const result = await this.bridge.callExtension(meta.method);
+    let result = await this.bridge.callExtension(meta.method);
+
+    if (
+      this.appName === "hiddify" &&
+      result?.connectResult !== "ok" &&
+      this.client.extensions.has("performSemanticsAction")
+    ) {
+      for (const label of ["点击连接", "Connect", "Start"]) {
+        try {
+          await this.bridge.callExtension(
+            this.client.extensions.get("performSemanticsAction").method,
+            {
+              value: JSON.stringify({ action: "tap", label }),
+            }
+          );
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          result = await this.bridge.callExtension(meta.method);
+          if (result?.connectResult === "ok") {
+            break;
+          }
+        } catch (_) {}
+      }
+    }
 
     // Hiddify may use a different port than the config specifies
     if (this.appName === "hiddify") {

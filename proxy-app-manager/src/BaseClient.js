@@ -127,8 +127,9 @@ class BaseClient {
    * Use for post-launch initialization (e.g. waiting for UI readiness).
    *
    * @param {string} _vmUri - the detected VM service URI
+   * @param {Object} [_bridge] - connected VM bridge instance
    */
-  async afterLaunch(_vmUri) {}
+  async afterLaunch(_vmUri, _bridge) {}
 
   /**
    * Extract the proxy port from a parsed config.

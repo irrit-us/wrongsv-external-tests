@@ -164,6 +164,39 @@ class HiddifyClient extends BaseClient {
     return null;
   }
 
+  /**
+   * Dismiss the first-run onboarding screen if Hiddify opens there.
+   */
+  async afterLaunch(_vmUri, bridge) {
+    if (!bridge) return;
+    const dumpMeta = this.extensions.get("dumpSemantics");
+    const tapMeta = this.extensions.get("performSemanticsAction");
+    if (!dumpMeta || !tapMeta) return;
+
+    const startLabels = ["开始", "Start", "Get Started"];
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      let payload;
+      try {
+        payload = await bridge.callExtension(dumpMeta.method);
+      } catch {
+        return;
+      }
+      const text = JSON.stringify(payload);
+      const label = startLabels.find((item) => text.includes(item));
+      if (!label) {
+        return;
+      }
+      try {
+        await bridge.callExtension(tapMeta.method, {
+          value: JSON.stringify({ action: "tap", label }),
+        });
+      } catch {
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+
   // ---- Cleanup ----
 
   async cleanData() {
