@@ -1,18 +1,4 @@
 const SERVER_DEFECTS = {
-  "server.v2ray_tlsmirror_transport": {
-    id: "server.v2ray_tlsmirror_transport",
-    title: "wrongsv lacks V2Ray TLSMirror transport support",
-    severity: "medium",
-    detail:
-      "V2Fly documents TLSMirror transport, but wrongsv has no server-side TLSMirror implementation.",
-  },
-  "server.v2ray_docs_transport": {
-    id: "server.v2ray_docs_transport",
-    title: "wrongsv lacks V2Ray Google Docs Viewer transport support",
-    severity: "low",
-    detail:
-      "V2Fly documents the Google Docs Viewer transport, but wrongsv has no corresponding server implementation.",
-  },
   "server.mihomo_wireguard_protocol": {
     id: "server.mihomo_wireguard_protocol",
     title: "wrongsv lacks WireGuard server-side support",
@@ -162,7 +148,6 @@ const CLIENT_CAPABILITIES = {
     ],
     browserScenario: "vless_raw_tcp",
     serverDefects: [
-      "server.v2ray_tlsmirror_transport",
     ],
     scenarioDefects: {},
     harnessGaps: ["trojan_tls", "vless_quic", "shadowsocks_2022", "vless_httpupgrade"],

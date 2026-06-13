@@ -132,7 +132,7 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### V2Ray / V2Fly
 
-Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-vmess-recheck-1/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-kcp-check-2/vless_kcp/report.json), [Meek check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-meek-check-11/vless_meek/report.json), [Google Docs Viewer check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-gdocs-check-5/vless_gdocsviewer/report.json)
+Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-vmess-recheck-1/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-kcp-check-2/vless_kcp/report.json), [Meek check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-meek-check-11/vless_meek/report.json), [Google Docs Viewer check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-gdocs-check-6/vless_gdocsviewer/report.json)
 
 - Covered:
   `vless_raw_tcp`, `vless_ws_tcp`, `vless_grpc`, `vless_meek`, `vless_gdocsviewer`, `vless_kcp`, `vmess_standard`, `shadowsocks_aead`
@@ -145,6 +145,10 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 - `vless_gdocsviewer` now passes after wrongsv added a Google Docs Viewer
   origin endpoint and the V2Ray harness switched this scenario to a full
   upstream-built `jsonv5` binary plus a local mock viewer/text frontend.
+- `tlsmirror` is no longer tracked as a client-capability defect: the upstream
+  V2Ray codebase on this box registers `tlsmirror` only as a server-side
+  listener, not as a runnable outbound transport alias for the tested client
+  binary.
 - `vless_kcp` now passes after the V2Ray adapter converts wrongsv's newer
   Xray-style KCP output into the legacy `kcpSettings.seed` form expected by the
   tested V2Fly 5.49.0 runtime.
@@ -163,5 +167,3 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   sweeps to pass in the latest external rechecks.
 - `server.mihomo_wireguard_protocol`
   Mihomo-class clients expose WireGuard support, but wrongsv still has no WireGuard server-side mode.
-- `server.v2ray_tlsmirror_transport`
-  V2Fly documents TLSMirror transport, but wrongsv has no server-side TLSMirror implementation.
