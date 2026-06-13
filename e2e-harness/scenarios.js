@@ -78,6 +78,17 @@ function buildScenarios(wrongsvRepo) {
         v2ray: "meek",
       },
     },
+    vless_gdocsviewer: {
+      id: "vless_gdocsviewer",
+      label: "VLESS Google Docs Viewer",
+      family: "vless",
+      configPath: config("gdocsviewer.toml"),
+      serverName: "localhost",
+      gdocsPath: "/gdocsviewer",
+      manualRuntimeByClient: {
+        v2ray: "gdocsviewer",
+      },
+    },
     vless_quic: {
       id: "vless_quic",
       label: "VLESS QUIC",

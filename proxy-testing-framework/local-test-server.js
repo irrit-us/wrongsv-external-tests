@@ -306,6 +306,14 @@ function log(req, status) {
   }
 }
 
+function encodeMockDocId(url) {
+  return Buffer.from(url, "utf8").toString("base64url");
+}
+
+function decodeMockDocId(id) {
+  return Buffer.from(id, "base64url").toString("utf8");
+}
+
 // --- Router ---
 
 const server = http.createServer((req, res) => {
@@ -424,6 +432,46 @@ const server = http.createServer((req, res) => {
   if (path === "/api/uuid") {
     log(req, 200);
     return json(res, { uuid: `${Date.now()}-${Math.random().toString(36).slice(2)}` });
+  }
+
+  if (path === "/mock-gdocs/viewer") {
+    const originUrl = url.searchParams.get("url");
+    if (!originUrl) {
+      log(req, 400);
+      return text(res, "missing url", 400);
+    }
+    const docId = encodeMockDocId(originUrl);
+    log(req, 200);
+    return text(res, `... "/mock-gdocs/viewerng/text?id=${docId}&page=0" ...`);
+  }
+
+  if (path === "/mock-gdocs/viewerng/text") {
+    const docId = url.searchParams.get("id");
+    if (!docId) {
+      log(req, 400);
+      return text(res, "missing id", 400);
+    }
+    (async () => {
+      try {
+        const originUrl = decodeMockDocId(docId);
+        const upstream = await fetch(originUrl);
+        const originBody = await upstream.text();
+        if (!upstream.ok) {
+          log(req, 502);
+          return text(res, "origin fetch failed", 502);
+        }
+        const body = `)]}'\n${JSON.stringify({
+          mimetype: "text/plain",
+          data: originBody,
+        })}`;
+        log(req, 200);
+        return text(res, body);
+      } catch (error) {
+        log(req, 500);
+        return text(res, `mock gdocs error: ${error.message}`, 500);
+      }
+    })();
+    return;
   }
 
   // ── Static "assets" ───────────────────────────────────────

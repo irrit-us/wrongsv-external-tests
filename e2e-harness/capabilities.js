@@ -155,6 +155,7 @@ const CLIENT_CAPABILITIES = {
       "vless_ws_tcp",
       "vless_grpc",
       "vless_meek",
+      "vless_gdocsviewer",
       "vless_kcp",
       "shadowsocks_aead",
       "vmess_standard",
@@ -162,7 +163,6 @@ const CLIENT_CAPABILITIES = {
     browserScenario: "vless_raw_tcp",
     serverDefects: [
       "server.v2ray_tlsmirror_transport",
-      "server.v2ray_docs_transport",
     ],
     scenarioDefects: {},
     harnessGaps: ["trojan_tls", "vless_quic", "shadowsocks_2022", "vless_httpupgrade"],

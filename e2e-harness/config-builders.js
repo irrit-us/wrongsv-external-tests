@@ -347,6 +347,40 @@ function buildV2RayMeekRuntimeConfig(rawConfig, scenario, options = {}) {
   return buildV2RayV5ConfigFromOutbounds([primary], options);
 }
 
+function buildV2RayGdocsRuntimeConfig(rawConfig, scenario, options = {}) {
+  const parsed = parseJson(rawConfig);
+  const outbounds = (parsed.outbounds || []).map(normalizeV2RayOutbound);
+  if (outbounds.length === 0) {
+    throw new Error("wrongsv xray config did not contain any outbounds");
+  }
+  const source = outbounds[0];
+  const endpoint = source.settings?.vnext?.[0];
+  const user = endpoint?.users?.[0];
+  if (!endpoint?.address || !endpoint?.port || !user?.id) {
+    throw new Error("wrongsv xray config did not contain a usable VLESS endpoint");
+  }
+  const primary = {
+    protocol: "vless",
+    tag: source.tag || options.clientName || "wrongsv",
+    settings: {
+      address: "127.0.0.1",
+      port: options.targetPort,
+      uuid: user.id,
+    },
+    streamSettings: {
+      transport: "gdocsviewer",
+      transportSettings: {
+        viewerUrl: `http://127.0.0.1:${options.targetPort}/mock-gdocs/viewer`,
+        textUrl: `http://127.0.0.1:${options.targetPort}/mock-gdocs/viewerng/text`,
+        originUrl: `http://127.0.0.1:${options.serverPort}${scenario.gdocsPath || "/gdocsviewer"}`,
+        allowHttp: true,
+        pathPrefix: scenario.gdocsPath || "/gdocsviewer",
+      },
+    },
+  };
+  return buildV2RayV5ConfigFromOutbounds([primary], options);
+}
+
 function buildXrayShadowsocksRuntimeConfig(scenario, options = {}) {
   const config = {
     log: { loglevel: "warning" },
@@ -852,7 +886,7 @@ function buildHiddifyRuntimeConfig(rawConfig, options = {}) {
   return buildSingBoxRuntimeConfig(rawConfig, options);
 }
 
-function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, serverPort }) {
+function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, serverPort, targetPort }) {
   const family = scenario?.family || "vless";
   const manualRuntime = scenario?.manualRuntimeByClient?.[client];
   switch (client) {
@@ -1115,6 +1149,20 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
             socksPort: 10818,
             clientName,
             serverPort,
+          }),
+          runnerOptions: {
+            configFormat: "jsonv5",
+          },
+        };
+      }
+      if (manualRuntime === "gdocsviewer") {
+        return {
+          extension: ".json",
+          content: buildV2RayGdocsRuntimeConfig(rawConfig, scenario, {
+            socksPort: 10818,
+            clientName,
+            serverPort,
+            targetPort,
           }),
           runnerOptions: {
             configFormat: "jsonv5",

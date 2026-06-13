@@ -135,6 +135,7 @@ class SuiteRunner {
         clientName: `${this.client}-wrongsv`,
         scenario: this.scenario,
         serverPort: this.listenPort,
+        targetPort: this.targetPort,
       });
       const configPath = runtimeConfigPath(
         this.outputDir,
