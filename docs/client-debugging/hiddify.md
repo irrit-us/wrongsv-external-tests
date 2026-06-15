@@ -31,7 +31,8 @@ Artifacts:
 
 Client-side limitations:
 
-- `anytls_tcp`: packaged core on this box rejects `type: "anytls"` as unknown.
-  Treat as client/runtime gap, not `wrongsv`.
+- `anytls_tcp`: current stored direct GUI runs do not produce a usable local
+  proxy port for this scenario, so it is excluded from Hiddify
+  `runnableScenarios` and tracked as a client/runtime gap, not `wrongsv`.
 - Other currently covered families include `shadowtls_tcp`, `hysteria2_tcp`,
   `tuic_tcp`, and `vless_xhttp`.

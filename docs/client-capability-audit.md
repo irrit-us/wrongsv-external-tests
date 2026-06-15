@@ -115,8 +115,11 @@ Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-t
   relying on the narrower native transport-type list exposed by the packaged
   sing-box fork.
 - Harness gaps:
-  `anytls` is still blocked in the packaged Hiddify core on this box:
-  its runtime logs reject `type: "anytls"` as an unknown outbound type.
+  `anytls_tcp` is excluded from Hiddify `runnableScenarios` until a passing
+  direct GUI run is recorded. The stored Hiddify AnyTLS attempts fail before a
+  usable local proxy port is exposed, so deploy-time client generation should
+  skip Hiddify for AnyTLS configs even though plain sing-box covers the same
+  protocol.
 
 ### xray-core
 

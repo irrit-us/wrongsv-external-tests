@@ -70,7 +70,6 @@ const CLIENT_CAPABILITIES = {
       "vless_xhttp",
       "hysteria2_tcp",
       "tuic_tcp",
-      "anytls_tcp",
       "shadowtls_tcp",
       "shadowsocks_aead",
       "shadowsocks_2022",
@@ -80,7 +79,7 @@ const CLIENT_CAPABILITIES = {
     browserScenario: "vless_raw_tcp",
     serverDefects: [],
     scenarioDefects: {},
-    harnessGaps: [],
+    harnessGaps: ["anytls_tcp"],
   },
   "sing-box": {
     label: "sing-box",
