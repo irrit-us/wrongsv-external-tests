@@ -48,12 +48,15 @@ Per-client debug and harness integration references live under
 ### clash-verge-rev (Mihomo core path)
 
 Runtime path: Mihomo core via [run-client-matrix.js](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/run-client-matrix.js)  
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-grpc-recheck-3/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-hysteria2-check-2/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-tuic-check-2/tuic_tcp/report.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.json), [matrix.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-matrix/matrix.md), [AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-anytls-check-20260616T133621Z/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-grpc-recheck-3/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-hysteria2-check-2/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/clash-verge-tuic-check-2/tuic_tcp/report.json)
 
 - Covered:
   `vless_raw_tcp`, `vless_ws_tcp`, `vless_httpupgrade`, `vless_grpc`,
-  `wireguard_tunnel_http`, `hysteria2_tcp`, `tuic_tcp`, `vmess_standard`, `shadowsocks_aead`,
-  `shadowsocks_2022`, `trojan_tls`
+  `wireguard_tunnel_http`, `hysteria2_tcp`, `tuic_tcp`, `anytls_tcp`,
+  `vmess_standard`, `shadowsocks_aead`, `shadowsocks_2022`, `trojan_tls`
+- `anytls_tcp` passes through the direct Mihomo core path after rebuilding the
+  current `wrongsv` release binary; the check reports compatibility true and
+  zero traffic errors.
 - `vless_xhttp` now passes after forcing `mode: "stream-one"` in the generated
   Mihomo/Xray-family client config.
 - `wireguard_tunnel_http` now passes through wrongsv's new userspace
@@ -67,10 +70,13 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### FlClash
 
-Result files: [suite](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-suite-3/report.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-hysteria2-check-1/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-tuic-check-1/tuic_tcp/report.json), [WireGuard check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-wireguard-check-2/matrix.json)
+Result files: [suite](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-suite-3/report.json), [AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-anytls-check-20260616T133659Z/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-vmess-recheck-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-hysteria2-check-1/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-tuic-check-1/tuic_tcp/report.json), [WireGuard check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/flclash-wireguard-check-2/matrix.json)
 
 - Covered through the actual GUI client:
-  `vless_raw_tcp`, `wireguard_tunnel_http`, `vmess_standard`, `hysteria2_tcp`, `tuic_tcp`
+  `vless_raw_tcp`, `wireguard_tunnel_http`, `vmess_standard`, `hysteria2_tcp`,
+  `tuic_tcp`, `anytls_tcp`
+- `anytls_tcp` passes through the FlClash GUI path with compatibility true,
+  zero traffic errors, and per-user byte/connection deltas from wrongsv metrics.
 - Broader protocol capability for the underlying Mihomo core follows the
   `clash-verge-rev` section above; the dedicated FlClash GUI automation here is
   still a smaller subset.

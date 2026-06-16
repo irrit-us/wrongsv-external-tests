@@ -22,6 +22,7 @@ Testing integration:
 - Core process is launched directly with `-d <outputDir> -f <config>`.
 - Harness waits for mixed proxy port `7890`.
 - Capability sweeps run against the Mihomo core path, not the GUI shell.
+- `anytls_tcp` is covered through the same Mihomo core path.
 
 Artifacts:
 

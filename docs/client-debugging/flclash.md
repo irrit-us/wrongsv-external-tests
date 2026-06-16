@@ -21,6 +21,7 @@ Testing integration:
 - Protocol coverage comes from the same reusable scenarios used by
   `clash-verge-rev`, but GUI automation is a smaller subset than raw Mihomo-core
   execution.
+- `anytls_tcp` is covered through the direct GUI matrix path.
 
 Artifacts:
 

@@ -6,6 +6,8 @@ const { CLIENT_CAPABILITIES } = require("../e2e-harness/capabilities");
 
 const root = path.resolve(__dirname, "..");
 const auditPath = path.join(root, "docs", "client-capability-audit.md");
+const clashVergeDebugPath = path.join(root, "docs", "client-debugging", "clash-verge-rev.md");
+const flclashDebugPath = path.join(root, "docs", "client-debugging", "flclash.md");
 const hiddifyDebugPath = path.join(root, "docs", "client-debugging", "hiddify.md");
 
 function read(filePath) {
@@ -49,8 +51,14 @@ function hasGap(client, scenario) {
 }
 
 const audit = read(auditPath);
+const clashVergeDebug = read(clashVergeDebugPath);
+const flclashDebug = read(flclashDebugPath);
 const hiddifyDebug = read(hiddifyDebugPath);
+const clashVergeSection = markdownSection(audit, "clash-verge-rev (Mihomo core path)");
+const flclashSection = markdownSection(audit, "FlClash");
 const hiddifySection = markdownSection(audit, "Hiddify");
+const clashVergeCovered = bulletBlock(clashVergeSection, "Covered");
+const flclashCovered = bulletBlock(flclashSection, "Covered through the actual GUI client");
 const hiddifyCovered = bulletBlock(hiddifySection, "Covered");
 const hiddifyGaps = bulletBlock(hiddifySection, "Harness gaps");
 
@@ -61,7 +69,7 @@ const staleAnyTlsPatterns = [
   /unknown outbound[\s\S]{0,120}type:\s*["`]?anytls["`]?/i,
 ];
 
-for (const text of [audit, hiddifyDebug]) {
+for (const text of [audit, clashVergeDebug, flclashDebug, hiddifyDebug]) {
   for (const pattern of staleAnyTlsPatterns) {
     assert(!pattern.test(text), `stale AnyTLS capability wording remains: ${pattern}`);
   }
@@ -79,6 +87,16 @@ assert(
   "clash-verge-rev/Mihomo must keep anytls_tcp runnable"
 );
 assert(hasRunnable("sing-box", "anytls_tcp"), "sing-box must keep anytls_tcp runnable");
+assert(
+  /`anytls_tcp`/.test(clashVergeCovered),
+  "clash-verge-rev audit must list anytls_tcp as covered"
+);
+assert(/`anytls_tcp`/.test(flclashCovered), "FlClash audit must list anytls_tcp as covered");
+assert(
+  /`anytls_tcp`/.test(clashVergeDebug),
+  "clash-verge-rev debug notes must mention anytls_tcp coverage"
+);
+assert(/`anytls_tcp`/.test(flclashDebug), "FlClash debug notes must mention anytls_tcp coverage");
 
 assert(!hasRunnable("xray-core", "anytls_tcp"), "xray-core must not advertise AnyTLS");
 assert(!hasRunnable("v2ray", "anytls_tcp"), "V2Ray/V2Fly must not advertise AnyTLS");
