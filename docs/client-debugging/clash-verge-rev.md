@@ -15,7 +15,9 @@ Debug surface:
 - Clash API provides:
   `version`, `configs`, `proxies`, `connections`, selector mutation
 - Process debug provides:
-  PID, `/proc/<pid>/status`, listening sockets, config summary, log tail
+  PID, `/proc/<pid>/status`, listening sockets, config summary, log tail, and
+  `binarySummary` version/build markers for the Mihomo core behind the
+  clash-verge-rev harness path
 
 Testing integration:
 

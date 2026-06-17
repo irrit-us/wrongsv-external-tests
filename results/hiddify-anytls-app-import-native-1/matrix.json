@@ -1,0 +1,33 @@
+{
+  "client": "hiddify",
+  "label": "Hiddify",
+  "generatedAt": "2026-06-17T03:57:57.548Z",
+  "scenarios": [
+    {
+      "id": "anytls_tcp",
+      "label": "AnyTLS TCP",
+      "status": "gap_confirmed",
+      "expectedDefectId": null,
+      "expectedGap": true,
+      "expectedUntracked": false,
+      "error": "[HiddifyClient] failed to import config via app extension: \"Failed to import config through profileRepository: ProfileFailure.unexpected(error: gRPC Error (code: 2, codeName: UNKNOWN, message: [SingboxParser] unmarshal error: outbounds[0]: unknown outbound type: anytls, details: [], rawResponse: null, trailers: {}), stackTrace: )\"",
+      "startupDebugArtifact": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-app-import-native-1/anytls_tcp/debug-startup-failure.json",
+      "proxyStatus": null,
+      "connectError": null,
+      "gapReason": "packaged Hiddify core rejected the generated AnyTLS outbound and never exposed the local mixed proxy port",
+      "untrackedReason": null
+    }
+  ],
+  "serverDefects": [],
+  "harnessGaps": [
+    "anytls_tcp"
+  ],
+  "harnessGapReasons": {
+    "anytls_tcp": "packaged Hiddify core rejected the generated AnyTLS outbound and never exposed the local mixed proxy port"
+  },
+  "intentionallyUntrackedScenarios": {
+    "vless_webtransport": {
+      "reason": "scenario is intentionally untracked until a current xray/v2ray-compatible WebTransport client config shape exists and external capability metadata can be added"
+    }
+  }
+}

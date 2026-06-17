@@ -85,6 +85,7 @@ class SuiteRunner {
     this.userDuration = options.userDuration || 12000;
     this.trafficProfiles = options.trafficProfiles || DEFAULT_TRAFFIC_PROFILES;
     this.userBehaviors = options.userBehaviors || DEFAULT_USER_BEHAVIORS;
+    this.runtimeRoot = options.runtimeRoot || path.join(this.outputDir, ".runtime");
   }
 
   async run() {
@@ -150,10 +151,22 @@ class SuiteRunner {
         client: this.client,
         configPath,
         outputDir: this.outputDir,
+        runtimeRoot: this.runtimeRoot,
         runnerOptions: runtimeConfig.runnerOptions,
       });
 
-      const launch = await clientRunner.start();
+      let launch;
+      try {
+        launch = await clientRunner.start();
+      } catch (error) {
+        debugClient =
+          typeof clientRunner.buildDebugClient === "function"
+            ? clientRunner.buildDebugClient()
+            : null;
+        const startupDebug = await this._captureDebugStartupFailure(debugClient, error);
+        error.startupDebug = startupDebug;
+        throw error;
+      }
       debugClient =
         typeof clientRunner.buildDebugClient === "function"
           ? clientRunner.buildDebugClient()
@@ -308,6 +321,26 @@ class SuiteRunner {
     } catch (error) {
       artifacts.finalError = error.message;
     }
+  }
+
+  async _captureDebugStartupFailure(debugClient, error) {
+    const file = path.join(this.outputDir, "debug-startup-failure.json");
+    const payload = {
+      client: this.client,
+      generatedAt: new Date().toISOString(),
+      error: error.message,
+    };
+    if (!debugClient) {
+      fs.writeFileSync(file, JSON.stringify(payload, null, 2), "utf8");
+      return { file, payload };
+    }
+    try {
+      payload.debug = await this._withDebugTimeout(debugClient.snapshot());
+    } catch (debugError) {
+      payload.debugError = debugError.message;
+    }
+    fs.writeFileSync(file, JSON.stringify(payload, null, 2), "utf8");
+    return { file, payload };
   }
 
   async _withDebugTimeout(promise, ms = 15000) {

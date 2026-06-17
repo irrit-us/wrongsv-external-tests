@@ -3,7 +3,11 @@
 const fs = require("fs");
 const path = require("path");
 const { SuiteRunner } = require("./e2e-harness");
-const { getClientCapability, SERVER_DEFECTS } = require("./e2e-harness/capabilities");
+const {
+  getClientCapability,
+  INTENTIONALLY_UNTRACKED_SCENARIOS,
+  SERVER_DEFECTS,
+} = require("./e2e-harness/capabilities");
 const { buildScenarios } = require("./e2e-harness/scenarios");
 
 function parseArgs(argv) {
@@ -12,7 +16,9 @@ function parseArgs(argv) {
     userDuration: 1500,
     metricsPort: 59100,
     targetPortStart: 3300,
+    listenPortStart: 50443,
     withBrowser: false,
+    includeUntracked: false,
     profiles: ["local-quick"],
   };
 
@@ -48,6 +54,10 @@ function parseArgs(argv) {
         opts.targetPortStart = Number(next);
         i++;
         break;
+      case "--listen-port-start":
+        opts.listenPortStart = Number(next);
+        i++;
+        break;
       case "--scenarios":
         opts.scenarios = next.split(",").filter(Boolean);
         i++;
@@ -58,6 +68,9 @@ function parseArgs(argv) {
         break;
       case "--with-browser":
         opts.withBrowser = true;
+        break;
+      case "--include-untracked":
+        opts.includeUntracked = true;
         break;
       case "-h":
       case "--help":
@@ -88,8 +101,10 @@ Options:
   --user-duration <ms>       duration for the browser scenario
   --metrics-port <port>      wrongsv metrics port, or "none"
   --target-port-start <n>    first local target-server port
+  --listen-port-start <n>    first wrongsv listen port (default: 50443)
   --scenarios <csv>          optional scenario subset
   --profiles <csv>           traffic profiles per scenario (default: local-quick)
+  --include-untracked        append intentionally untracked scenarios to the selected/default matrix
   --with-browser             run the client's designated browser scenario
 `);
 }
@@ -138,6 +153,24 @@ function writeMarkdown(outputPath, matrix, capability) {
     if (scenario.error) {
       md += `- Error: \`${scenario.error}\`\n`;
     }
+    if (scenario.expectedGap) {
+      md += `- Expected gap: \`true\`\n`;
+    }
+    if (scenario.expectedUntracked) {
+      md += `- Expected untracked: \`true\`\n`;
+    }
+    if (scenario.startupDebugArtifact) {
+      md += `- Startup debug: \`${scenario.startupDebugArtifact}\`\n`;
+    }
+    if (scenario.connectError) {
+      md += `- Connect error: \`${scenario.connectError}\`\n`;
+    }
+    if (scenario.gapReason) {
+      md += `- Gap reason: \`${scenario.gapReason}\`\n`;
+    }
+    if (scenario.untrackedReason) {
+      md += `- Untracked reason: \`${scenario.untrackedReason}\`\n`;
+    }
     if (scenario.summary) {
       md += `- Compatibility: \`${scenario.summary.compatibilityOk}\`\n`;
       for (const traffic of scenario.summary.traffic) {
@@ -159,7 +192,16 @@ function writeMarkdown(outputPath, matrix, capability) {
   if (capability.harnessGaps?.length) {
     md += `\n## Harness Gaps\n\n`;
     for (const gap of capability.harnessGaps) {
-      md += `- ${gap}\n`;
+      const reason = capability.harnessGapReasons?.[gap];
+      md += reason ? `- ${gap} — ${reason}\n` : `- ${gap}\n`;
+    }
+  }
+
+  const untrackedEntries = Object.entries(INTENTIONALLY_UNTRACKED_SCENARIOS || {});
+  if (untrackedEntries.length) {
+    md += `\n## Intentionally Untracked\n\n`;
+    for (const [scenarioId, info] of untrackedEntries) {
+      md += info?.reason ? `- ${scenarioId} — ${info.reason}\n` : `- ${scenarioId}\n`;
     }
   }
 
@@ -172,7 +214,18 @@ async function main() {
   const wrongsvRepo = options.wrongsvRepo || path.resolve(repoRoot, "..", "wrongsv");
   const capability = getClientCapability(options.client);
   const scenarios = buildScenarios(wrongsvRepo);
-  const scenarioIds = options.scenarios || capability.runnableScenarios;
+  const scenarioIds = (() => {
+    const base = options.scenarios ? [...options.scenarios] : [...capability.runnableScenarios];
+    if (!options.includeUntracked) {
+      return base;
+    }
+    for (const scenarioId of Object.keys(INTENTIONALLY_UNTRACKED_SCENARIOS || {})) {
+      if (scenarios[scenarioId] && !base.includes(scenarioId)) {
+        base.push(scenarioId);
+      }
+    }
+    return base;
+  })();
   const outputDir =
     options.outputDir ||
     path.join(
@@ -189,6 +242,8 @@ async function main() {
     scenarios: [],
     serverDefects: capability.serverDefects.map((id) => SERVER_DEFECTS[id]).filter(Boolean),
     harnessGaps: capability.harnessGaps || [],
+    harnessGapReasons: capability.harnessGapReasons || {},
+    intentionallyUntrackedScenarios: INTENTIONALLY_UNTRACKED_SCENARIOS || {},
   };
 
   for (const [index, scenarioId] of scenarioIds.entries()) {
@@ -211,6 +266,7 @@ async function main() {
       wrongsvConfig: scenario.configPath,
       outputDir: scenarioOutputDir,
       serverName: scenario.serverName || "localhost",
+      listenPort: options.listenPortStart + index,
       metricsPort: options.metricsPort,
       targetPort: options.targetPortStart + index,
       trafficDuration: options.trafficDuration,
@@ -229,6 +285,9 @@ async function main() {
       const passed = scenarioPassed(result);
       const expectedDefect = scenario.expectedDefectId;
       const mappedDefect = capability.scenarioDefects?.[scenario.id];
+      const expectedGap = (capability.harnessGaps || []).includes(scenario.id);
+      const untrackedInfo = INTENTIONALLY_UNTRACKED_SCENARIOS?.[scenario.id] || null;
+      const expectedUntracked = Boolean(untrackedInfo);
       matrix.scenarios.push({
         id: scenario.id,
         label: scenario.label,
@@ -236,20 +295,52 @@ async function main() {
           ? passed
             ? "unexpected_pass"
             : "defect_confirmed"
-          : passed
-            ? "passed"
-            : "failed",
+          : expectedUntracked
+            ? passed
+              ? "unexpected_untracked_pass"
+              : "untracked_confirmed"
+          : expectedGap
+            ? passed
+              ? "unexpected_gap_pass"
+              : "gap_confirmed"
+            : passed
+              ? "passed"
+              : "failed",
         expectedDefectId: expectedDefect || mappedDefect || null,
+        expectedGap,
+        expectedUntracked,
+        gapReason: capability.harnessGapReasons?.[scenario.id] || null,
+        untrackedReason: untrackedInfo?.reason || null,
         summary: summarizeScenario(result),
       });
     } catch (error) {
       const mappedDefect = capability.scenarioDefects?.[scenario.id];
+      const startupDebug = error.startupDebug || null;
+      const debugPayload = startupDebug?.payload?.debug || {};
+      const proxyStatus = debugPayload.proxyStatus || null;
+      const lastConnectResult = debugPayload.lastConnectResult || null;
+      const expectedGap = (capability.harnessGaps || []).includes(scenario.id);
+      const untrackedInfo = INTENTIONALLY_UNTRACKED_SCENARIOS?.[scenario.id] || null;
+      const expectedUntracked = Boolean(untrackedInfo);
       matrix.scenarios.push({
         id: scenario.id,
         label: scenario.label,
-        status: scenario.expectedDefectId || mappedDefect ? "defect_confirmed" : "failed",
+        status: scenario.expectedDefectId || mappedDefect
+          ? "defect_confirmed"
+          : expectedUntracked
+            ? "untracked_confirmed"
+          : expectedGap
+            ? "gap_confirmed"
+            : "failed",
         expectedDefectId: scenario.expectedDefectId || mappedDefect || null,
+        expectedGap,
+        expectedUntracked,
         error: error.message,
+        startupDebugArtifact: startupDebug?.file || null,
+        proxyStatus,
+        connectError: lastConnectResult?.connectError || null,
+        gapReason: capability.harnessGapReasons?.[scenario.id] || null,
+        untrackedReason: untrackedInfo?.reason || null,
       });
     }
   }
@@ -264,8 +355,25 @@ async function main() {
         outputDir,
         passed: matrix.scenarios.filter((item) => item.status === "passed").length,
         failed: matrix.scenarios.filter((item) => item.status === "failed").length,
+        confirmedGaps: matrix.scenarios.filter((item) => item.status === "gap_confirmed").length,
+        confirmedUntracked: matrix.scenarios.filter((item) => item.status === "untracked_confirmed")
+          .length,
         confirmedDefects: matrix.scenarios.filter((item) => item.status === "defect_confirmed")
           .length,
+        unexpectedPasses: matrix.scenarios.filter((item) =>
+          ["unexpected_pass", "unexpected_gap_pass", "unexpected_untracked_pass"].includes(
+            item.status
+          )
+        ).length,
+        unexpectedDefectPasses: matrix.scenarios.filter(
+          (item) => item.status === "unexpected_pass"
+        ).length,
+        unexpectedGapPasses: matrix.scenarios.filter(
+          (item) => item.status === "unexpected_gap_pass"
+        ).length,
+        unexpectedUntrackedPasses: matrix.scenarios.filter(
+          (item) => item.status === "unexpected_untracked_pass"
+        ).length,
       },
       null,
       2

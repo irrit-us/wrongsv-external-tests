@@ -1,0 +1,5 @@
+2026-06-17T03:57:57.806628Z  INFO wrongsv_server::handler: AnyTLS enabled
+2026-06-17T03:57:57.806647Z  INFO wrongsv: starting wrongsv server...
+2026-06-17T03:57:57.806702Z  INFO wrongsv_metrics::server: metrics listening on http://127.0.0.1:59100/metrics
+2026-06-17T03:57:57.806750Z  INFO wrongsv_server::handler: VLESS server listening on 127.0.0.1:50443
+2026-06-17T03:57:58.207639Z  WARN wrongsv_server::handler: connection error: TLS error: handshake: unexpected end of file

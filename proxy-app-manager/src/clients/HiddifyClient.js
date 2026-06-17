@@ -1,14 +1,12 @@
 /**
  * HiddifyClient — Hiddify proxy app client implementation.
  *
- * Hiddify requires the config to be imported into its SQLite database
- * as a profile. This is done via a child Python process (import-hiddify-config.py)
- * that writes directly to the database.
+ * Hiddify imports the config through an in-app debug extension that routes the
+ * content through the app's own ProfileRepository path after launch.
  */
 
 const path = require("path");
 const fs = require("fs");
-const { execSync } = require("child_process");
 const { BaseClient } = require("../BaseClient");
 
 class HiddifyClient extends BaseClient {
@@ -19,15 +17,31 @@ class HiddifyClient extends BaseClient {
     return "hiddify";
   }
 
+  get bundleRoot() {
+    const builtBundle = path.join(
+      this.repoRoot,
+      "hiddify-next",
+      "build",
+      "linux",
+      "x64",
+      "profile",
+      "bundle"
+    );
+    if (fs.existsSync(path.join(builtBundle, "hiddify"))) {
+      return builtBundle;
+    }
+    return path.join(this.repoRoot, "binaries", "hiddify");
+  }
+
   // ---- Paths ----
   get binaryPath() {
-    return path.join(this.repoRoot, "binaries", "hiddify", "hiddify");
+    return path.join(this.bundleRoot, "hiddify");
   }
   get libraryPath() {
-    return path.join(this.repoRoot, "binaries", "hiddify", "lib");
+    return path.join(this.bundleRoot, "lib");
   }
   get workDir() {
-    return path.join(this.repoRoot, "binaries", "hiddify");
+    return this.bundleRoot;
   }
   get defaultProxyPort() {
     return 2334; // Hiddify default sing-box mixed inbound
@@ -80,7 +94,12 @@ class HiddifyClient extends BaseClient {
         },
         importConfig: {
           method: `${prefix}.importConfig`,
-          description: "Import a config file as a profile",
+          description: "Legacy alias for app-native config import",
+          timeout: 15000,
+        },
+        importAndActivateConfig: {
+          method: `${prefix}.importAndActivateConfig`,
+          description: "Import a config file through the app repository path",
           timeout: 10000,
         },
       })
@@ -90,32 +109,17 @@ class HiddifyClient extends BaseClient {
   // ---- Lifecycle ----
 
   /**
-   * Hiddify: import config into SQLite database via Python script.
+   * Hiddify: queue a config for app-native import after the GUI is ready.
    */
   async prepareConfig(configPath) {
-    const importScript = path.join(
-      this.repoRoot,
-      "scripts",
-      "import-hiddify-config.py"
-    );
-
-    if (fs.existsSync(importScript)) {
-      try {
-        execSync(
-          `python3 "${importScript}" --config "${configPath}" --data-dir "${this.dataDir}" --profile-name "Test Profile"`,
-          { stdio: "pipe", timeout: 10000 }
-        );
-      } catch (err) {
-        // Non-fatal: the app may still find the config if it was previously imported
-        if (process.env.DEBUG) {
-          console.error("[HiddifyClient] Config import warning:", err.message);
-        }
-      }
-    }
+    this.pendingImport = {
+      filePath: path.resolve(configPath),
+      profileName: "Test Profile",
+    };
 
     const proxyPort = this.extractProxyPort(configPath);
 
-    return { configDest: path.join(this.dataDir, "config.json"), proxyPort };
+    return { configDest: path.resolve(configPath), proxyPort };
   }
 
   /**
@@ -171,30 +175,73 @@ class HiddifyClient extends BaseClient {
     if (!bridge) return;
     const dumpMeta = this.extensions.get("dumpSemantics");
     const tapMeta = this.extensions.get("performSemanticsAction");
-    if (!dumpMeta || !tapMeta) return;
+    if (dumpMeta && tapMeta) {
+      const startLabels = ["开始", "Start", "Get Started"];
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        let payload;
+        try {
+          payload = await bridge.callExtension(dumpMeta.method);
+        } catch {
+          break;
+        }
+        const text = JSON.stringify(payload);
+        const label = startLabels.find((item) => text.includes(item));
+        if (!label) {
+          break;
+        }
+        try {
+          await bridge.callExtension(tapMeta.method, {
+            value: JSON.stringify({ action: "tap", label }),
+          });
+        } catch {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
 
-    const startLabels = ["开始", "Start", "Get Started"];
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      let payload;
+    if (!this.pendingImport) return;
+
+    const importMeta =
+      this.extensions.get("importAndActivateConfig") ||
+      this.extensions.get("importConfig");
+    if (!importMeta) return;
+
+    let lastError = null;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
       try {
-        payload = await bridge.callExtension(dumpMeta.method);
-      } catch {
-        return;
-      }
-      const text = JSON.stringify(payload);
-      const label = startLabels.find((item) => text.includes(item));
-      if (!label) {
-        return;
-      }
-      try {
-        await bridge.callExtension(tapMeta.method, {
-          value: JSON.stringify({ action: "tap", label }),
+        const result = await bridge.callExtension(importMeta.method, {
+          value: JSON.stringify(this.pendingImport),
         });
-      } catch {
-        return;
+        if (result?.error) {
+          lastError = new Error(
+            result.error.message || JSON.stringify(result.error)
+          );
+        } else if (result?.status === "error") {
+          this.lastImportResult = result;
+          lastError = new Error(
+            result.error || JSON.stringify(result)
+          );
+        } else if (result?.status === "ok") {
+          this.lastImportResult = result;
+          this.pendingImport = null;
+          return;
+        } else {
+          lastError = new Error(
+            `unexpected import response: ${JSON.stringify(result)}`
+          );
+        }
+      } catch (error) {
+        lastError = error;
       }
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+
+    throw new Error(
+      `[HiddifyClient] failed to import config via app extension: ${
+        lastError?.message || "unknown error"
+      }`
+    );
   }
 
   // ---- Cleanup ----

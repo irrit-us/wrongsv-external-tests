@@ -1,0 +1,672 @@
+{
+  "client": "hiddify",
+  "type": "vm-service",
+  "appState": {
+    "platform": "linux",
+    "dartVersion": "3.12.1 (stable) (Tue May 26 01:02:21 2026 -0700) on \"linux_x64\"",
+    "locale": "C",
+    "executables": "flutter",
+    "numberOfProcessors": 20,
+    "timestamp": "2026-06-17T11:45:48.806548"
+  },
+  "selfTest": {
+    "testResults": [
+      {
+        "testName": "binding_alive",
+        "passed": true,
+        "durationMs": 0
+      },
+      {
+        "testName": "semantics_enabled",
+        "passed": true,
+        "durationMs": 0
+      },
+      {
+        "testName": "root_widget_exists",
+        "passed": true,
+        "durationMs": 0
+      }
+    ],
+    "summary": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "timestamp": "2026-06-17T11:45:48.806606"
+  },
+  "proxyStatus": {
+    "connectionStatus": "_$ConnectedImpl",
+    "isConnected": true,
+    "activeProfile": "Test Profile",
+    "activeProfileId": "09d90ecd-a1ad-42f0-9672-a20d55606b19",
+    "timestamp": "2026-06-17T11:45:48.806624"
+  },
+  "lastImportResult": {
+    "status": "ok",
+    "filePath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/hiddify-runtime.json",
+    "profileName": "Test Profile",
+    "activeProfileId": "09d90ecd-a1ad-42f0-9672-a20d55606b19",
+    "configPath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/.runtime/app.hiddify.com/configs/09d90ecd-a1ad-42f0-9672-a20d55606b19.json",
+    "contentLength": 557
+  },
+  "lastConnectResult": {
+    "status": "connected",
+    "connectionStatus": "_$ConnectedImpl",
+    "connectResult": "ok",
+    "connectError": null
+  },
+  "semantics": {
+    "id": 0,
+    "rect": {
+      "left": 0,
+      "top": 0,
+      "width": 868,
+      "height": 668
+    },
+    "label": "",
+    "value": "",
+    "hint": "",
+    "textDirection": null,
+    "actions": [],
+    "flags": {
+      "hasCheckedState": false,
+      "isChecked": false,
+      "isSelected": false,
+      "isButton": false,
+      "isTextField": false,
+      "isFocused": false,
+      "isEnabled": false,
+      "isHeader": false,
+      "isImage": false,
+      "isLink": false
+    },
+    "hasChildren": true,
+    "children": [
+      {
+        "id": 1,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "width": 868,
+          "height": 668
+        },
+        "label": "",
+        "value": "",
+        "hint": "",
+        "textDirection": "ltr",
+        "actions": [],
+        "flags": {
+          "hasCheckedState": false,
+          "isChecked": false,
+          "isSelected": false,
+          "isButton": false,
+          "isTextField": false,
+          "isFocused": false,
+          "isEnabled": false,
+          "isHeader": false,
+          "isImage": false,
+          "isLink": false
+        },
+        "hasChildren": true,
+        "children": [
+          {
+            "id": 38,
+            "rect": {
+              "left": 0,
+              "top": 0,
+              "width": 868,
+              "height": 668
+            },
+            "label": "",
+            "value": "",
+            "hint": "",
+            "textDirection": null,
+            "actions": [],
+            "flags": {
+              "hasCheckedState": false,
+              "isChecked": false,
+              "isSelected": false,
+              "isButton": false,
+              "isTextField": false,
+              "isFocused": false,
+              "isEnabled": false,
+              "isHeader": false,
+              "isImage": false,
+              "isLink": false
+            },
+            "hasChildren": true,
+            "children": [
+              {
+                "id": 39,
+                "rect": {
+                  "left": 0,
+                  "top": 0,
+                  "width": 612,
+                  "height": 668
+                },
+                "label": "",
+                "value": "",
+                "hint": "",
+                "textDirection": null,
+                "actions": [],
+                "flags": {
+                  "hasCheckedState": false,
+                  "isChecked": false,
+                  "isSelected": false,
+                  "isButton": false,
+                  "isTextField": false,
+                  "isFocused": false,
+                  "isEnabled": false,
+                  "isHeader": false,
+                  "isImage": false,
+                  "isLink": false
+                },
+                "hasChildren": true,
+                "children": [
+                  {
+                    "id": 40,
+                    "rect": {
+                      "left": 0,
+                      "top": 0,
+                      "width": 612,
+                      "height": 668
+                    },
+                    "label": "",
+                    "value": "",
+                    "hint": "",
+                    "textDirection": null,
+                    "actions": [],
+                    "flags": {
+                      "hasCheckedState": false,
+                      "isChecked": false,
+                      "isSelected": false,
+                      "isButton": false,
+                      "isTextField": false,
+                      "isFocused": false,
+                      "isEnabled": false,
+                      "isHeader": false,
+                      "isImage": false,
+                      "isLink": false
+                    },
+                    "hasChildren": true,
+                    "children": [
+                      {
+                        "id": 41,
+                        "rect": {
+                          "left": 0,
+                          "top": 0,
+                          "width": 600,
+                          "height": 612
+                        },
+                        "label": "",
+                        "value": "",
+                        "hint": "",
+                        "textDirection": null,
+                        "actions": [],
+                        "flags": {
+                          "hasCheckedState": false,
+                          "isChecked": false,
+                          "isSelected": false,
+                          "isButton": false,
+                          "isTextField": false,
+                          "isFocused": false,
+                          "isEnabled": false,
+                          "isHeader": false,
+                          "isImage": false,
+                          "isLink": false
+                        },
+                        "hasChildren": true,
+                        "children": [
+                          {
+                            "id": 45,
+                            "rect": {
+                              "left": 0,
+                              "top": 0,
+                              "width": 600,
+                              "height": 612
+                            },
+                            "label": "",
+                            "value": "",
+                            "hint": "",
+                            "textDirection": null,
+                            "actions": [],
+                            "flags": {
+                              "hasCheckedState": false,
+                              "isChecked": false,
+                              "isSelected": false,
+                              "isButton": false,
+                              "isTextField": false,
+                              "isFocused": false,
+                              "isEnabled": false,
+                              "isHeader": false,
+                              "isImage": false,
+                              "isLink": false
+                            },
+                            "hasChildren": true,
+                            "children": [
+                              {
+                                "id": 42,
+                                "rect": {
+                                  "left": 0,
+                                  "top": 0,
+                                  "width": 600,
+                                  "height": 64
+                                },
+                                "label": "查看所有配置文件",
+                                "value": "",
+                                "hint": "",
+                                "textDirection": "ltr",
+                                "actions": [],
+                                "flags": {
+                                  "hasCheckedState": false,
+                                  "isChecked": false,
+                                  "isSelected": false,
+                                  "isButton": true,
+                                  "isTextField": false,
+                                  "isFocused": true,
+                                  "isEnabled": false,
+                                  "isHeader": false,
+                                  "isImage": false,
+                                  "isLink": false
+                                },
+                                "hasChildren": true,
+                                "children": [
+                                  {
+                                    "id": 43,
+                                    "rect": {
+                                      "left": 0,
+                                      "top": 0,
+                                      "width": 568,
+                                      "height": 48
+                                    },
+                                    "label": "当前配置文件：\"Test Profile\"",
+                                    "value": "",
+                                    "hint": "",
+                                    "textDirection": "ltr",
+                                    "actions": [
+                                      "tap",
+                                      "focus"
+                                    ],
+                                    "flags": {
+                                      "hasCheckedState": false,
+                                      "isChecked": false,
+                                      "isSelected": false,
+                                      "isButton": false,
+                                      "isTextField": false,
+                                      "isFocused": false,
+                                      "isEnabled": false,
+                                      "isHeader": false,
+                                      "isImage": false,
+                                      "isLink": false
+                                    },
+                                    "hasChildren": false,
+                                    "children": []
+                                  }
+                                ]
+                              },
+                              {
+                                "id": 44,
+                                "rect": {
+                                  "left": 0,
+                                  "top": 0,
+                                  "width": 148,
+                                  "height": 148
+                                },
+                                "label": "已连接",
+                                "value": "",
+                                "hint": "",
+                                "textDirection": "ltr",
+                                "actions": [
+                                  "tap",
+                                  "focus"
+                                ],
+                                "flags": {
+                                  "hasCheckedState": false,
+                                  "isChecked": false,
+                                  "isSelected": false,
+                                  "isButton": true,
+                                  "isTextField": false,
+                                  "isFocused": false,
+                                  "isEnabled": true,
+                                  "isHeader": false,
+                                  "isImage": true,
+                                  "isLink": false
+                                },
+                                "hasChildren": false,
+                                "children": []
+                              },
+                              {
+                                "id": 51,
+                                "rect": {
+                                  "left": 0,
+                                  "top": 0,
+                                  "width": 125.3314437866211,
+                                  "height": 40
+                                },
+                                "label": "延迟：1759毫秒",
+                                "value": "",
+                                "hint": "",
+                                "textDirection": "ltr",
+                                "actions": [
+                                  "tap",
+                                  "focus"
+                                ],
+                                "flags": {
+                                  "hasCheckedState": false,
+                                  "isChecked": false,
+                                  "isSelected": false,
+                                  "isButton": false,
+                                  "isTextField": false,
+                                  "isFocused": false,
+                                  "isEnabled": false,
+                                  "isHeader": false,
+                                  "isImage": false,
+                                  "isLink": false
+                                },
+                                "hasChildren": false,
+                                "children": []
+                              },
+                              {
+                                "id": 52,
+                                "rect": {
+                                  "left": 0,
+                                  "top": 0,
+                                  "width": 568,
+                                  "height": 56
+                                },
+                                "label": "当前代理\nauto\nurltest",
+                                "value": "",
+                                "hint": "",
+                                "textDirection": "ltr",
+                                "actions": [
+                                  "tap",
+                                  "focus"
+                                ],
+                                "flags": {
+                                  "hasCheckedState": false,
+                                  "isChecked": false,
+                                  "isSelected": false,
+                                  "isButton": false,
+                                  "isTextField": false,
+                                  "isFocused": false,
+                                  "isEnabled": false,
+                                  "isHeader": false,
+                                  "isImage": false,
+                                  "isLink": false
+                                },
+                                "hasChildren": true,
+                                "children": [
+                                  {
+                                    "id": 53,
+                                    "rect": {
+                                      "left": 0,
+                                      "top": 0,
+                                      "width": 64,
+                                      "height": 48
+                                    },
+                                    "label": "国家",
+                                    "value": "",
+                                    "hint": "",
+                                    "textDirection": "ltr",
+                                    "actions": [
+                                      "tap",
+                                      "focus"
+                                    ],
+                                    "flags": {
+                                      "hasCheckedState": false,
+                                      "isChecked": false,
+                                      "isSelected": false,
+                                      "isButton": false,
+                                      "isTextField": false,
+                                      "isFocused": false,
+                                      "isEnabled": false,
+                                      "isHeader": false,
+                                      "isImage": false,
+                                      "isLink": false
+                                    },
+                                    "hasChildren": false,
+                                    "children": []
+                                  },
+                                  {
+                                    "id": 55,
+                                    "rect": {
+                                      "left": 0,
+                                      "top": 0,
+                                      "width": 67.625,
+                                      "height": 16
+                                    },
+                                    "label": "IP 地址\n隐藏",
+                                    "value": "",
+                                    "hint": "",
+                                    "textDirection": "ltr",
+                                    "actions": [
+                                      "tap",
+                                      "longPress",
+                                      "focus"
+                                    ],
+                                    "flags": {
+                                      "hasCheckedState": false,
+                                      "isChecked": false,
+                                      "isSelected": false,
+                                      "isButton": false,
+                                      "isTextField": false,
+                                      "isFocused": false,
+                                      "isEnabled": false,
+                                      "isHeader": false,
+                                      "isImage": false,
+                                      "isLink": false
+                                    },
+                                    "hasChildren": false,
+                                    "children": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "id": 46,
+                        "rect": {
+                          "left": 0,
+                          "top": 0,
+                          "width": 129.4996337890625,
+                          "height": 32
+                        },
+                        "label": "快速设置选项",
+                        "value": "",
+                        "hint": "",
+                        "textDirection": "ltr",
+                        "actions": [
+                          "tap",
+                          "focus"
+                        ],
+                        "flags": {
+                          "hasCheckedState": false,
+                          "isChecked": false,
+                          "isSelected": false,
+                          "isButton": false,
+                          "isTextField": false,
+                          "isFocused": false,
+                          "isEnabled": false,
+                          "isHeader": false,
+                          "isImage": false,
+                          "isLink": false
+                        },
+                        "hasChildren": false,
+                        "children": []
+                      },
+                      {
+                        "id": 47,
+                        "rect": {
+                          "left": 0,
+                          "top": 0,
+                          "width": 612,
+                          "height": 56
+                        },
+                        "label": "",
+                        "value": "",
+                        "hint": "",
+                        "textDirection": null,
+                        "actions": [],
+                        "flags": {
+                          "hasCheckedState": false,
+                          "isChecked": false,
+                          "isSelected": false,
+                          "isButton": false,
+                          "isTextField": false,
+                          "isFocused": false,
+                          "isEnabled": false,
+                          "isHeader": false,
+                          "isImage": false,
+                          "isLink": false
+                        },
+                        "hasChildren": true,
+                        "children": [
+                          {
+                            "id": 48,
+                            "rect": {
+                              "left": 0,
+                              "top": 0,
+                              "width": 532,
+                              "height": 28
+                            },
+                            "label": "Hiddify \n版本\n4.1.2 dev",
+                            "value": "",
+                            "hint": "",
+                            "textDirection": "ltr",
+                            "actions": [],
+                            "flags": {
+                              "hasCheckedState": false,
+                              "isChecked": false,
+                              "isSelected": false,
+                              "isButton": false,
+                              "isTextField": false,
+                              "isFocused": false,
+                              "isEnabled": false,
+                              "isHeader": true,
+                              "isImage": true,
+                              "isLink": false
+                            },
+                            "hasChildren": false,
+                            "children": []
+                          },
+                          {
+                            "id": 49,
+                            "rect": {
+                              "left": 0,
+                              "top": 0,
+                              "width": 40,
+                              "height": 40
+                            },
+                            "label": "添加配置文件",
+                            "value": "",
+                            "hint": "",
+                            "textDirection": "ltr",
+                            "actions": [],
+                            "flags": {
+                              "hasCheckedState": false,
+                              "isChecked": false,
+                              "isSelected": false,
+                              "isButton": false,
+                              "isTextField": false,
+                              "isFocused": false,
+                              "isEnabled": false,
+                              "isHeader": false,
+                              "isImage": false,
+                              "isLink": false
+                            },
+                            "hasChildren": true,
+                            "children": [
+                              {
+                                "id": 50,
+                                "rect": {
+                                  "left": 0,
+                                  "top": 0,
+                                  "width": 40,
+                                  "height": 40
+                                },
+                                "label": "",
+                                "value": "",
+                                "hint": "",
+                                "textDirection": null,
+                                "actions": [
+                                  "tap",
+                                  "focus"
+                                ],
+                                "flags": {
+                                  "hasCheckedState": false,
+                                  "isChecked": false,
+                                  "isSelected": false,
+                                  "isButton": true,
+                                  "isTextField": false,
+                                  "isFocused": false,
+                                  "isEnabled": true,
+                                  "isHeader": false,
+                                  "isImage": false,
+                                  "isLink": false
+                                },
+                                "hasChildren": false,
+                                "children": []
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "widgetTree": {
+    "widgetTree": ""
+  },
+  "runtimeFiles": {
+    "dataDir": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/.runtime/hiddify",
+    "requestedConfigPath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/hiddify-runtime.json",
+    "requestedConfigMtime": "2026-06-17T03:45:34.444Z",
+    "currentConfigPath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/.runtime/hiddify/data/current-config.json",
+    "currentConfigMtime": null,
+    "boxLogPath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/.runtime/hiddify/data/box.log",
+    "grpcLogPath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/.runtime/hiddify/data/stderrGRPC_NORMAL_INSECURE.log",
+    "appLogPath": "/tmp/hiddify_manager_1781667934947.log"
+  },
+  "runtimeSummary": {
+    "requestedConfig": {
+      "inbounds": [
+        {
+          "tag": "mixed-in",
+          "type": "mixed",
+          "listen": "127.0.0.1",
+          "port": 12334
+        }
+      ],
+      "outbounds": [
+        {
+          "tag": "hiddify-wrongsv",
+          "protocol": "vless",
+          "network": "",
+          "security": "",
+          "transport": ""
+        },
+        {
+          "tag": "direct",
+          "protocol": "direct",
+          "network": "",
+          "security": "",
+          "transport": ""
+        }
+      ]
+    },
+    "currentConfig": null,
+    "appLogTail": "}\nd api.my-ip.io list [api.my-ip.io] ips [49.13.52.64 2a01:4f8:c012:358e::1]\n11:45:40.471509 [INFO]     [HiddifyCoreService] Main Service pre start\n11:45:40.471609 [INFO]     [HiddifyCoreService] Saving config to /home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/.runtime/app.hiddify.com/data/current-config.json\nd myip.expert list [myip.expert] ips [159.89.180.98]\nd ipinfo.io list [ipinfo.io] ips [34.117.59.81]\nd ip-api.com list [ip-api.com] ips [208.95.112.1]\nd ipwho.is list [ipwho.is] ips [104.20.44.133 172.66.175.107 2606:4700:10::ac42:af6b 2606:4700:10::6814:2c85]\nd time.apple.com list [time.g.aaplimg.com time.apple.com] ips [17.253.60.37 17.253.68.253 17.253.68.251 2403:300:a16:4000::21 2403:300:a16:3000::21 2403:300:a0c:3000::1e2 17.253.68.253 17.253.114.43 17.253.114.35 2403:300:a0c:3000::1f2 2403:300:a16:3000::21 2403:300:a16:4000::21]\nerror lookup www.speedtest.net: i/o timeout www.speedtest.net []\nd api.ip.sb list [www.speedtest.net cloudflare.com] ips [104.16.133.229 104.16.132.229 2606:4700::6810:84e5 2606:4700::6810:85e5]\nerror lookup www.speedtest.net: i/o timeout www.speedtest.net []\nd dns.cloudflare.com list [www.speedtest.net cloudflare.com] ips [104.16.133.229 104.16.132.229 2606:4700::6810:84e5 2606:4700::6810:85e5]\nerror lookup www.speedtest.net: i/o timeout www.speedtest.net []\nerror lookup www.speedtest.net: i/o timeout www.speedtest.net []\nerror lookup www.speedtest.net: i/o timeout www.speedtest.net []\nd ipapi.co list [www.speedtest.net cloudflare.com] ips [104.16.133.229 104.16.132.229 2606:4700::6810:84e5 2606:4700::6810:85e5]\nd reallyfreegeoip.org list [www.speedtest.net cloudflare.com] ips [104.16.133.229 104.16.132.229 2606:4700::6810:84e5 2606:4700::6810:85e5]\nd freeipapi.com list [www.speedtest.net cloudflare.com] ips [104.16.133.229 104.16.132.229 2606:4700::6810:84e5 2606:4700::6810:85e5]\n\u001b[37mDEBUG\u001b[0m[0005] DEBUGCOREStating Service with delay ?false\nDEBUG CORE Stating Service with delay ?false\nDEBUG CORE Stating Service with delay ?false\n11:45:40.972084 [INFO]     [HiddifyCoreService] Stating Service with delay ?false\n\u001b[37mDEBUG\u001b[0m[0007] ERRORSERVICEERROR[0002] router: initial rule-set: geosite-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geosite-cn.srs\": read tcp 127.0.0.1:37314->127.0.0.1:50443: use of closed network connection\nERROR SERVICE ERROR[0002] router: initial rule-set: geosite-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geosite-cn.srs\": read tcp 127.0.0.1:37314->127.0.0.1:50443: use of closed network connection\n\u001b[37mDEBUG\u001b[0m[0007] ERRORSERVICEERROR[0002] router: initial rule-set: geoip-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geoip-cn.srs\": read tcp 127.0.0.1:37318->127.0.0.1:50443: use of closed network connection\nERROR SERVICE ERROR[0002] router: initial rule-set: geoip-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geoip-cn.srs\": read tcp 127.0.0.1:37318->127.0.0.1:50443: use of closed network connection\nERROR SERVICE ERROR[0002] router: initial rule-set: geosite-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geosite-cn.srs\": read tcp 127.0.0.1:37314->127.0.0.1:50443: use of closed network connection\nERROR SERVICE ERROR[0002] router: initial rule-set: geoip-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geoip-cn.srs\": read tcp 127.0.0.1:37318->127.0.0.1:50443: use of closed network connection\n\u001b[37mDEBUG\u001b[0m[0007] INFOCORESTARTED: \nINFO CORE STARTED: \nINFO CORE STARTED: \n11:45:43.168729 [WARNING]  [HiddifyCoreService] ERROR[0002] router: initial rule-set: geosite-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geosite-cn.srs\": read tcp 127.0.0.1:37314->127.0.0.1:50443: use of closed network connection\n11:45:43.168826 [WARNING]  [HiddifyCoreService] ERROR[0002] router: initial rule-set: geoip-cn: Get \"https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geoip-cn.srs\": read tcp 127.0.0.1:37318->127.0.0.1:50443: use of closed network connection\n11:45:43.170612 [ERROR]    [HiddifyCoreService] status\n11:45:43.170676 [WARNING]  [SystemTrayNotifier] error getting active proxy\n11:45:43.170818 [INFO]     [ConnectionNotifier] connection status: CONNECTED\n11:45:43.172605 [INFO]     [HiddifyCoreService] watching active groups\n11:45:43.173130 [INFO]     [ConnectionNotifier] connection status: CONNECTED\n",
+    "boxLogTail": "",
+    "grpcLogTail": ""
+  }
+}

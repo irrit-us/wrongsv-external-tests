@@ -49,7 +49,9 @@ to enable automated proxy testing with the VM service bridge.
   - `ext.hiddify.dumpSemantics`
   - `ext.hiddify.dumpWidgetTree`
   - `ext.hiddify.runSelfTest`
-  - `ext.hiddify.importConfig` — reads a config file (DB import handled by import-hiddify-config.py)
+  - `ext.hiddify.importAndActivateConfig` — imports a config through
+    `profileRepository.addLocal(...)` and activates it
+  - `ext.hiddify.importConfig` — legacy alias for the app-native import path
   - `ext.hiddify.connectProxy` — direct ConnectionRepository.connect() call
   - `ext.hiddify.disconnectProxy` — direct ConnectionRepository.disconnect() call
   - `ext.hiddify.getProxyStatus` — connection status + active profile info

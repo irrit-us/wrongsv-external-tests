@@ -1,5 +1,17 @@
 const path = require("path");
 
+const VLESS_TRANSPORT_SCENARIOS = {
+  websocket: "vless_ws_tcp",
+  httpupgrade: "vless_httpupgrade",
+  grpc: "vless_grpc",
+  xhttp: "vless_xhttp",
+  meek: "vless_meek",
+  gdocsviewer: "vless_gdocsviewer",
+  webtransport: "vless_webtransport",
+  quic: "vless_quic",
+  kcp: "vless_kcp",
+};
+
 function buildScenarios(wrongsvRepo) {
   const config = (name) => path.join(wrongsvRepo, "configs", name);
 
@@ -115,6 +127,14 @@ function buildScenarios(wrongsvRepo) {
       serverName: "localhost",
       listenProtocol: "udp",
     },
+    vless_webtransport: {
+      id: "vless_webtransport",
+      label: "VLESS WebTransport",
+      family: "vless",
+      configPath: config("webtransport.toml"),
+      serverName: "localhost",
+      listenProtocol: "udp",
+    },
     vless_kcp: {
       id: "vless_kcp",
       label: "VLESS KCP",
@@ -203,6 +223,48 @@ function buildScenarios(wrongsvRepo) {
   };
 }
 
+function includes(bucket, value) {
+  return Array.isArray(bucket) && bucket.includes(value);
+}
+
+function scenarioIdFromResolvedDiagnostics(input) {
+  const resolved = input?.resolved || input;
+  const active = resolved?.active_components || {};
+  const camouflage = active.camouflage || [];
+  const performance = active.performance || [];
+
+  switch (resolved?.protocol) {
+    case "vless":
+      if (includes(camouflage, "anytls")) return "anytls_tcp";
+      if (includes(camouflage, "shadowtls")) return "shadowtls_tcp";
+      if (resolved.transport && VLESS_TRANSPORT_SCENARIOS[resolved.transport]) {
+        return VLESS_TRANSPORT_SCENARIOS[resolved.transport];
+      }
+      if (resolved.outer_security === "reality") return "vless_reality_vision";
+      if (resolved.outer_security === "tls") {
+        return includes(performance, "vision") ? "vless_tls_vision" : "vless_tls_tcp";
+      }
+      return "vless_raw_tcp";
+    case "vmess":
+      return "vmess_standard";
+    case "shadowsocks":
+      return resolved.protocol_internal_security === "shadowsocks_2022"
+        ? "shadowsocks_2022"
+        : "shadowsocks_aead";
+    case "trojan":
+      return "trojan_tls";
+    case "hysteria2":
+      return "hysteria2_tcp";
+    case "tuic":
+      return "tuic_tcp";
+    case "wireguard":
+      return "wireguard_tunnel_http";
+    default:
+      return null;
+  }
+}
+
 module.exports = {
   buildScenarios,
+  scenarioIdFromResolvedDiagnostics,
 };

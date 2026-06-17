@@ -1,5 +1,12 @@
 const SERVER_DEFECTS = {};
 
+const INTENTIONALLY_UNTRACKED_SCENARIOS = {
+  vless_webtransport: {
+    reason:
+      "scenario is intentionally untracked until a current xray/v2ray-compatible WebTransport client config shape exists and external capability metadata can be added",
+  },
+};
+
 const CLIENT_CAPABILITIES = {
   flclash: {
     label: "FlClash",
@@ -26,6 +33,7 @@ const CLIENT_CAPABILITIES = {
     serverDefects: [],
     scenarioDefects: {},
     harnessGaps: ["vless_quic", "vless_kcp"],
+    harnessGapReasons: {},
   },
   "clash-verge-rev": {
     label: "clash-verge-rev",
@@ -54,6 +62,7 @@ const CLIENT_CAPABILITIES = {
     serverDefects: [],
     scenarioDefects: {},
     harnessGaps: ["vless_quic", "vless_kcp"],
+    harnessGapReasons: {},
   },
   hiddify: {
     label: "Hiddify",
@@ -80,6 +89,10 @@ const CLIENT_CAPABILITIES = {
     serverDefects: [],
     scenarioDefects: {},
     harnessGaps: ["anytls_tcp"],
+    harnessGapReasons: {
+      anytls_tcp:
+        "packaged Hiddify core rejected the generated AnyTLS outbound and never exposed the local mixed proxy port",
+    },
   },
   "sing-box": {
     label: "sing-box",
@@ -107,6 +120,7 @@ const CLIENT_CAPABILITIES = {
     serverDefects: [],
     scenarioDefects: {},
     harnessGaps: [],
+    harnessGapReasons: {},
   },
   "xray-core": {
     label: "xray-core",
@@ -127,6 +141,7 @@ const CLIENT_CAPABILITIES = {
     serverDefects: [],
     scenarioDefects: {},
     harnessGaps: ["vless_tls_tcp", "trojan_tls", "vless_quic"],
+    harnessGapReasons: {},
   },
   v2ray: {
     label: "V2Ray / V2Fly",
@@ -146,6 +161,7 @@ const CLIENT_CAPABILITIES = {
     ],
     scenarioDefects: {},
     harnessGaps: ["trojan_tls", "vless_quic", "shadowsocks_2022", "vless_httpupgrade"],
+    harnessGapReasons: {},
   },
 };
 
@@ -159,6 +175,7 @@ function getClientCapability(client) {
 
 module.exports = {
   CLIENT_CAPABILITIES,
+  INTENTIONALLY_UNTRACKED_SCENARIOS,
   SERVER_DEFECTS,
   getClientCapability,
 };

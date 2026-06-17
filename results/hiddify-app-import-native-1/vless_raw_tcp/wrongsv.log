@@ -1,0 +1,26 @@
+2026-06-17T03:45:34.190529Z  INFO wrongsv: starting wrongsv server...
+2026-06-17T03:45:34.190615Z  INFO wrongsv_metrics::server: metrics listening on http://127.0.0.1:59100/metrics
+2026-06-17T03:45:34.190670Z  INFO wrongsv_server::handler: VLESS server listening on 127.0.0.1:50443
+2026-06-17T03:45:34.591258Z  WARN wrongsv_server::handler: connection error: connection too short for VLESS header
+2026-06-17T03:45:41.596342Z  INFO wrongsv_server::handler::vless: 127.0.0.1:37310 TCP user@example.com -> captive.apple.com:80
+2026-06-17T03:45:41.596394Z  INFO wrongsv_server::handler::vless: 127.0.0.1:37314 TCP user@example.com -> raw.githubusercontent.com:443
+2026-06-17T03:45:41.596464Z  INFO wrongsv_server::handler::vless: 127.0.0.1:37318 TCP user@example.com -> raw.githubusercontent.com:443
+2026-06-17T03:45:43.198029Z  INFO wrongsv_server::handler::vless: 127.0.0.1:37328 TCP user@example.com -> raw.githubusercontent.com:443
+2026-06-17T03:45:43.198074Z  INFO wrongsv_server::handler::vless: 127.0.0.1:37320 TCP user@example.com -> ipwho.is:80
+2026-06-17T03:45:43.198119Z  INFO wrongsv_server::handler::vless: 127.0.0.1:37326 TCP user@example.com -> raw.githubusercontent.com:443
+2026-06-17T03:45:46.400894Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33150 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:46.601052Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33158 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:46.801289Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33168 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:47.401879Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33174 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:47.401938Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33178 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:47.602151Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33194 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:47.602217Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33204 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:47.802361Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33208 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:47.802420Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33216 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:48.002590Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33228 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:48.002605Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33236 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:48.202861Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33238 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:48.403061Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33250 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:48.403132Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33254 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:48.603378Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33258 TCP user@example.com -> 127.0.0.1:3300
+2026-06-17T03:45:48.603432Z  INFO wrongsv_server::handler::vless: 127.0.0.1:33274 TCP user@example.com -> 127.0.0.1:3300

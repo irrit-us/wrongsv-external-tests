@@ -90,6 +90,43 @@ class ProxyAppClientRunner {
     this.manager = null;
   }
 
+  _hiddifyFailureHint() {
+    if (!this.manager || this.app !== "hiddify") return "";
+    const dataDir = this.manager.client?.dataDir;
+    const appProcessLog = this.manager.process?.logPath || "";
+    const candidates = [
+      appProcessLog,
+      dataDir ? path.join(dataDir, "app.log") : "",
+      dataDir ? path.join(dataDir, "data", "stderrGRPC_NORMAL_INSECURE.log") : "",
+      dataDir ? path.join(dataDir, "data", "box.log") : "",
+    ];
+    for (const file of candidates) {
+      if (!fs.existsSync(file)) continue;
+      const text = fs.readFileSync(file, "utf8");
+      if (text.includes("unknown outbound type: anytls")) {
+        return "packaged Hiddify core rejected the generated AnyTLS outbound";
+      }
+      if (text.includes("failed to parse to outbound detour config")) {
+        return "packaged Hiddify core rejected the generated outbound detour config";
+      }
+    }
+    return "";
+  }
+
+  async _recoverHiddifyStartup() {
+    if (!this.manager || this.app !== "hiddify") return;
+    const labels = ["同意", "Agree", "Accept", "Continue", "OK", "点击连接", "Connect", "Start"];
+    for (const label of labels) {
+      try {
+        await this.manager.performSemanticsAction({ action: "tap", label });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (_) {}
+    }
+    try {
+      await this.manager.connectProxy();
+    } catch (_) {}
+  }
+
   async start() {
     this.manager = new ProxyAppManager({
       app: this.app,
@@ -100,7 +137,23 @@ class ProxyAppClientRunner {
     });
     const launch = await this.manager.launch();
     const connect = await this.manager.connectProxy();
-    await waitForPort("127.0.0.1", this.manager.proxyPort, 30000);
+    try {
+      await waitForPort("127.0.0.1", this.manager.proxyPort, 30000);
+    } catch (error) {
+      if (this.app !== "hiddify") {
+        throw error;
+      }
+      await this._recoverHiddifyStartup();
+      try {
+        await waitForPort("127.0.0.1", this.manager.proxyPort, 15000);
+      } catch (retryError) {
+        const hint = this._hiddifyFailureHint();
+        if (hint) {
+          throw new Error(`${retryError.message}; ${hint}`);
+        }
+        throw retryError;
+      }
+    }
     return {
       launch,
       connect,
@@ -229,6 +282,7 @@ function createClientRunner(options) {
         repoRoot: options.repoRoot,
         app: "hiddify",
         configPath: options.configPath,
+        runtimeRoot: options.runtimeRoot,
       });
     case "clash-verge-rev":
       return new CoreProcessRunner({

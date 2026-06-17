@@ -18,6 +18,12 @@ Debug surface:
 Testing integration:
 
 - Headless GUI launch through `ProxyAppManager`
+- Each suite run now uses an isolated per-result `.runtime/` root so Hiddify
+  does not reuse prior profile/database state
+- `ProxyAppManager` now imports configs through
+  `ext.hiddify.importAndActivateConfig`, which routes the file through
+  `profileRepository.addLocal(...)`. `debug-*.json` snapshots now carry the
+  structured `lastImportResult` from that app-native import step
 - Proxy port is provided by the running app and waited on before traffic starts
 - Hiddify XHTTP uses the custom embedded `type: "xray"` outbound wrapper from
   the packaged core
@@ -31,8 +37,50 @@ Artifacts:
 
 Client-side limitations:
 
+- The app-native import path itself is now verified on a passing simple case:
+  [debug-initial.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/debug-initial.json)
+  records `lastImportResult.status = "ok"` plus the Hiddify-managed
+  `configPath` for the active profile.
+
 - `anytls_tcp`: current stored direct GUI runs do not produce a usable local
   proxy port for this scenario, so it is excluded from Hiddify
   `runnableScenarios` and tracked as a client/runtime gap, not `wrongsv`.
+  The current stored evidence set came from Hiddify app version 4.1.2
+  (build 40102); the packaged runtime logs also show bundled Xray 25.3.6.
+  The latest isolated focused recheck at
+  [results/hiddify-anytls-gap-isolated-2/matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-gap-isolated-2/matrix.json)
+  now reports `status = "gap_confirmed"` with the machine-readable gap reason
+  `packaged Hiddify core rejected the generated AnyTLS outbound and never exposed the local mixed proxy port`, plus a direct
+  `connectError` field from the runtime bridge.
+  The startup-failure snapshot at
+  [debug-startup-failure.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-gap-isolated-2/anytls_tcp/debug-startup-failure.json)
+  shows Hiddify still reports `connectionStatus = "_$DisconnectedImpl"` while a
+  `Cloudflare WARP 同意书` dialog remains visible in the semantics tree. Even
+  after the harness retries consent taps and re-runs `connectProxy`, the app
+  remains disconnected and never exposes the expected local mixed-port. The
+  same startup-failure artifact now embeds both
+  `lastConnectResult.connectError =
+  "Left(ConnectionFailure.unexpected(error: failed to start background core, stackTrace: null))"`
+  and `runtimeSummary.requestedConfig`, whose outbound summary is still
+  `protocol = "anytls"`, while `runtimeSummary.currentConfig` stays `null`.
+  The same artifact's `appLogTail` records
+  `decode config: outbounds[0]: unknown outbound type: anytls`. That isolated
+  rerun rules out stale reused GUI state and keeps the failure on the shipped
+  Hiddify core/runtime path.
+  The newer app-native import path reaches the same conclusion even earlier:
+  [app-native import AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-app-import-native-1/matrix.json)
+  now fails during `profileRepository.addLocal(...)` with
+  `[SingboxParser] unmarshal error: outbounds[0]: unknown outbound type: anytls`,
+  before connect time. That removes the raw-SQLite import shortcut as a
+  plausible explanation for the standing AnyTLS gap.
+  A direct source-and-bundle scan now sharpens that conclusion: `node
+  scripts/inspect-hiddify-core.js` reports that
+  `hiddify-next/lib/features/profile/details/json_editor.dart` still exposes
+  `anytls` in the editor outbound-type list, but the current packaged
+  `lib/hiddify-core.so` shows no AnyTLS marker at all while still exposing
+  scanned `shadowtls`, `hysteria2`, `tuic`, and Xray wrapper markers. The same
+  scan currently reports embedded `sing-box` `v1.8.9`, which matches the
+  covered Hiddify desktop scenarios that already pass through the reusable
+  ShadowTLS, Hysteria2, TUIC, and XHTTP paths.
 - Other currently covered families include `shadowtls_tcp`, `hysteria2_tcp`,
   `tuic_tcp`, and `vless_xhttp`.

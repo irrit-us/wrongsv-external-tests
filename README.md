@@ -23,12 +23,68 @@ node run-client-suite.js --client xray-core --wrongsv-config ../wrongsv/configs/
 node run-client-matrix.js --client clash-verge-rev
 node run-client-matrix.js --client v2ray
 
+# Include intentionally untracked scenarios such as vless_webtransport
+node run-client-matrix.js --client xray-core --include-untracked
+
+# When running multiple matrices in parallel, give each one its own
+# wrongsv listen-port range, target-port range, and metrics port
+node run-client-matrix.js --client xray-core --listen-port-start 50443 --target-port-start 3300 --metrics-port 59220
+node run-client-matrix.js --client v2ray --listen-port-start 50543 --target-port-start 3400 --metrics-port 59221
+
+# Recheck the standing Hiddify AnyTLS / WebTransport limitations
+node scripts/recheck-standing-limitations.js
+
+# Inspect the current sing-box/Mihomo/xray-core/V2Ray binaries
+node scripts/inspect-client-cores.js
+
+# Inspect the current packaged Hiddify desktop bundle for capability markers
+node scripts/inspect-hiddify-core.js
+
+# One-shot review evidence check: core-client scans + Hiddify scan + docs + standing limitations
+node scripts/verify-review-evidence.js
+
 # Start and leave running (with debug verification)
 node orchestrate.js --app flclash --config configs/sample-clash-config.yaml
 
 # Machine-readable output
 node orchestrate.js --app flclash --config config.yaml --mode test --json
 ```
+
+`run-client-matrix.js` summary output now includes:
+
+- `confirmedGaps`
+- `confirmedUntracked`
+- `confirmedDefects`
+- `unexpectedPasses`
+- `unexpectedDefectPasses`
+- `unexpectedGapPasses`
+- `unexpectedUntrackedPasses`
+
+`scripts/recheck-standing-limitations.js` returns a JSON summary describing the
+checked runs, their output directories, and the validated scenario status /
+reason pairs for the standing Hiddify AnyTLS and WebTransport limitations,
+along with the corresponding top-level matrix summary counters
+(`confirmedGaps` / `confirmedUntracked`).
+It also writes the same payload to `<outputRoot>/summary.json`.
+
+`scripts/check-capability-docs.js --json` emits a structured docs-check
+summary (`status`, `checkedClients`, and `intentionallyUntrackedScenarios`).
+
+`scripts/inspect-client-cores.js` emits a machine-readable summary of the
+current sing-box, Mihomo, xray-core, and V2Ray binaries, including version
+command output, file hash, and client-specific feature markers extracted from
+the local binaries.
+
+`scripts/inspect-hiddify-core.js` emits a machine-readable summary of the
+current packaged Hiddify desktop bundle, including source-vs-binary markers
+such as `editorListsAnytls`, `packagedCoreMissingAnytlsMarkers`, the detected
+embedded `sing-box` / `xray-core` dependency versions, and bundle hashes.
+
+`scripts/verify-review-evidence.js` composes those core-client scans, the
+Hiddify core scan, the docs-check result, and
+`scripts/recheck-standing-limitations.js` into one JSON report. When
+`--output-root` is provided, it also writes that combined payload to
+`<outputRoot>/review-evidence-summary.json`.
 
 ## Directory Layout
 
@@ -61,7 +117,7 @@ wrongsv-external-tests/
 │   ├── run-proxy-test.sh        # Bash: 4-phase E2E orchestrator
 │   ├── test-vm-extensions.sh    # Bash: verify all VM extensions at runtime
 │   ├── flutter_debug_bridge.py  # Python: WebSocket JSON-RPC bridge
-│   ├── import-hiddify-config.py # Python: pre-populate Hiddify SQLite config
+│   ├── import-hiddify-config.py # Python: legacy shell-helper import for Hiddify
 │   └── ...
 ├── configs/
 │   ├── sample-clash-config.yaml
@@ -115,7 +171,8 @@ Each app registers these extensions at startup:
 | `ext.<app>.disconnectProxy` | Stop proxy engine |
 | `ext.<app>.getProxyStatus` | Current proxy connection state |
 | `ext.<app>.performSemanticsAction` | Tap/longPress on semantics nodes |
-| `ext.hiddify.importConfig` | Import a config file (Hiddify only) |
+| `ext.hiddify.importAndActivateConfig` | Import and activate a config through Hiddify's ProfileRepository |
+| `ext.hiddify.importConfig` | Legacy alias for `ext.hiddify.importAndActivateConfig` |
 
 Replace `<app>` with `flclash` or `hiddify`.
 
@@ -131,8 +188,11 @@ The reusable suite runner currently knows how to adapt wrongsv-generated configs
 - `v2ray`
 
 See [docs/client-capability-audit.md](docs/client-capability-audit.md) for the
-protocol-by-protocol capability matrix, confirmed server defects, and current
-client-specific harness gaps.
+protocol-by-protocol capability matrix, confirmed server defects, current
+client-specific harness gaps, and intentionally untracked scenario notes.
+See [docs/known-limitations.md](docs/known-limitations.md) for the standing
+client/runtime limitations that are not expected to pass until upstream client
+or config-shape changes land.
 
 ## Debug Surfaces
 
@@ -253,6 +313,7 @@ cp -r build/linux/x64/profile/bundle/* ../binaries/hiddify/
 ## See also
 
 - [docs/patches.md](docs/patches.md) — Complete list of source modifications
-- [docs/known-limitations.md](docs/known-limitations.md) — Current limitations and trade-offs
+- [docs/known-limitations.md](docs/known-limitations.md) — Current patch,
+  client/runtime, and infrastructure limitations
 - [proxy-app-manager/README.md](proxy-app-manager/README.md) — Module API docs
 - [proxy-testing-framework/README.md](proxy-testing-framework/README.md) — Evaluator docs

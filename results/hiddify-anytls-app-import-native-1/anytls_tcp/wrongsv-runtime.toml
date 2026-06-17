@@ -1,0 +1,14 @@
+# AnyTLS + raw TCP relay (TLS disguise, no Vision padding)
+listen = "127.0.0.1:50443"
+
+[[users]]
+id = "12345678-1234-1234-1234-123456789abc"
+email = "user@example.com"
+flow = ""
+
+[anytls]
+password = "your-secure-password"
+
+[metrics]
+port = 59100
+bind = "127.0.0.1"

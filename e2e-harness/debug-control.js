@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
+const { inspectCoreBinary } = require("./core-binary-inspector");
 
 function safeRead(filePath) {
   if (!filePath || !fs.existsSync(filePath)) return "";
@@ -19,6 +20,21 @@ function tailText(text, lines = 40) {
   return text.split("\n").slice(-lines).join("\n");
 }
 
+function safeMtime(filePath) {
+  if (!filePath || !fs.existsSync(filePath)) return null;
+  return fs.statSync(filePath).mtime.toISOString();
+}
+
+function summarizeInbound(inbound) {
+  if (!inbound || typeof inbound !== "object") return null;
+  return {
+    tag: inbound.tag || "",
+    type: inbound.type || inbound.protocol || "",
+    listen: inbound.listen || "",
+    port: inbound.port || inbound.listen_port || null,
+  };
+}
+
 function summarizeOutbound(outbound) {
   if (!outbound || typeof outbound !== "object") return null;
   const streamSettings = outbound.streamSettings || outbound.stream_settings || {};
@@ -28,6 +44,18 @@ function summarizeOutbound(outbound) {
     network: streamSettings.network || outbound.network || "",
     security: streamSettings.security || "",
     transport: outbound.transport?.type || "",
+  };
+}
+
+function summarizeConfig(config) {
+  if (!config || typeof config !== "object") return null;
+  return {
+    inbounds: Array.isArray(config.inbounds)
+      ? config.inbounds.map(summarizeInbound).filter(Boolean)
+      : [],
+    outbounds: Array.isArray(config.outbounds)
+      ? config.outbounds.map(summarizeOutbound).filter(Boolean)
+      : [],
   };
 }
 
@@ -159,20 +187,58 @@ class VmBridgeDebugClient {
   }
 
   async snapshot() {
-    const [appState, selfTest, semantics, widgetTree] = await Promise.all([
+    const [appState, selfTest, proxyStatus, semantics, widgetTree] = await Promise.all([
       this.manager.callExtension("getAppState"),
       this.manager.runSelfTest(),
+      this.manager.getStatus(),
       this.manager.dumpSemantics(),
       this.manager.dumpWidgetTree(),
     ]);
-    return {
+    const snapshot = {
       client: this.client,
       type: "vm-service",
       appState,
       selfTest,
+      proxyStatus,
+      lastImportResult: this.manager?.client?.lastImportResult || null,
+      lastConnectResult: this.manager?.lastConnectResult || null,
       semantics,
       widgetTree,
     };
+
+    if (this.client === "hiddify") {
+      const dataDir = this.manager?.client?.dataDir;
+      const requestedConfigPath = this.manager?.configPath || "";
+      const appLogPath = this.manager?.process?.logPath || "";
+      const currentConfigPath = dataDir ? path.join(dataDir, "data", "current-config.json") : "";
+      const boxLogPath = dataDir ? path.join(dataDir, "data", "box.log") : "";
+      const grpcLogPath = dataDir
+        ? path.join(dataDir, "data", "stderrGRPC_NORMAL_INSECURE.log")
+        : "";
+      const requestedConfigRaw = safeRead(requestedConfigPath);
+      const requestedConfig = safeJsonParse(requestedConfigRaw);
+      const currentConfigRaw = safeRead(currentConfigPath);
+      const currentConfig = safeJsonParse(currentConfigRaw);
+      snapshot.runtimeFiles = {
+        dataDir,
+        requestedConfigPath,
+        requestedConfigMtime: safeMtime(requestedConfigPath),
+        currentConfigPath,
+        currentConfigMtime: safeMtime(currentConfigPath),
+        boxLogPath,
+        grpcLogPath,
+        appLogPath,
+      };
+      snapshot.runtimeSummary = {
+        requestedConfig: summarizeConfig(requestedConfig),
+        currentConfig: summarizeConfig(currentConfig),
+        appLogTail: tailText(safeRead(appLogPath)),
+        boxLogTail: tailText(safeRead(boxLogPath)),
+        grpcLogTail: tailText(safeRead(grpcLogPath)),
+      };
+    }
+
+    return snapshot;
   }
 
   async exerciseRuntimeTweaks() {
@@ -266,6 +332,10 @@ class ProcessDebugClient {
       proxyPort: this.proxyPort,
       procStatus: pid ? this._readProcStatus(pid) : null,
       listeningSockets: pid ? this._socketSnapshot(pid) : [],
+      binarySummary: inspectCoreBinary({
+        client: this.client,
+        binary: this.binary,
+      }),
       configSummary: this._configSummary(),
       logTail: tailText(safeRead(this.logPath)),
     };

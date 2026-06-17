@@ -7,6 +7,21 @@ then classifies the outcome as one of:
 - `server defect`: the client capability exists, but wrongsv fails to interoperate
 - `harness gap`: the capability exists and wrongsv may support it, but the external harness
   does not yet emit a valid runtime config or launch path for that client version
+- `intentionally untracked`: the capability is known, but the matrix keeps it
+  outside both `runnableScenarios` and `harnessGaps` until a current client
+  config shape and capability entry exist
+
+The machine-readable `run-client-matrix.js` `matrix.json` rows currently use
+these scenario-level status values:
+
+- `passed`
+- `failed`
+- `defect_confirmed`
+- `gap_confirmed`
+- `untracked_confirmed`
+- `unexpected_pass`
+- `unexpected_gap_pass`
+- `unexpected_untracked_pass`
 
 Per-client debug and harness integration references live under
 [client-debugging/README.md](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/docs/client-debugging/README.md).
@@ -29,12 +44,17 @@ Per-client debug and harness integration references live under
 
 - `clash-verge-rev` and `sing-box` now emit composite `debug-*.json` artifacts:
   runtime control state from the Clash API plus process/socket/config/log
-  snapshots from the reusable process-level debug client.
+  snapshots from the reusable process-level debug client. Those process
+  snapshots now also embed a `binarySummary` with version/build output, file
+  hash, and feature markers from `scripts/inspect-client-cores.js`. Treat that
+  block as supplemental binary evidence, not as a replacement for matrix-level
+  runnable coverage.
 - `FlClash` and `Hiddify` continue to emit VM-service snapshots through the
   Flutter bridge path.
 - `xray-core` and `V2Ray/V2Fly` now also emit reusable `debug-*.json`
   artifacts via the process-level debug client, including PID, `/proc` status,
-  listening sockets, config summary, and log tail. Example runs:
+  listening sockets, config summary, log tail, and the same `binarySummary`
+  inspection block. Example runs:
   [xray debug](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-debug-check-1/vless_raw_tcp/debug-initial.json)
   and
   [v2ray debug](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-debug-check-1/vless_raw_tcp/debug-initial.json).
@@ -107,10 +127,15 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 
 ### Hiddify
 
-Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-check-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-vmess-recheck-1/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-shadowtls-check-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-hysteria2-check-2/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-tuic-check-3/tuic_tcp/report.json), [XHTTP check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-check-4/vless_xhttp/report.json), [XHTTP long](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-long-2/vless_xhttp/report.json)
+Result files: [app-native import check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/matrix.json), [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-check-4/matrix.json), [AnyTLS recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-gap-confirmed/matrix.json), [AnyTLS isolated recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-gap-isolated-2/matrix.json), [AnyTLS isolated startup debug](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-gap-isolated-2/anytls_tcp/debug-startup-failure.json), [AnyTLS app-native import check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-anytls-app-import-native-1/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-vmess-recheck-1/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-shadowtls-check-1/matrix.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-hysteria2-check-2/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-tuic-check-3/tuic_tcp/report.json), [XHTTP check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-check-4/vless_xhttp/report.json), [XHTTP long](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-xhttp-long-2/vless_xhttp/report.json)
 
 - Covered:
   `vmess_standard`, `shadowtls_tcp`, `hysteria2_tcp`, `tuic_tcp`, `vless_xhttp`
+- The current app-manager path now imports Hiddify configs through the
+  app-native `ext.hiddify.importAndActivateConfig` extension rather than the
+  raw SQLite helper. The dedicated `vless_raw_tcp` check records
+  `lastImportResult.status = "ok"` with the Hiddify-managed config path in the
+  debug snapshot.
 - `shadowtls_tcp` now passes through the same reusable VLESS-over-ShadowTLS
   harness path used for sing-box-core.
 - `hysteria2_tcp` and `tuic_tcp` now also pass through Hiddify's packaged core
@@ -125,11 +150,33 @@ Result files: [AnyTLS attempt](/home/johnsilver/focus/wrongsv/wrongsv-external-t
   direct GUI run is recorded. The stored Hiddify AnyTLS attempts fail before a
   usable local proxy port is exposed, so deploy-time client generation should
   skip Hiddify for AnyTLS configs even though plain sing-box covers the same
-  protocol.
+  protocol. The current stored evidence set came from Hiddify app version 4.1.2
+  (build 40102), and the packaged runtime logs in that run show bundled
+  Xray 25.3.6. The latest isolated rerun keeps Hiddify on a per-result
+  `.runtime/` tree, still leaves the GUI in `Disconnected` state with a
+  visible `Cloudflare WARP 同意书` dialog, and still records
+  `connectResult: "error"` plus no local mixed-port exposure. The isolated
+  startup artifact now shows `runtimeSummary.requestedConfig` with an AnyTLS
+  outbound, `runtimeSummary.currentConfig = null`, and `appLogTail`
+  containing `decode config: outbounds[0]: unknown outbound type: anytls`.
+  The newer app-native import check reaches the same conclusion inside
+  Hiddify's own repository path: `profileRepository.addLocal(...)` now fails
+  with `[SingboxParser] unmarshal error: outbounds[0]: unknown outbound type:
+  anytls`, so the standing gap still reproduces even when the raw SQLite import
+  shortcut is removed from the main app-manager path.
+  `node scripts/inspect-hiddify-core.js` now also records the current source
+  and packaged-bundle markers behind that gap: the Hiddify editor source still
+  lists `anytls` in `json_editor.dart`, but the current packaged desktop
+  `lib/hiddify-core.so` exposes no AnyTLS marker while still exposing scanned
+  `shadowtls`, `hysteria2`, `tuic`, and Xray wrapper paths, with embedded
+  `sing-box` `v1.8.9` in the same bundle.
+  The matrix also carries `status = "gap_confirmed"` together with
+  `startupDebugArtifact`, `connectError`, and `gapReason`, which keeps the
+  issue in the packaged GUI/runtime path rather than `wrongsv` itself.
 
 ### xray-core
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-grpc-recheck-6/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-vmess-recheck-3/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-kcp-check-6/vless_kcp/report.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-matrix/matrix.json), [XHTTP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-xhttp-check-7/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-grpc-recheck-6/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-vmess-recheck-3/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-kcp-check-6/vless_kcp/report.json), [WebTransport matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-webtransport-matrix-1/matrix.json), [WebTransport startup debug](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/xray-webtransport-matrix-1/vless_webtransport/debug-startup-failure.json)
 
 - Covered:
   `vless_reality_vision`, `vless_httpupgrade`, `vless_grpc`, `vless_xhttp`, `vless_kcp`, `vmess_standard`, `shadowsocks_2022`
@@ -139,12 +186,22 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   layer with an Xray-compatible mKCP segment engine. The latest xray-core
   recheck (`xray-kcp-check-6`) also reports normal traffic metrics and
   per-user byte deltas.
+- `vless_webtransport` is now explicitly recorded in external capability
+  metadata as intentionally untracked, and remains absent from both
+  `runnableScenarios` and `harnessGaps` for now. The ad hoc probe against the tested xray-core
+  26.5.9 build never exposed the SOCKS port because the generated
+  QUIC-shaped outbound config was rejected at startup with
+  `The feature QUIC transport (without web service, etc.) has been removed and migrated to XHTTP stream-one H3.`,
+  so `wrongsv` now keeps direct xray-family WebTransport export gated until a
+  current client config shape exists. The dedicated matrix rerun now records
+  `status = "untracked_confirmed"` with `expectedUntracked = true` and the same
+  machine-readable untracked reason.
 - Harness gaps:
   `vless_tls_tcp`, `trojan_tls`, `vless_quic`
 
 ### V2Ray / V2Fly
 
-Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-vmess-recheck-1/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-kcp-check-2/vless_kcp/report.json), [Meek check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-meek-check-11/vless_meek/report.json), [Google Docs Viewer check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-gdocs-check-6/vless_gdocsviewer/report.json)
+Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-matrix-check-2/matrix.json), [extra checks](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-extra-check/matrix.json), [gRPC recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-grpc-recheck-4/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-vmess-recheck-1/matrix.json), [KCP recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-kcp-check-2/vless_kcp/report.json), [Meek check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-meek-check-11/vless_meek/report.json), [Google Docs Viewer check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-gdocs-check-6/vless_gdocsviewer/report.json), [WebTransport matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-webtransport-matrix-2/matrix.json), [WebTransport report](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/v2ray-webtransport-matrix-2/vless_webtransport/report.json)
 
 - Covered:
   `vless_raw_tcp`, `vless_ws_tcp`, `vless_grpc`, `vless_meek`, `vless_gdocsviewer`, `vless_kcp`, `vmess_standard`, `shadowsocks_aead`
@@ -164,6 +221,16 @@ Result files: [core matrix](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 - `vless_kcp` now passes after the V2Ray adapter converts wrongsv's newer
   Xray-style KCP output into the legacy `kcpSettings.seed` form expected by the
   tested V2Fly 5.49.0 runtime.
+- `vless_webtransport` is now explicitly recorded in external capability
+  metadata as intentionally untracked, and remains absent from both
+  `runnableScenarios` and `harnessGaps` for now. The ad hoc probe against the tested V2Ray 5.49.0
+  binary did launch the local SOCKS port, but compatibility and traffic both
+  failed while the paired `wrongsv` WebTransport endpoint logged repeated
+  `peer doesn't support any known protocol` session errors. `wrongsv` now keeps
+  the direct xray/v2ray-family WebTransport export path gated until a current
+  client config shape exists. The dedicated matrix rerun now records
+  `status = "untracked_confirmed"` with `expectedUntracked = true` and the same
+  machine-readable untracked reason.
 - Harness gaps:
   `trojan_tls`, `vless_quic`, `shadowsocks_2022`
 

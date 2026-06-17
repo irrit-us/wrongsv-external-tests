@@ -1,0 +1,170 @@
+{
+  "client": "hiddify",
+  "generatedAt": "2026-06-17T03:45:48.807Z",
+  "wrongsv": {
+    "config": "/home/johnsilver/focus/wrongsv/wrongsv/configs/basic-tcp.toml",
+    "runtimeConfig": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/wrongsv-runtime.toml",
+    "logPath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/wrongsv.log",
+    "metricsPort": 59100,
+    "serverHost": "127.0.0.1",
+    "serverName": "localhost",
+    "listenPort": 50443
+  },
+  "targetServer": {
+    "baseUrl": "http://127.0.0.1:3300",
+    "logPath": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/local-target-server.log"
+  },
+  "clientRuntimeConfig": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/hiddify-runtime.json",
+  "launch": {
+    "launch": {
+      "vmUri": "http://127.0.0.1:39111/iYQb167vlUY=",
+      "proxyPort": 12334,
+      "configDest": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/hiddify-runtime.json"
+    },
+    "connect": {
+      "status": "connected",
+      "connectionStatus": "_$ConnectedImpl",
+      "connectResult": "ok",
+      "connectError": null
+    },
+    "proxyUrl": "socks5://127.0.0.1:12334"
+  },
+  "debug": {
+    "initial": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/debug-initial.json",
+    "tweaks": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/debug-tweaks.json",
+    "final": "/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/hiddify-app-import-native-1/vless_raw_tcp/debug-final.json"
+  },
+  "compatibility": {
+    "ok": true,
+    "results": [
+      {
+        "url": "http://127.0.0.1:3300/api/status",
+        "status": 200,
+        "ttfb": 193,
+        "total": 193,
+        "bodySize": 55
+      },
+      {
+        "url": "http://127.0.0.1:3300/page/news",
+        "status": 200,
+        "ttfb": 193,
+        "total": 193,
+        "bodySize": 1223
+      },
+      {
+        "url": "http://127.0.0.1:3300/download/65536",
+        "status": 200,
+        "ttfb": 195,
+        "total": 195,
+        "bodySize": 65536
+      }
+    ],
+    "metricsDelta": {
+      "totalBytesIn": 555,
+      "totalBytesOut": 101404,
+      "totalConnections": 3,
+      "users": {
+        "user@example.com": {
+          "bytesIn": 555,
+          "bytesOut": 101404,
+          "activeConnections": 5,
+          "totalConnections": 3
+        }
+      }
+    }
+  },
+  "traffic": [
+    {
+      "profile": "local-quick",
+      "report": {
+        "profile": "local-quick",
+        "proxy": "socks5://127.0.0.1:12334",
+        "startTime": "2026-06-17T03:45:47.203Z",
+        "endTime": "2026-06-17T03:45:48.655Z",
+        "durationMs": 1452,
+        "concurrency": 2,
+        "metrics": {
+          "totalRequests": 13,
+          "durationMs": 1251,
+          "throughput": {
+            "requestsPerSec": 10.39,
+            "bytesPerSec": 2535.57,
+            "totalBytes": 3172
+          },
+          "latency": {
+            "min": 114,
+            "max": 245,
+            "avg": 182,
+            "median": 182,
+            "p50": 182,
+            "p75": 195,
+            "p90": 219,
+            "p95": 245,
+            "p99": 245,
+            "_allPercentiles": {
+              "p50": 182,
+              "p75": 195,
+              "p90": 219,
+              "p95": 245,
+              "p99": 245
+            }
+          },
+          "ttfb": {
+            "min": 114,
+            "max": 245,
+            "avg": 182,
+            "median": 182
+          },
+          "errors": {
+            "total": 0,
+            "rate": 0,
+            "byType": {}
+          },
+          "statusCodes": {
+            "200": 13
+          }
+        },
+        "timeline": [
+          {
+            "offsetMs": 0,
+            "burstDurationMs": 201,
+            "requests": 2,
+            "errors": 0
+          },
+          {
+            "offsetMs": 611,
+            "burstDurationMs": 451,
+            "requests": 4,
+            "errors": 0
+          },
+          {
+            "offsetMs": 947,
+            "burstDurationMs": 350,
+            "requests": 3,
+            "errors": 0
+          },
+          {
+            "offsetMs": 1150,
+            "burstDurationMs": 450,
+            "requests": 4,
+            "errors": 0
+          }
+        ]
+      },
+      "metricsDelta": {
+        "totalBytesIn": 1376,
+        "totalBytesOut": 10148,
+        "totalConnections": 13,
+        "users": {
+          "user@example.com": {
+            "bytesIn": 1376,
+            "bytesOut": 10148,
+            "activeConnections": 5,
+            "totalConnections": 13
+          }
+        }
+      }
+    }
+  ],
+  "userBehavior": []
+}

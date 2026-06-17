@@ -1,0 +1,6 @@
+{
+  "client": "hiddify",
+  "generatedAt": "2026-06-17T03:58:06.146Z",
+  "error": "[HiddifyClient] failed to import config via app extension: \"Failed to import config through profileRepository: ProfileFailure.unexpected(error: gRPC Error (code: 2, codeName: UNKNOWN, message: [SingboxParser] unmarshal error: outbounds[0]: unknown outbound type: anytls, details: [], rawResponse: null, trailers: {}), stackTrace: )\"",
+  "debugError": "Not launched. Call launch() first."
+}

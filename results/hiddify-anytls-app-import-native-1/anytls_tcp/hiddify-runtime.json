@@ -1,0 +1,30 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "127.0.0.1",
+      "listen_port": 12334
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "anytls",
+      "tag": "hiddify-wrongsv",
+      "server": "127.0.0.1",
+      "server_port": 50443,
+      "password": "your-secure-password",
+      "tls": {
+        "enabled": true,
+        "server_name": "localhost",
+        "insecure": true
+      }
+    }
+  ],
+  "route": {
+    "final": "hiddify-wrongsv"
+  }
+}

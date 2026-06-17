@@ -1,0 +1,79 @@
+{
+  "client": "hiddify",
+  "label": "Hiddify",
+  "generatedAt": "2026-06-17T03:45:33.932Z",
+  "scenarios": [
+    {
+      "id": "vless_raw_tcp",
+      "label": "VLESS raw TCP",
+      "status": "passed",
+      "expectedDefectId": null,
+      "expectedGap": false,
+      "expectedUntracked": false,
+      "gapReason": null,
+      "untrackedReason": null,
+      "summary": {
+        "compatibilityOk": true,
+        "compatibility": [
+          {
+            "url": "http://127.0.0.1:3300/api/status",
+            "status": 200,
+            "ttfb": 193,
+            "total": 193,
+            "bodySize": 55
+          },
+          {
+            "url": "http://127.0.0.1:3300/page/news",
+            "status": 200,
+            "ttfb": 193,
+            "total": 193,
+            "bodySize": 1223
+          },
+          {
+            "url": "http://127.0.0.1:3300/download/65536",
+            "status": 200,
+            "ttfb": 195,
+            "total": 195,
+            "bodySize": 65536
+          }
+        ],
+        "traffic": [
+          {
+            "profile": "local-quick",
+            "totalRequests": 13,
+            "p50LatencyMs": 182,
+            "p95LatencyMs": 245,
+            "throughputReqPerSec": 10.39,
+            "errorRate": 0,
+            "metricsDelta": {
+              "totalBytesIn": 1376,
+              "totalBytesOut": 10148,
+              "totalConnections": 13,
+              "users": {
+                "user@example.com": {
+                  "bytesIn": 1376,
+                  "bytesOut": 10148,
+                  "activeConnections": 5,
+                  "totalConnections": 13
+                }
+              }
+            }
+          }
+        ],
+        "userBehavior": []
+      }
+    }
+  ],
+  "serverDefects": [],
+  "harnessGaps": [
+    "anytls_tcp"
+  ],
+  "harnessGapReasons": {
+    "anytls_tcp": "packaged Hiddify core rejected the generated AnyTLS outbound and never exposed the local mixed proxy port"
+  },
+  "intentionallyUntrackedScenarios": {
+    "vless_webtransport": {
+      "reason": "scenario is intentionally untracked until a current xray/v2ray-compatible WebTransport client config shape exists and external capability metadata can be added"
+    }
+  }
+}

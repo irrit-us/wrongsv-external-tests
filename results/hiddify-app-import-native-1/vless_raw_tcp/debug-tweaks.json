@@ -1,0 +1,14 @@
+{
+  "extensions": [
+    "connectProxy",
+    "disconnectProxy",
+    "getProxyStatus",
+    "runSelfTest",
+    "getAppState",
+    "dumpSemantics",
+    "dumpWidgetTree",
+    "performSemanticsAction",
+    "importConfig",
+    "importAndActivateConfig"
+  ]
+}

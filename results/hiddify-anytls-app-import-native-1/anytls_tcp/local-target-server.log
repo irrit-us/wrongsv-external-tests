@@ -1,0 +1,24 @@
+Local test server listening on http://127.0.0.1:3300
+Endpoints:
+  http://127.0.0.1:3300/                 HTML page
+  http://127.0.0.1:3300/html              Simple HTML
+  http://127.0.0.1:3300/api/status         JSON status
+  http://127.0.0.1:3300/api/user           JSON user
+  http://127.0.0.1:3300/api/headers        Request headers echo
+  http://127.0.0.1:3300/api/echo           POST echo
+  http://127.0.0.1:3300/static/app.js       JS asset
+  http://127.0.0.1:3300/image/logo.png      2KB image
+  http://127.0.0.1:3300/stream/16384        16KB stream
+  http://127.0.0.1:3300/download/524288     512KB download
+  http://127.0.0.1:3300/stream/chunked/262144?chunk=16384&delay=8  chunked stream
+  http://127.0.0.1:3300/page/news           article hub
+  http://127.0.0.1:3300/page/feed           feed page
+  http://127.0.0.1:3300/page/store/catalog  product catalog
+  http://127.0.0.1:3300/page/form           form workflow
+  http://127.0.0.1:3300/page/video          streaming landing
+  http://127.0.0.1:3300/delay/200           200ms delay
+  http://127.0.0.1:3300/gzip               Gzip response
+  http://127.0.0.1:3300/error/500           Server error
+
+PID: 2285692
+Press Ctrl+C to stop

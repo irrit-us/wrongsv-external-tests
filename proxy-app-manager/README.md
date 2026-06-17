@@ -105,7 +105,7 @@ const results = await mgr.fullTest({
 | Client | App name | Extensions |
 |--------|----------|------------|
 | FlClash | `flclash` | connectProxy, disconnectProxy, getProxyStatus, runSelfTest, getAppState, dumpSemantics, dumpWidgetTree, performSemanticsAction |
-| Hiddify | `hiddify` | Same as FlClash + importConfig; auto-detects real proxy port after connect |
+| Hiddify | `hiddify` | Same as FlClash + importAndActivateConfig; auto-detects real proxy port after connect |
 
 ```js
 const { listClients } = require('proxy-app-manager');
@@ -146,7 +146,7 @@ const mgr = new ProxyAppManager({ app: 'myproxy', config: '...' });
 ProxyAppManager  (orchestrator — lifecycle methods)
 ├── BaseClient   (abstract — per-app paths, config, extensions)
 │   ├── FlClashClient   (copy YAML config)
-│   └── HiddifyClient   (SQLite DB import, port auto-detect)
+│   └── HiddifyClient   (app-native profile import, port auto-detect)
 ├── AppProcess   (spawn binary + Xvfb, detect VM URI)
 └── VmBridge     (WebSocket JSON-RPC to Dart VM service)
 ```

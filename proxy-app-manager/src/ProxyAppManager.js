@@ -68,6 +68,7 @@ class ProxyAppManager {
     this.proxyPort = null;
     this.configDest = null;
     this.vmUri = null;
+    this.lastConnectResult = null;
     this._launched = false;
   }
 
@@ -138,27 +139,30 @@ class ProxyAppManager {
   async connectProxy() {
     this._ensureLaunched();
     const meta = this.client.extensions.get("connectProxy");
+    const performSemanticsAction = this.client.extensions.get("performSemanticsAction");
+
+    if (this.appName === "hiddify") {
+      await this._dismissHiddifyConsentDialog(performSemanticsAction, 3000);
+    }
+
     let result = await this.bridge.callExtension(meta.method);
 
-    if (
-      this.appName === "hiddify" &&
-      result?.connectResult !== "ok" &&
-      this.client.extensions.has("performSemanticsAction")
-    ) {
-      for (const label of ["点击连接", "Connect", "Start"]) {
-        try {
-          await this.bridge.callExtension(
-            this.client.extensions.get("performSemanticsAction").method,
-            {
+    if (this.appName === "hiddify" && result?.connectResult !== "ok") {
+      await this._dismissHiddifyConsentDialog(performSemanticsAction, 10000);
+      if (performSemanticsAction) {
+        for (const label of ["点击连接", "Connect", "Start", "同意", "Agree", "Accept"]) {
+          try {
+            await this.bridge.callExtension(performSemanticsAction.method, {
               value: JSON.stringify({ action: "tap", label }),
+            });
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            result = await this.bridge.callExtension(meta.method);
+            if (result?.connectResult === "ok") {
+              break;
             }
-          );
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-          result = await this.bridge.callExtension(meta.method);
-          if (result?.connectResult === "ok") {
-            break;
-          }
-        } catch (_) {}
+            await this._dismissHiddifyConsentDialog(performSemanticsAction, 5000);
+          } catch (_) {}
+        }
       }
     }
 
@@ -170,7 +174,34 @@ class ProxyAppManager {
       }
     }
 
+    this.lastConnectResult = result;
     return result;
+  }
+
+  async _dismissHiddifyConsentDialog(performSemanticsAction, timeoutMs = 3000) {
+    if (this.appName !== "hiddify" || !performSemanticsAction) return false;
+    const started = Date.now();
+    while (Date.now() - started < timeoutMs) {
+      try {
+        const semantics = await this.dumpSemantics();
+        const labels = JSON.stringify(semantics);
+        const visible = ["同意", "Agree", "Accept", "Continue", "OK"].find((label) =>
+          labels.includes(label)
+        );
+        if (!visible) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          continue;
+        }
+        await this.bridge.callExtension(performSemanticsAction.method, {
+          value: JSON.stringify({ action: "tap", label: visible }),
+        });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+    return false;
   }
 
   /**

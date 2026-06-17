@@ -1,0 +1,43 @@
+=============== Jun 17, 2026 (CST) ===============
+11:45:35.389871 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:45:35.392035 db@open opening
+11:45:35.392593 version@stat F·[] S·0B[] Sc·[]
+11:45:35.393922 db@janitor F·2 G·0
+11:45:35.393931 db@open done T·1.890105ms
+11:45:35.393948 db@close closing
+11:45:35.394006 db@close done T·57.285µs
+=============== Jun 17, 2026 (CST) ===============
+11:45:37.076114 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:45:37.076194 version@stat F·[] S·0B[] Sc·[]
+11:45:37.076200 db@open opening
+11:45:37.076213 journal@recovery F·1
+11:45:37.076272 journal@recovery recovering @1
+11:45:37.076514 version@stat F·[] S·0B[] Sc·[]
+11:45:37.084363 db@janitor F·2 G·0
+11:45:37.084384 db@open done T·8.17951ms
+11:45:37.084496 db@close closing
+11:45:37.084524 db@close done T·27.59µs
+=============== Jun 17, 2026 (CST) ===============
+11:45:37.086276 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:45:37.086340 version@stat F·[] S·0B[] Sc·[]
+11:45:37.086345 db@open opening
+11:45:37.086359 journal@recovery F·1
+11:45:37.087637 journal@recovery recovering @2
+11:45:37.088507 memdb@flush created L0@4 N·1 S·1KiB "\x16\f\x00..son,v1":"\x16\f\x00..son,v1"
+11:45:37.090866 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+11:45:37.093093 db@janitor F·3 G·0
+11:45:37.093102 db@open done T·6.754861ms
+11:45:37.093127 db@close closing
+11:45:37.093141 db@close done T·14.234µs
+=============== Jun 17, 2026 (CST) ===============
+11:45:40.458642 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+11:45:40.458731 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+11:45:40.458738 db@open opening
+11:45:40.458768 journal@recovery F·1
+11:45:40.460193 journal@recovery recovering @5
+11:45:40.462629 memdb@flush created L0@7 N·1 S·1KiB "\x16\f\x00..son,v3":"\x16\f\x00..son,v3"
+11:45:40.462844 version@stat F·[2] S·2KiB[2KiB] Sc·[0.50]
+11:45:40.466389 db@janitor F·4 G·0
+11:45:40.466402 db@open done T·7.659767ms
+11:45:40.466457 db@close closing
+11:45:40.466479 db@close done T·21.911µs

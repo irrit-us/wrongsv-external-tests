@@ -1,0 +1,4 @@
+ERROR router: initial rule-set: geosite-cn: Get "https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geosite-cn.srs": read tcp 127.0.0.1:37314->127.0.0.1:50443: use of closed network connection
+ERROR router: initial rule-set: geoip-cn: Get "https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geoip-cn.srs": read tcp 127.0.0.1:37318->127.0.0.1:50443: use of closed network connection
+ERROR router: fetch rule-set geoip-cn: context canceled
+ERROR router: fetch rule-set geosite-cn: Get "https://raw.githubusercontent.com/hiddify/hiddify-geo/rule-set/country/geosite-cn.srs": context canceled
