@@ -10,11 +10,11 @@ const PROTOCOL_CATALOG_COVERAGE = {
   },
   Reality: {
     wrongsv: "implemented",
-    wrongcl: "partial",
+    wrongcl: "supported",
     external: "covered",
     scenarios: ["vless_reality_vision"],
     configFiles: ["reality-vision.toml"],
-    reason: "REALITY is covered as the VLESS REALITY transport profile.",
+    reason: "REALITY is covered as the VLESS REALITY transport profile; wrongcl derives the client public key from the server private key when needed.",
   },
   GOST: {
     wrongsv: "covered-by-overlap",
@@ -142,11 +142,11 @@ const PROTOCOL_CATALOG_COVERAGE = {
   },
   WireGuard: {
     wrongsv: "implemented",
-    wrongcl: "partial",
+    wrongcl: "supported",
     external: "covered",
     scenarios: ["wireguard_tunnel_http"],
     configFiles: ["wireguard.toml"],
-    reason: "WireGuard tunnel service is covered; imported configs still need the client private key.",
+    reason: "WireGuard tunnel service is covered; wrongcl imports the peer client private key when present in the config.",
   },
   Tor: {
     wrongsv: "tracked-out-of-scope",
@@ -254,11 +254,11 @@ const PROTOCOL_CATALOG_COVERAGE = {
   },
   "VLESS-Reality": {
     wrongsv: "implemented",
-    wrongcl: "partial",
+    wrongcl: "supported",
     external: "covered",
     scenarios: ["vless_reality_vision"],
     configFiles: ["reality-vision.toml", "reality-udp.toml"],
-    reason: "VLESS REALITY is covered; wrongcl imports need the public key.",
+    reason: "VLESS REALITY is covered; wrongcl derives the public key from the server private key when needed.",
   },
   "VLESS-XTLS": {
     wrongsv: "implemented",
