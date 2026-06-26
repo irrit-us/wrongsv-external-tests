@@ -35,6 +35,10 @@ Artifacts:
 Client-side limitations:
 
 - No current harness gaps are left in the covered protocol set.
+- `naive_tcp` requires a sing-box build with `with_naive_outbound` and
+  `libcronet.so` available beside the sing-box binary or on the system library
+  path. The local passing run used the official sing-box 1.13.12 Linux archive's
+  `libcronet.so` next to `test-deploy/sing-box`.
 - Historical note: plain sing-box XHTTP originally failed because its
   `v2ray-http` transport used `PUT` plus raw HTTP/1 response bodies. That is
   now handled server-side by `wrongsv`, so it is no longer a client issue.

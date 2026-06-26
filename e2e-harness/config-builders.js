@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 function parseJson(text) {
   return typeof text === "string" ? JSON.parse(text) : text;
@@ -59,6 +60,23 @@ function formatScalar(value) {
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function readTomlTripleQuotedString(filePath, fieldName) {
+  const text = fs.readFileSync(filePath, "utf8");
+  const pattern = new RegExp(
+    `^${escapeRegExp(fieldName)}\\s*=\\s*"""(?:\\r?\\n)?([\\s\\S]*?)(?:\\r?\\n)?"""`,
+    "m"
+  );
+  const match = text.match(pattern);
+  if (!match) {
+    throw new Error(`missing triple-quoted TOML field ${fieldName} in ${filePath}`);
+  }
+  return match[1].trim();
 }
 
 function buildMihomoShellConfig(proxy, options = {}) {
@@ -834,6 +852,67 @@ function buildSingBoxTuicRuntimeConfig(scenario, options = {}) {
   return JSON.stringify(config, null, 2);
 }
 
+function buildSingBoxNaiveRuntimeConfig(scenario, options = {}) {
+  const primaryTag = options.clientName || "wrongsv";
+  const paddingHeaderName = scenario.paddingHeaderName || "Padding";
+  const outbounds = [
+    {
+      type: "naive",
+      tag: primaryTag,
+      server: "127.0.0.1",
+      server_port: options.serverPort || scenario.serverPort,
+      username: scenario.username,
+      password: scenario.password,
+      extra_headers: {
+        [paddingHeaderName]: scenario.paddingHeaderValue || "1",
+      },
+      tls: {
+        enabled: true,
+        server_name: scenario.serverName || "localhost",
+        certificate: [
+          scenario.tlsCertificate ||
+            readTomlTripleQuotedString(scenario.configPath, "certificate"),
+        ],
+      },
+    },
+  ];
+  let finalTag = primaryTag;
+  if (options.debugController) {
+    outbounds.push({ type: "direct", tag: "direct" });
+    outbounds.push({
+      type: "selector",
+      tag: "selector",
+      outbounds: [primaryTag, "direct"],
+      default: primaryTag,
+    });
+    finalTag = "selector";
+  }
+  const config = {
+    log: { level: "warn" },
+    inbounds: [
+      {
+        type: "mixed",
+        tag: "mixed-in",
+        listen: "127.0.0.1",
+        listen_port: options.mixedPort || 10809,
+      },
+    ],
+    outbounds,
+    route: {
+      final: finalTag,
+    },
+  };
+  if (options.debugController) {
+    config.experimental = {
+      clash_api: {
+        external_controller: `${options.debugController.host}:${options.debugController.port}`,
+        secret: options.debugController.secret,
+      },
+    };
+  }
+  return JSON.stringify(config, null, 2);
+}
+
 function buildSingBoxShadowTlsRuntimeConfig(rawConfig, scenario, options = {}) {
   const parsed = parseJson(rawConfig);
   const outbounds = extractSingBoxOutbounds(parsed);
@@ -1162,6 +1241,20 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         return {
           extension: ".json",
           content: buildSingBoxTuicRuntimeConfig(scenario, {
+            mixedPort: 10809,
+            clientName,
+            serverPort,
+            debugController:
+              client === "sing-box"
+                ? { host: "127.0.0.1", port: 19091, secret: "wrongsv-debug" }
+                : undefined,
+          }),
+        };
+      }
+      if (family === "naive") {
+        return {
+          extension: ".json",
+          content: buildSingBoxNaiveRuntimeConfig(scenario, {
             mixedPort: 10809,
             clientName,
             serverPort,

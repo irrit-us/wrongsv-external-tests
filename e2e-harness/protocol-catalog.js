@@ -207,10 +207,10 @@ const PROTOCOL_CATALOG_COVERAGE = {
   Naive: {
     wrongsv: "implemented",
     wrongcl: "supported",
-    external: "harness-gap",
+    external: "covered",
     scenarios: ["naive_tcp"],
     configFiles: ["naive.toml"],
-    reason: "Naive is covered by wrongsv and wrongcl; third-party external runtime generation is still a harness gap.",
+    reason: "Naive is covered by wrongsv, wrongcl, and sing-box external runtime generation.",
   },
   Sudoku: {
     wrongsv: "tracked-out-of-scope",

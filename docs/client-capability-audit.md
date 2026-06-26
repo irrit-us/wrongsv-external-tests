@@ -105,12 +105,12 @@ Result files: [suite](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/resu
 
 ### sing-box
 
-Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-vmess-recheck-1/matrix.json), [AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-anytls-check-3/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-shadowtls-check-2/matrix.json), [XHTTP check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-xhttp-check-3/vless_xhttp/report.json), [XHTTP long](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-xhttp-long-1/vless_xhttp/report.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-hysteria2-check-4/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-tuic-check-5/tuic_tcp/report.json)
+Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-matrix-2/matrix.json), [quic check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-quic-check-2/matrix.json), [VMess recheck](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-vmess-recheck-1/matrix.json), [AnyTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-anytls-check-3/matrix.json), [ShadowTLS check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-shadowtls-check-2/matrix.json), [XHTTP check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-xhttp-check-3/vless_xhttp/report.json), [XHTTP long](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-xhttp-long-1/vless_xhttp/report.json), [Hysteria2 check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-hysteria2-check-4/hysteria2_tcp/report.json), [TUIC check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-tuic-check-5/tuic_tcp/report.json), [Naive check](/home/johnsilver/focus/wrongsv/wrongsv-external-tests/results/singbox-naive-check-4/matrix.json)
 
 - Covered:
   `vless_reality_vision`, `vless_httpupgrade`, `vless_quic`, `vmess_standard`,
   `vless_xhttp`, `anytls_tcp`, `shadowtls_tcp`, `hysteria2_tcp`, `tuic_tcp`,
-  `shadowsocks_2022`, `trojan_tls`
+  `naive_tcp`, `shadowsocks_2022`, `trojan_tls`
 - `anytls_tcp` now also reports per-user byte and connection deltas after the
   sing-anytls SOCKS5 metrics path was wired into the shared metrics registry.
 - `shadowtls_tcp` now passes after wrongsv switched to ShadowTLS v3 wire
@@ -122,12 +122,10 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
 - `hysteria2_tcp` and `tuic_tcp` now both pass on the installed sing-box core,
   and the refreshed server runs show per-user byte deltas for `user@example.com`
   once the QUIC handlers were wired into wrongsv's metrics registry.
+- `naive_tcp` now passes through sing-box's native Naive outbound using a
+  config-pinned localhost certificate and the Naive `Padding` header.
 - Harness gaps:
-  `naive_tcp`
-
-`naive_tcp` is intentionally kept as a harness gap for the sing-box path:
-wrongsv and wrongcl both cover Naive, but the external sing-box runtime builder
-does not yet emit a Naive outbound config for the matrix.
+  None.
 
 ### Hiddify
 

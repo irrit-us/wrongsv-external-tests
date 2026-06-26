@@ -111,6 +111,7 @@ const CLIENT_CAPABILITIES = {
       "vless_xhttp",
       "hysteria2_tcp",
       "tuic_tcp",
+      "naive_tcp",
       "anytls_tcp",
       "shadowtls_tcp",
       "shadowsocks_aead",
@@ -121,11 +122,8 @@ const CLIENT_CAPABILITIES = {
     browserScenario: "vless_raw_tcp",
     serverDefects: [],
     scenarioDefects: {},
-    harnessGaps: ["naive_tcp"],
-    harnessGapReasons: {
-      naive_tcp:
-        "wrongsv and wrongcl cover Naive, but the external sing-box runtime builder does not yet emit a Naive outbound config",
-    },
+    harnessGaps: [],
+    harnessGapReasons: {},
   },
   "xray-core": {
     label: "xray-core",

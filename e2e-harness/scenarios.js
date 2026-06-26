@@ -199,6 +199,7 @@ function buildScenarios(wrongsvRepo) {
       username: "alice",
       password: "change-this-password",
       serverName: "localhost",
+      paddingHeaderName: "Padding",
     },
     shadowtls_tcp: {
       id: "shadowtls_tcp",

@@ -215,6 +215,7 @@ function markerPatterns(client) {
         shadowtls: /github\.com\/sagernet\/sing-box\/protocol\/shadowtls|github\.com\/sagernet\/sing-shadowtls/,
         hysteria2: /github\.com\/sagernet\/sing-box\/protocol\/hysteria2|github\.com\/sagernet\/sing-quic\/hysteria2/,
         tuic: /github\.com\/sagernet\/sing-box\/protocol\/tuic|github\.com\/sagernet\/sing-quic\/tuic/,
+        naive: /with_naive_outbound|github\.com\/sagernet\/sing-box\/protocol\/naive/,
         reality: /RealityConfig|OutboundRealityOptions|github\.com\/sagernet\/sing-box\/common\/tls/,
         grpc: /transport\/v2raygrpclite|V2RayGRPCOptions|GRPCOptions/,
         httpupgrade: /transport\/v2rayhttpupgrade|V2RayHTTPUpgradeOptions|HTTPUpgradeOptions/,

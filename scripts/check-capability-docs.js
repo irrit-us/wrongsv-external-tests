@@ -296,11 +296,14 @@ const xrayDebug = read(xrayDebugPath);
 const v2rayDebug = read(v2rayDebugPath);
 const clashVergeSection = markdownSection(audit, "clash-verge-rev (Mihomo core path)");
 const flclashSection = markdownSection(audit, "FlClash");
+const singBoxSection = markdownSection(audit, "sing-box");
 const hiddifySection = markdownSection(audit, "Hiddify");
 const xraySection = markdownSection(audit, "xray-core");
 const v2raySection = markdownSection(audit, "V2Ray / V2Fly");
 const clashVergeCovered = bulletBlock(clashVergeSection, "Covered");
 const flclashCovered = bulletBlock(flclashSection, "Covered through the actual GUI client");
+const singBoxCovered = bulletBlock(singBoxSection, "Covered");
+const singBoxGaps = bulletBlock(singBoxSection, "Harness gaps");
 const hiddifyCovered = bulletBlock(hiddifySection, "Covered");
 const hiddifyGaps = bulletBlock(hiddifySection, "Harness gaps");
 
@@ -491,6 +494,10 @@ assert(
   "clash-verge-rev/Mihomo must keep anytls_tcp runnable"
 );
 assert(hasRunnable("sing-box", "anytls_tcp"), "sing-box must keep anytls_tcp runnable");
+assert(hasRunnable("sing-box", "naive_tcp"), "sing-box must keep naive_tcp runnable");
+assert(!hasGap("sing-box", "naive_tcp"), "sing-box naive_tcp must not be a harness gap");
+assert(/`naive_tcp`/.test(singBoxCovered), "sing-box audit must list naive_tcp as covered");
+assert(!/`naive_tcp`/.test(singBoxGaps), "sing-box audit must not list naive_tcp as a gap");
 assert(
   /`anytls_tcp`/.test(clashVergeCovered),
   "clash-verge-rev audit must list anytls_tcp as covered"
