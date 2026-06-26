@@ -181,6 +181,16 @@ function buildScenarios(wrongsvRepo) {
       password: "your-secure-password",
       serverName: "localhost",
     },
+    naive_tcp: {
+      id: "naive_tcp",
+      label: "Naive HTTP/2 CONNECT",
+      family: "naive",
+      configPath: config("naive.toml"),
+      serverPort: 443,
+      username: "alice",
+      password: "change-this-password",
+      serverName: "localhost",
+    },
     shadowtls_tcp: {
       id: "shadowtls_tcp",
       label: "ShadowTLS TCP",

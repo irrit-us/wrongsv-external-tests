@@ -7,10 +7,16 @@ const {
   CLIENT_CAPABILITIES,
   INTENTIONALLY_UNTRACKED_SCENARIOS,
 } = require("../e2e-harness/capabilities");
+const {
+  EXTRA_SCENARIO_COVERAGE,
+  PROTOCOL_CATALOG_COVERAGE,
+  catalogScenarioIds,
+} = require("../e2e-harness/protocol-catalog");
 const { buildScenarios } = require("../e2e-harness/scenarios");
 
 const root = path.resolve(__dirname, "..");
 const wrongsvRepo = path.resolve(root, "..", "wrongsv");
+const protocolsMdPath = path.resolve(root, "..", "protocols.md");
 const scenarioCatalog = buildScenarios(wrongsvRepo);
 const readmePath = path.join(root, "README.md");
 const auditPath = path.join(root, "docs", "client-capability-audit.md");
@@ -148,7 +154,131 @@ function scenarioResult(matrix, scenarioId) {
   return matrix.scenarios.find((item) => item.id === scenarioId) || null;
 }
 
+function protocolNamesFromProtocolsMd(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.split(/\s+/)[0]);
+}
+
+function sameStringSet(left, right) {
+  const a = [...left].sort();
+  const b = [...right].sort();
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+function scenarioTrackedByCapability(scenarioId) {
+  if (INTENTIONALLY_UNTRACKED_SCENARIOS[scenarioId]) {
+    return true;
+  }
+  return Object.values(CLIENT_CAPABILITIES).some((capability) => {
+    return (
+      capability.runnableScenarios?.includes(scenarioId) ||
+      capability.harnessGaps?.includes(scenarioId)
+    );
+  });
+}
+
+function validateProtocolCatalogCoverage(protocolsMd) {
+  const protocolNames = protocolNamesFromProtocolsMd(protocolsMd);
+  const protocolNameSet = new Set(protocolNames);
+  const coverageNameSet = new Set(Object.keys(PROTOCOL_CATALOG_COVERAGE));
+  assert(
+    protocolNames.length === protocolNameSet.size,
+    "protocols.md must not contain duplicate protocol names"
+  );
+  assert(
+    sameStringSet(protocolNameSet, coverageNameSet),
+    `protocol catalog coverage must exactly match protocols.md; missing=${[...protocolNameSet]
+      .filter((name) => !coverageNameSet.has(name))
+      .join(",")}; extra=${[...coverageNameSet]
+      .filter((name) => !protocolNameSet.has(name))
+      .join(",")}`
+  );
+
+  const allowedWrongsv = new Set([
+    "implemented",
+    "covered-by-overlap",
+    "tracked-out-of-scope",
+  ]);
+  const allowedWrongcl = new Set([
+    "supported",
+    "partial",
+    "unsupported",
+    "covered-by-overlap",
+    "tracked-out-of-scope",
+  ]);
+  const allowedExternal = new Set(["covered", "harness-gap", "local", "documented"]);
+
+  for (const [protocol, entry] of Object.entries(PROTOCOL_CATALOG_COVERAGE)) {
+    assert(allowedWrongsv.has(entry.wrongsv), `${protocol}: invalid wrongsv status`);
+    assert(allowedWrongcl.has(entry.wrongcl), `${protocol}: invalid wrongcl status`);
+    assert(allowedExternal.has(entry.external), `${protocol}: invalid external status`);
+    assert(entry.reason && entry.reason.length >= 24, `${protocol}: coverage reason is too thin`);
+
+    for (const scenarioId of entry.scenarios || []) {
+      assert(
+        scenarioCatalog[scenarioId]?.id === scenarioId,
+        `${protocol}: scenario ${scenarioId} is missing from the scenario catalog`
+      );
+      assert(
+        scenarioTrackedByCapability(scenarioId),
+        `${protocol}: scenario ${scenarioId} is not runnable, a harness gap, or intentionally untracked`
+      );
+    }
+
+    if (entry.external === "covered" || entry.external === "harness-gap") {
+      assert(
+        entry.scenarios?.length > 0,
+        `${protocol}: ${entry.external} status must name at least one scenario`
+      );
+    }
+
+    for (const configFile of entry.configFiles || []) {
+      assert(
+        fs.existsSync(path.join(wrongsvRepo, "configs", configFile)),
+        `${protocol}: referenced wrongsv config fixture is missing: ${configFile}`
+      );
+    }
+  }
+
+  const catalogScenarioSet = catalogScenarioIds();
+  for (const scenarioId of Object.keys(scenarioCatalog)) {
+    assert(
+      catalogScenarioSet.has(scenarioId),
+      `scenario catalog entry is not mapped back to protocols.md coverage: ${scenarioId}`
+    );
+  }
+  for (const [scenarioId, reason] of Object.entries(EXTRA_SCENARIO_COVERAGE)) {
+    assert(
+      scenarioCatalog[scenarioId]?.id === scenarioId,
+      `extra scenario coverage entry is missing from the scenario catalog: ${scenarioId}`
+    );
+    assert(
+      reason && reason.includes("not listed in protocols.md"),
+      `extra scenario coverage entry must explain why it is outside protocols.md: ${scenarioId}`
+    );
+  }
+
+  for (const [client, capability] of Object.entries(CLIENT_CAPABILITIES)) {
+    for (const scenarioId of capability.runnableScenarios || []) {
+      assert(
+        scenarioCatalog[scenarioId]?.id === scenarioId,
+        `${client}: runnable scenario is missing from the scenario catalog: ${scenarioId}`
+      );
+    }
+    for (const scenarioId of capability.harnessGaps || []) {
+      assert(
+        scenarioCatalog[scenarioId]?.id === scenarioId,
+        `${client}: harness-gap scenario is missing from the scenario catalog: ${scenarioId}`
+      );
+    }
+  }
+}
+
 const opts = parseArgs(process.argv.slice(2));
+const protocolsMd = read(protocolsMdPath);
 const readme = read(readmePath);
 const audit = read(auditPath);
 const knownLimitations = read(knownLimitationsPath);
@@ -173,6 +303,8 @@ const clashVergeCovered = bulletBlock(clashVergeSection, "Covered");
 const flclashCovered = bulletBlock(flclashSection, "Covered through the actual GUI client");
 const hiddifyCovered = bulletBlock(hiddifySection, "Covered");
 const hiddifyGaps = bulletBlock(hiddifySection, "Harness gaps");
+
+validateProtocolCatalogCoverage(protocolsMd);
 
 assert(
   /`intentionally untracked`/.test(audit),
@@ -491,6 +623,7 @@ if (opts.json) {
         status: "ok",
         checkedClients: ["flclash", "clash-verge-rev", "hiddify", "xray-core", "v2ray"],
         intentionallyUntrackedScenarios: Object.keys(INTENTIONALLY_UNTRACKED_SCENARIOS),
+        protocolsMdCoverage: Object.keys(PROTOCOL_CATALOG_COVERAGE).length,
         hiddifyCoreScan: {
           bundleRoot: hiddifyCoreScan.bundleRoot,
           singBoxVersion: hiddifyCoreScan.dependencyVersions?.singBox || null,

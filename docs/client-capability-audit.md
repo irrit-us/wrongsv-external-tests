@@ -123,7 +123,11 @@ Result files: [matrix.json](/home/johnsilver/focus/wrongsv/wrongsv-external-test
   and the refreshed server runs show per-user byte deltas for `user@example.com`
   once the QUIC handlers were wired into wrongsv's metrics registry.
 - Harness gaps:
-  none
+  `naive_tcp`
+
+`naive_tcp` is intentionally kept as a harness gap for the sing-box path:
+wrongsv and wrongcl both cover Naive, but the external sing-box runtime builder
+does not yet emit a Naive outbound config for the matrix.
 
 ### Hiddify
 

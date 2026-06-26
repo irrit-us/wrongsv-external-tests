@@ -119,8 +119,11 @@ const CLIENT_CAPABILITIES = {
     browserScenario: "vless_raw_tcp",
     serverDefects: [],
     scenarioDefects: {},
-    harnessGaps: [],
-    harnessGapReasons: {},
+    harnessGaps: ["naive_tcp"],
+    harnessGapReasons: {
+      naive_tcp:
+        "wrongsv and wrongcl cover Naive, but the external sing-box runtime builder does not yet emit a Naive outbound config",
+    },
   },
   "xray-core": {
     label: "xray-core",
