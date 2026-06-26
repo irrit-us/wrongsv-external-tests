@@ -1,12 +1,12 @@
 const PROTOCOL_CATALOG_COVERAGE = {
   Fragment: {
-    wrongsv: "tracked-out-of-scope",
-    wrongcl: "tracked-out-of-scope",
-    external: "documented",
+    wrongsv: "covered-by-overlap",
+    wrongcl: "supported",
+    external: "local",
     scenarios: [],
     configFiles: [],
     reason:
-      "Fragment is a traffic-shaping feature family rather than a wrongsv endpoint protocol.",
+      "Fragment is covered as client-side raw VLESS TCP write-splitting plus wrongsv partial-read tolerance, not as a standalone endpoint protocol.",
   },
   Reality: {
     wrongsv: "implemented",
