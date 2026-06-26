@@ -162,6 +162,15 @@ function buildScenarios(wrongsvRepo) {
       method: "2022-blake3-aes-128-gcm",
       password: "AAAAAAAAAAAAAAAAAAAAAA==",
     },
+    snell_tcp: {
+      id: "snell_tcp",
+      label: "Snell v1 TCP CONNECT",
+      family: "snell",
+      configPath: config("snell.toml"),
+      serverPort: 443,
+      psk: "change-this-snell-psk",
+      version: 1,
+    },
     trojan_tls: {
       id: "trojan_tls",
       label: "Trojan TLS",
@@ -261,6 +270,8 @@ function scenarioIdFromResolvedDiagnostics(input) {
       return resolved.protocol_internal_security === "shadowsocks_2022"
         ? "shadowsocks_2022"
         : "shadowsocks_aead";
+    case "snell":
+      return "snell_tcp";
     case "trojan":
       return "trojan_tls";
     case "hysteria2":

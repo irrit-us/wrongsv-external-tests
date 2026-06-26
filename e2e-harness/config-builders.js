@@ -108,6 +108,20 @@ function buildMihomoShadowsocksRuntimeConfig(scenario, options = {}) {
   );
 }
 
+function buildMihomoSnellRuntimeConfig(scenario, options = {}) {
+  return buildMihomoShellConfig(
+    {
+      name: options.clientName || "wrongsv",
+      type: "snell",
+      server: "127.0.0.1",
+      port: options.serverPort || scenario.serverPort,
+      psk: scenario.psk,
+      version: scenario.version || 1,
+    },
+    options
+  );
+}
+
 function buildMihomoTrojanRuntimeConfig(scenario, options = {}) {
   return buildMihomoShellConfig(
     {
@@ -914,6 +928,20 @@ function buildClientRuntimeConfig({ client, rawConfig, clientName, scenario, ser
         return {
           extension: ".yaml",
           content: buildMihomoShadowsocksRuntimeConfig(scenario, {
+            mixedPort: 7890,
+            clientName,
+            serverPort,
+            debugController:
+              client === "clash-verge-rev"
+                ? { host: "127.0.0.1", port: 19090, secret: "wrongsv-debug" }
+                : undefined,
+          }),
+        };
+      }
+      if (family === "snell") {
+        return {
+          extension: ".yaml",
+          content: buildMihomoSnellRuntimeConfig(scenario, {
             mixedPort: 7890,
             clientName,
             serverPort,

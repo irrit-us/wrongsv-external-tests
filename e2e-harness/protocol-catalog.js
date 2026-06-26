@@ -93,12 +93,12 @@ const PROTOCOL_CATALOG_COVERAGE = {
     reason: "ShadowTLS is covered as VLESS over ShadowTLS.",
   },
   Snell: {
-    wrongsv: "tracked-out-of-scope",
-    wrongcl: "unsupported",
-    external: "documented",
-    scenarios: [],
-    configFiles: [],
-    reason: "Snell is not implemented as a wrongsv server or wrongcl client profile.",
+    wrongsv: "implemented",
+    wrongcl: "supported",
+    external: "covered",
+    scenarios: ["snell_tcp"],
+    configFiles: ["snell.toml"],
+    reason: "Snell v1 TCP CONNECT is covered by wrongsv, wrongcl, and Mihomo-compatible external clients.",
   },
   Masque: {
     wrongsv: "tracked-out-of-scope",
