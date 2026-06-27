@@ -240,6 +240,97 @@ function buildScenarios(wrongsvRepo) {
       configPath: config("vmess.toml"),
       serverName: "localhost",
     },
+    lua_tcp: {
+      id: "lua_tcp",
+      label: "Lua TCP",
+      family: "lua",
+      configPath: config("lua.toml"),
+      serverName: "localhost",
+    },
+    masque_tcp: {
+      id: "masque_tcp",
+      label: "Masque TCP",
+      family: "masque",
+      configPath: config("masque.toml"),
+      serverName: "localhost",
+    },
+    trusttunnel_tcp: {
+      id: "trusttunnel_tcp",
+      label: "TrustTunnel TCP",
+      family: "trusttunnel",
+      configPath: config("trusttunnel.toml"),
+      serverName: "localhost",
+    },
+    brook_tcp: {
+      id: "brook_tcp",
+      label: "Brook TCP",
+      family: "brook",
+      configPath: config("brook.toml"),
+      serverName: "localhost",
+    },
+    vlite_tcp: {
+      id: "vlite_tcp",
+      label: "Vlite TCP",
+      family: "vlite",
+      configPath: config("vlite.toml"),
+      serverName: "localhost",
+    },
+    tor_tcp: {
+      id: "tor_tcp",
+      label: "Tor TCP",
+      family: "tor",
+      configPath: config("tor.toml"),
+      serverName: "localhost",
+    },
+    ssh_tcp: {
+      id: "ssh_tcp",
+      label: "SSH TCP",
+      family: "ssh",
+      configPath: config("ssh.toml"),
+      serverName: "localhost",
+    },
+    juicity_tcp: {
+      id: "juicity_tcp",
+      label: "Juicity TCP",
+      family: "juicity",
+      configPath: config("juicity.toml"),
+      serverName: "localhost",
+    },
+    mieru_tcp: {
+      id: "mieru_tcp",
+      label: "Mieru TCP",
+      family: "mieru",
+      configPath: config("mieru.toml"),
+      serverName: "localhost",
+    },
+    sudoku_tcp: {
+      id: "sudoku_tcp",
+      label: "Sudoku TCP",
+      family: "sudoku",
+      configPath: config("sudoku.toml"),
+      serverName: "localhost",
+    },
+    vless_encryption_tcp: {
+      id: "vless_encryption_tcp",
+      label: "VLESS Encryption TCP",
+      family: "vless-encryption",
+      configPath: config("vless_encryption.toml"),
+      serverName: "localhost",
+    },
+    shadowquic_tcp: {
+      id: "shadowquic_tcp",
+      label: "ShadowQUIC TCP",
+      family: "shadowquic",
+      configPath: config("shadowquic.toml"),
+      serverName: "localhost",
+    },
+    anytls_reality_tcp: {
+      id: "anytls_reality_tcp",
+      label: "AnyTLS Reality TCP",
+      family: "anytls-reality",
+      configPath: config("anytls_reality.toml"),
+      serverName: "localhost",
+    },
   };
 }
 
@@ -281,6 +372,32 @@ function scenarioIdFromResolvedDiagnostics(input) {
       return "tuic_tcp";
     case "wireguard":
       return "wireguard_tunnel_http";
+    case "lua":
+      return "lua_tcp";
+    case "masque":
+      return "masque_tcp";
+    case "trusttunnel":
+      return "trusttunnel_tcp";
+    case "brook":
+      return "brook_tcp";
+    case "vlite":
+      return "vlite_tcp";
+    case "tor":
+      return "tor_tcp";
+    case "ssh":
+      return "ssh_tcp";
+    case "juicity":
+      return "juicity_tcp";
+    case "mieru":
+      return "mieru_tcp";
+    case "sudoku":
+      return "sudoku_tcp";
+    case "vless-encryption":
+      return "vless_encryption_tcp";
+    case "shadowquic":
+      return "shadowquic_tcp";
+    case "anytls-reality":
+      return "anytls_reality_tcp";
     default:
       return null;
   }

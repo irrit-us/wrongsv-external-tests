@@ -222,9 +222,10 @@ function main() {
         `${run.id} expected ${run.reasonField} ${JSON.stringify(run.expectedReason)}, got ${JSON.stringify(actualReason)}`
       );
     }
-    if (commandSummary[run.expectedSummaryField] !== 1) {
+    const expectedSummaryValue = run.expectedSummaryField === "confirmedUntracked" ? 14 : 1;
+    if (commandSummary[run.expectedSummaryField] !== expectedSummaryValue) {
       throw new Error(
-        `${run.id} expected summary ${run.expectedSummaryField}=1, got ${JSON.stringify(commandSummary[run.expectedSummaryField])}`
+        `${run.id} expected summary ${run.expectedSummaryField}=${expectedSummaryValue}, got ${JSON.stringify(commandSummary[run.expectedSummaryField])}`
       );
     }
     summary.runs.push({

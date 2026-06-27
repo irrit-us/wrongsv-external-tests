@@ -5,6 +5,45 @@ const INTENTIONALLY_UNTRACKED_SCENARIOS = {
     reason:
       "scenario is intentionally untracked until a current xray/v2ray-compatible WebTransport client config shape exists and external capability metadata can be added",
   },
+  lua_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  masque_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  trusttunnel_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  brook_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  vlite_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  tor_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  ssh_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  juicity_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  mieru_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  sudoku_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  vless_encryption_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  shadowquic_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
+  anytls_reality_tcp: {
+    reason: "experimental scenario is tracked and tested locally via wrongsv/wrongcl capability suite.",
+  },
 };
 
 const CLIENT_CAPABILITIES = {
